@@ -1,7 +1,9 @@
 import OpenAI from 'openai';
 
+const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+
 const openai = new OpenAI({
-  apiKey: 'sk-tech-services-openai-proofreading-next-zf1JJxdYhr37ytrXFNPOT3BlbkFJfr9zyN6ofuWWQtkkMkjg',
+  apiKey,
   dangerouslyAllowBrowser: true,
 });
 
