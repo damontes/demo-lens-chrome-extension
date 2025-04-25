@@ -1,5 +1,4 @@
 import { normalizeUrl } from '../lib/url';
-import ExploreInterceptor from './ExploreInterceptor';
 
 class XHRInterceptor {
   originalXHR: any;
