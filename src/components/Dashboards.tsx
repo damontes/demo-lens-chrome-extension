@@ -17,7 +17,6 @@ const Dashboards = () => {
 
   const onCreateDashboard = async (currentDashboard: any) => {
     const { id, name, sourceName } = currentDashboard;
-
     const newDashboard = {
       name,
       sourceName,
@@ -34,6 +33,7 @@ const Dashboards = () => {
   useEffect(() => {
     setAppState({
       dashboards,
+      currentDashboard: null,
     });
   }, [dashboards]);
 
