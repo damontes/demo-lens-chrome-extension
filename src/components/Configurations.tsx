@@ -47,7 +47,7 @@ const Configurations = () => {
       {!isCreateConfigurationOpen && !Object.keys(configurations).length ? (
         <>
           <LG style={{ fontWeight: 'bold', textAlign: 'center' }}>Welcome to Demo Lens</LG>
-          <Description style={{ textAlign: 'center' }}>Create your firsDescription to start exploring</Description>
+          <Description style={{ textAlign: 'center' }}>Create your first configuration to start exploring</Description>
           <Button style={{ width: '100%', marginTop: '16px' }} onClick={() => setIsCreateConfigurationOpen(true)}>
             Create your first dashboard
           </Button>
