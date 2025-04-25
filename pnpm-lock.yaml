@@ -11,9 +11,11 @@ specifiers:
   '@zendeskgarden/react-forms': ^9.5.3
   '@zendeskgarden/react-loaders': ^9.5.4
   '@zendeskgarden/react-modals': ^9.5.4
+  '@zendeskgarden/react-tabs': ^9.5.4
   '@zendeskgarden/react-theming': ^9.5.3
   '@zendeskgarden/react-typography': ^9.5.3
   fast-xml-parser: ^5.2.1
+  immer: ^10.1.1
   nanoid: ^5.1.5
   openai: ^4.96.0
   pako: ^2.1.0
@@ -24,6 +26,7 @@ specifiers:
   vite: ^5.0.0
   vite-plugin-web-extension: ^4.0.0
   webextension-polyfill: ^0.10.0
+  zustand: ^5.0.3
 
 dependencies:
   '@zendeskgarden/react-accordions': 9.5.4_f4rotlbreubsf2wk646or2x62q
@@ -31,15 +34,18 @@ dependencies:
   '@zendeskgarden/react-forms': 9.5.3_f4rotlbreubsf2wk646or2x62q
   '@zendeskgarden/react-loaders': 9.5.4_f4rotlbreubsf2wk646or2x62q
   '@zendeskgarden/react-modals': 9.5.4_f4rotlbreubsf2wk646or2x62q
+  '@zendeskgarden/react-tabs': 9.5.4_f4rotlbreubsf2wk646or2x62q
   '@zendeskgarden/react-theming': 9.5.3_jeltxlejatkzol7vsnhmqesxje
   '@zendeskgarden/react-typography': 9.5.3_f4rotlbreubsf2wk646or2x62q
   fast-xml-parser: 5.2.1
+  immer: 10.1.1
   nanoid: 5.1.5
   openai: 4.96.0
   pako: 2.1.0
   react: 18.3.1
   react-dom: 18.3.1_react@18.3.1
   styled-components: 6.1.17_nnrd3gsncyragczmpvfhocinkq
+  zustand: 5.0.3_vpktrm6ro5dv4jo66zjn2y5h74
 
 devDependencies:
   '@types/pako': 2.0.3
@@ -823,7 +829,6 @@ packages:
 
   /@types/prop-types/15.7.14:
     resolution: {integrity: sha512-gNMvNH49DJ7OJYv+KAKn0Xp45p8PLl6zo2YnvDIbTd4J6MER2BmWN49TG7n9LvkyihINxeKW8+3bfS2yDC9dzQ==}
-    dev: true
 
   /@types/react-dom/18.3.6_@types+react@18.3.20:
     resolution: {integrity: sha512-nf22//wEbKXusP6E9pfOCDwFdHAX4u172eaJI4YkDRQEZiorm6KfYnSC2SWLDMVWUOWPERmJnN0ujeAfTBLvrw==}
@@ -838,7 +843,6 @@ packages:
     dependencies:
       '@types/prop-types': 15.7.14
       csstype: 3.1.3
-    dev: true
 
   /@types/stylis/4.2.5:
     resolution: {integrity: sha512-1Xve+NMN7FWjY14vLoY5tL3BVEQ/n42YLwaqJIPYhotZ9uBHt87VceMwWQpzmdEt2TNXIorIFG+YeCUUW7RInw==}
@@ -944,6 +948,35 @@ packages:
     dependencies:
       '@babel/runtime': 7.24.7
       lodash.debounce: 4.0.8
+      prop-types: 15.8.1
+      react: 18.3.1
+      react-dom: 18.3.1_react@18.3.1
+    dev: false
+
+  /@zendeskgarden/container-selection/3.1.2_6nnovxuvclijwcprutrtuq75fa:
+    resolution: {integrity: sha512-UXJfa0ohCEtelUW0sFoI4eREwibnpymOpXLAFax+u5DwcWAVWb1IzIK06XD90EmDRO/yauKQU5md1bzfSSFHIg==}
+    peerDependencies:
+      prop-types: ^15.6.1
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      '@babel/runtime': 7.24.7
+      '@zendeskgarden/container-utilities': 2.0.2_nnrd3gsncyragczmpvfhocinkq
+      prop-types: 15.8.1
+      react: 18.3.1
+      react-dom: 18.3.1_react@18.3.1
+    dev: false
+
+  /@zendeskgarden/container-tabs/2.0.14_6nnovxuvclijwcprutrtuq75fa:
+    resolution: {integrity: sha512-stULc4MR6IvKhrLPE9H3zWLv4Kyz1M9qFJAOscJ/GD52kKQmuxdCF5fCWOfX4sqaq+FCUWU8Exw3hsXxcqXUvw==}
+    peerDependencies:
+      prop-types: ^15.6.1
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      '@babel/runtime': 7.24.7
+      '@zendeskgarden/container-selection': 3.1.2_6nnovxuvclijwcprutrtuq75fa
+      '@zendeskgarden/container-utilities': 2.0.2_nnrd3gsncyragczmpvfhocinkq
       prop-types: 15.8.1
       react: 18.3.1
       react-dom: 18.3.1_react@18.3.1
@@ -1071,6 +1104,25 @@ packages:
       react-dom: 18.3.1_react@18.3.1
       react-merge-refs: 2.1.1
       react-transition-group: 4.4.5_nnrd3gsncyragczmpvfhocinkq
+      styled-components: 6.1.17_nnrd3gsncyragczmpvfhocinkq
+    dev: false
+
+  /@zendeskgarden/react-tabs/9.5.4_f4rotlbreubsf2wk646or2x62q:
+    resolution: {integrity: sha512-HtuDdcolAkgnTWI12XGGf/nSt5/Fd9KUHEEAZr3P5PpegofWMmCEWBVdKEvPe3m5isXJrk9UrlHhillBBqTSPg==}
+    peerDependencies:
+      '@zendeskgarden/react-theming': '>=9.0.0'
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+      styled-components: ^5.3.1 || ^6.0.0
+    dependencies:
+      '@zendeskgarden/container-tabs': 2.0.14_6nnovxuvclijwcprutrtuq75fa
+      '@zendeskgarden/container-utilities': 2.0.2_nnrd3gsncyragczmpvfhocinkq
+      '@zendeskgarden/react-theming': 9.5.3_jeltxlejatkzol7vsnhmqesxje
+      polished: 4.3.1
+      prop-types: 15.8.1
+      react: 18.3.1
+      react-dom: 18.3.1_react@18.3.1
+      react-merge-refs: 2.1.1
       styled-components: 6.1.17_nnrd3gsncyragczmpvfhocinkq
     dev: false
 
@@ -1921,6 +1973,10 @@ packages:
   /immediate/3.0.6:
     resolution: {integrity: sha512-XXOFtyqDjNDAQxVfYxuF7g9Il/IbWmmlQg2MYKOH8ExIT1qg6xc4zyS3HaEEATgs1btfzxq15ciUiY7gjSXRGQ==}
     dev: true
+
+  /immer/10.1.1:
+    resolution: {integrity: sha512-s2MPrmjovJcoMaHtx6K11Ra7oD05NT97w1IC5zpMkT6Atjr7H8LjaDd81iIxUYpMKSRRNMJE703M1Fhr/TctHw==}
+    dev: false
 
   /import-lazy/4.0.0:
     resolution: {integrity: sha512-rKtvo6a868b5Hu3heneU+L4yEQ4jYKLtjpnPeUdK7h0yzXGmyBTypknlkCvHFBqfX9YlorEiMM6Dnq/5atfHkw==}
@@ -3205,3 +3261,26 @@ packages:
       async: 3.2.6
       jszip: 3.10.1
     dev: true
+
+  /zustand/5.0.3_vpktrm6ro5dv4jo66zjn2y5h74:
+    resolution: {integrity: sha512-14fwWQtU3pH4dE0dOpdMiWjddcH+QzKIgk1cl8epwSE7yag43k/AD/m4L6+K7DytAOr9gGBe3/EXj9g7cdostg==}
+    engines: {node: '>=12.20.0'}
+    peerDependencies:
+      '@types/react': '>=18.0.0'
+      immer: '>=9.0.6'
+      react: '>=18.0.0'
+      use-sync-external-store: '>=1.2.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      immer:
+        optional: true
+      react:
+        optional: true
+      use-sync-external-store:
+        optional: true
+    dependencies:
+      '@types/react': 18.3.20
+      immer: 10.1.1
+      react: 18.3.1
+    dev: false

@@ -8,7 +8,6 @@ export const startAnalyzis = async () => {
 
   await setAppState({
     startAnalyzis: true,
-    currentDashboardId: null,
   });
 
   await browser.tabs.reload(tab.id);
@@ -16,13 +15,13 @@ export const startAnalyzis = async () => {
   return waitForDashboard();
 };
 
-export const activeScenario = async (dashboards: any) => {
+export const saveActiveConfiguration = async (activeConfiguration: string) => {
   const tab = await getCurrentTab();
 
   if (!tab.id) return;
 
   await setAppState({
-    dashboards,
+    activeConfiguration,
   });
 
   await browser.tabs.reload(tab.id);
@@ -32,10 +31,10 @@ function waitForDashboard() {
   return new Promise((resolve) => {
     const intervalId = setInterval(async () => {
       const state = await getAppState();
-      const { dashboards = {}, currentDashboardId } = state;
-      if (currentDashboardId) {
+      const { currentDashboard } = state;
+      if (currentDashboard) {
         clearInterval(intervalId);
-        resolve({ id: currentDashboardId, ...dashboards[currentDashboardId] });
+        resolve(currentDashboard);
       }
     }, 1000);
   });

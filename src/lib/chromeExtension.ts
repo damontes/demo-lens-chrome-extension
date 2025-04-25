@@ -1,5 +1,4 @@
 import browser from 'webextension-polyfill';
-import { ACTIONS } from '../actions/dictionary';
 
 const APP_STATE_KEY = 'state';
 
@@ -16,13 +15,11 @@ export const setAppState = async (value: any) => {
 
 export const initilizeApp = async (document: Document) => {
   const savedState = await getAppState();
-  const dashboardId = await browser.runtime.sendMessage({ type: ACTIONS.getDashboardId });
 
-  console.log('INITIALIZE APP', dashboardId);
   const stateTag = document.createElement('script');
   stateTag.id = '__EXTENSION_STATE__';
   stateTag.type = 'application/json';
-  stateTag.textContent = JSON.stringify({ ...(savedState ?? {}), dashboardId });
+  stateTag.textContent = JSON.stringify({ ...(savedState ?? {}) });
   document.head.appendChild(stateTag);
 
   // Inject script

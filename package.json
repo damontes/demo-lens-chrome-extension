@@ -13,15 +13,18 @@
     "@zendeskgarden/react-forms": "^9.5.3",
     "@zendeskgarden/react-loaders": "^9.5.4",
     "@zendeskgarden/react-modals": "^9.5.4",
+    "@zendeskgarden/react-tabs": "^9.5.4",
     "@zendeskgarden/react-theming": "^9.5.3",
     "@zendeskgarden/react-typography": "^9.5.3",
     "fast-xml-parser": "^5.2.1",
+    "immer": "^10.1.1",
     "nanoid": "^5.1.5",
     "openai": "^4.96.0",
     "pako": "^2.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "styled-components": "^6.1.17"
+    "styled-components": "^6.1.17",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@types/pako": "^2.0.3",

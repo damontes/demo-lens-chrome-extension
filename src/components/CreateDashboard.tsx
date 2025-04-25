@@ -38,24 +38,12 @@ const CreateDashboard = ({ onClose, handleSubmit }: Props) => {
 
   const handleCurrentDashboard = async (dashboard: any) => {
     setCurrentDashboard(dashboard);
-
-    const prevState = await getAppState();
-    const { dashboards } = prevState;
-    const newDashboards = {
-      ...dashboards,
-    };
-
-    delete newDashboards[dashboard.id];
-    await setAppState({
-      dashboards: newDashboards,
-      currentDashboardId: null,
-    });
   };
 
   return (
     <Container>
       <Header>
-        <Title>Create Dashboard</Title>
+        <Title>Create dashboard</Title>
         <Description>
           Enter a name for your dashboard. We'll analyze the current Zendesk tab you're viewing.
         </Description>
@@ -86,7 +74,6 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: ${({ theme }) => theme.space.sm};
 `;
 
 const Header = styled.div`

@@ -1903,12 +1903,13 @@ class ExploreInterceptor {
     this.#fetchInterceptor = null;
   }
 
-  intercept(queryPayloads: any) {
+  intercept(dashboards?: any[]) {
     this.#xhrInterceptor = new XHRInterceptor();
     this.#fetchInterceptor = new FetchInterceptor();
 
     const handleDashboard = (response: any) => {
       this.#currentDashboard = this.#parseDashboard(response);
+      console.log('Dashboard parsed:', this.#currentDashboard);
     };
 
     this.#xhrInterceptor.setConditionTarget((url) => {
@@ -1930,23 +1931,16 @@ class ExploreInterceptor {
       }
 
       if (ExploreInterceptor.isExploreQuery(url)) {
-        console.log('CURRENT DASHBOARD', this.#currentDashboard);
+        if (!dashboards?.includes(this.#currentDashboard.id)) {
+          return response;
+        }
 
         const queryId = json.content.queryId || json.queryId;
         const currentTab = this.#currentDashboard.tabs.find((tab: any) => tab.queries[queryId]);
-        const { querySchema, visualizationType, description } = currentTab?.queries[queryId];
+        const { querySchema, visualizationType } = currentTab?.queries[queryId];
 
         try {
           const payload = inflatePayload(SKELETON, querySchema, visualizationType);
-          console.log('INFALTE PAYLOAD', description, payload);
-          // payload.cellData = queryPayloads[queryId].cellData;
-          // payload.columns = queryPayloads[queryId].columns;
-
-          // if (queryPayloads[queryId].rows?.length) {
-          //   payload.rows = queryPayloads[queryId].rows;
-          //   payload.rowsHeaders = queryPayloads[queryId].rowsHeaders;
-          //   payload.rowsDataFields = queryPayloads[queryId].rowsDataFields;
-          // }
 
           const newJson = {
             isSuccess: true,

@@ -10,7 +10,7 @@ import { Spinner } from '@zendeskgarden/react-loaders';
 const DEFAULT_INITIAL_VALUES = {
   name: '',
   url: '',
-  dashboardName: '',
+  sourceName: '',
 };
 
 type Props = {
@@ -27,7 +27,7 @@ const AnalyzeDashboardStep = ({ onClose, onNext, handleCurrentDashboard }: Props
     e.preventDefault();
     setIsLoading(true);
     const dashboard = await startAnalyzis();
-    handleCurrentDashboard({ ...(dashboard ?? {}), name: values.name });
+    handleCurrentDashboard({ ...(dashboard ?? {}), name: values.name, sourceName: values.sourceName });
     setIsLoading(false);
     onNext();
   };
@@ -38,7 +38,7 @@ const AnalyzeDashboardStep = ({ onClose, onNext, handleCurrentDashboard }: Props
       setValues((prev) => ({
         ...prev,
         url,
-        dashboardName,
+        sourceName: dashboardName,
         name: dashboardName,
       }));
     };
@@ -60,7 +60,7 @@ const AnalyzeDashboardStep = ({ onClose, onNext, handleCurrentDashboard }: Props
       <Field>
         <Field.Label>Context</Field.Label>
         <CurrentTabContainer>
-          <Title>{values.dashboardName}</Title>
+          <Title>{values.sourceName}</Title>
           <Description>{values.url}</Description>
         </CurrentTabContainer>
       </Field>
