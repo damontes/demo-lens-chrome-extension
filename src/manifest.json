@@ -1,5 +1,5 @@
 {
-  "{{chrome}}.name": "Z3N Zendesk Demo lens Exntesion",
+  "{{chrome}}.name": "Zendesk DemoLens (z3n demo accounts only)",
   "{{chrome}}.version": "0.0.1",
   "{{chrome}}.manifest_version": 3,
   "{{firefox}}.manifest_version": 2,
