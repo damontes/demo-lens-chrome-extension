@@ -1,7 +1,6 @@
 {
-  "{{chrome}}.name": "Demo Lens Exntesion",
-  "{{chrome}}.description": "Simulate data by intercepting network requests",
-  "{{chrome}}.version": "0.0.1",
+  "{{chrome}}.name": "Zendesk DemoLens (z3n demo accounts only)",
+  "{{chrome}}.version": "0.0.3",
   "{{chrome}}.manifest_version": 3,
   "{{firefox}}.manifest_version": 2,
   "icons": {
