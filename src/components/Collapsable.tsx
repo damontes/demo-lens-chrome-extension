@@ -48,6 +48,7 @@ const Details = styled.details<{ isActive: boolean }>`
     justify-content: space-between;
     padding: 8px 16px;
     cursor: pointer;
+    flex: 1;
   }
 `;
 export default Collapsable;

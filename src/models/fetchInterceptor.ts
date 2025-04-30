@@ -15,7 +15,6 @@ class FetchInterceptor {
       const url = normalizeUrl(requestUrl);
 
       const response = await originalFetch.apply(this, args);
-
       return callbkack(url, response);
     };
   }

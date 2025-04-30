@@ -1,33 +1,38 @@
 import { useEffect, useState } from 'react';
-import CreateConfiguration from './CreateConfiguration';
 import { LG, MD, SM } from '@zendeskgarden/react-typography';
 import { Button, IconButton } from '@zendeskgarden/react-buttons';
-import { AddIcon, PauseIcon, PlayIcon, TrashIcon } from '../icons';
+import { AddIcon, EditIcon, PauseIcon, PlayIcon, TrashIcon } from '@/icons';
 import styled from 'styled-components';
-import useAppState from '../storage';
-import { setAppState } from '../lib/chromeExtension';
-import { getRandomId } from '../lib/general';
-import Collapsable from './Collapsable';
-import { saveActiveConfiguration } from '../actions';
+import useAppState from '@/storage';
+import { setAppState } from '@/lib/chromeExtension';
+import { saveActiveConfiguration } from '@/actions';
+import Collapsable from '@/components/Collapsable';
+import CreateConfiguration from './CreateConfiguration';
+import EditConfiguration from './EditConfiguration';
+import ConfirmationModal from '../ConfirmationModal';
 
 const Configurations = () => {
   const [isCreateConfigurationOpen, setIsCreateConfigurationOpen] = useState(false);
+  const [editConfigurationId, setEditConfigurationId] = useState('');
+  const [configurationToRemove, setConfigurationToRemove] = useState('');
+
   const configurations = useAppState((state: any) => state.configurations);
-  const addConfiguration = useAppState((state: any) => state.addConfiguration);
   const removeConfiguration = useAppState((state: any) => state.removeConfiguration);
   const dashboards = useAppState((state: any) => state.dashboards);
   const activeConfiguration = useAppState((state: any) => state.activeConfiguration);
   const setActiveConfiguration = useAppState((state: any) => state.setActiveConfiguration);
 
-  const onCreateConfiguration = async (newConfiguration: any) => {
-    const id = getRandomId();
-
-    addConfiguration(id, newConfiguration);
-    setIsCreateConfigurationOpen(false);
+  const onDeleteconfiguration = (id: string) => {
+    setConfigurationToRemove(id);
   };
 
-  const onDeleteconfiguration = (id: string) => {
-    removeConfiguration(id);
+  const onConfirmDeleteConfiguration = () => {
+    removeConfiguration(configurationToRemove);
+    if (activeConfiguration === configurationToRemove) saveActiveConfiguration('');
+  };
+
+  const onEditConfiguration = (id: string) => {
+    setEditConfigurationId(id);
   };
 
   const onActiveConfiguration = (id: string) => {
@@ -47,14 +52,16 @@ const Configurations = () => {
       {!isCreateConfigurationOpen && !Object.keys(configurations).length ? (
         <>
           <LG style={{ fontWeight: 'bold', textAlign: 'center' }}>Welcome to Demo Lens</LG>
-          <Description style={{ textAlign: 'center' }}>Create your first configuration to start exploring</Description>
+          <Description style={{ textAlign: 'center' }}>
+            Group multiple dashboards to create a configuration.
+          </Description>
           <Button style={{ width: '100%', marginTop: '16px' }} onClick={() => setIsCreateConfigurationOpen(true)}>
-            Create your first dashboard
+            Create your first configuration
           </Button>
         </>
       ) : (
         <>
-          {!isCreateConfigurationOpen && (
+          {!isCreateConfigurationOpen && !editConfigurationId && (
             <>
               <div
                 style={{
@@ -77,7 +84,15 @@ const Configurations = () => {
                     <Collapsable
                       key={id}
                       headerContent={
-                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'center' }}>
+                        <div
+                          style={{
+                            display: 'flex',
+                            gap: '8px',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flex: 1,
+                          }}
+                        >
                           <IconButton
                             isBasic={false}
                             onClick={(e) => {
@@ -98,6 +113,22 @@ const Configurations = () => {
                               {isActive && <Tag isActive={isActive}>Active</Tag>}
                             </div>
                           </div>
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '2px',
+                              marginLeft: 'auto',
+                              marginRight: '16px',
+                            }}
+                          >
+                            <IconButton size="small" onClick={() => onEditConfiguration(id)}>
+                              <EditIcon />
+                            </IconButton>
+                            <IconButton size="small" isDanger onClick={() => onDeleteconfiguration(id)}>
+                              <TrashIcon />
+                            </IconButton>
+                          </div>
                         </div>
                       }
                       isActive={isActive}
@@ -107,6 +138,7 @@ const Configurations = () => {
                       >
                         {item.dashboards.filter(Boolean).map((dashboardId: string) => {
                           const dashboard = dashboards[dashboardId];
+                          if (!dashboard) return null;
                           return (
                             <ListItem key={dashboardId}>
                               <LG
@@ -132,10 +164,16 @@ const Configurations = () => {
               </List>
             </>
           )}
-          {isCreateConfigurationOpen && (
-            <CreateConfiguration
-              onClose={() => setIsCreateConfigurationOpen(false)}
-              handleSubmit={onCreateConfiguration}
+          {isCreateConfigurationOpen && <CreateConfiguration onClose={() => setIsCreateConfigurationOpen(false)} />}
+          {Boolean(editConfigurationId) && (
+            <EditConfiguration configurationId={editConfigurationId} onClose={() => setEditConfigurationId('')} />
+          )}
+          {Boolean(configurationToRemove) && (
+            <ConfirmationModal
+              title="Delete configuration"
+              description={`Are you sure you want to delete this configuration </br> <b>"${configurations?.[configurationToRemove]?.name}"</b>?`}
+              onClose={() => setConfigurationToRemove('')}
+              handleSubmit={onConfirmDeleteConfiguration}
             />
           )}
         </>

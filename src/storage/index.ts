@@ -17,6 +17,11 @@ const useAppState = create()(
       set((state) => {
         state.dashboards[id] = dashboard;
       }),
+    saveTab: (id, tabIndex, tab) => {
+      set((state) => {
+        state.dashboards[id].tabs[tabIndex] = tab;
+      });
+    },
     removeDashboard: (id) =>
       set((state) => {
         delete state.dashboards[id];

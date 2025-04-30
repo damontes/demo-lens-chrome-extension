@@ -11,6 +11,7 @@ specifiers:
   '@zendeskgarden/react-forms': ^9.5.3
   '@zendeskgarden/react-loaders': ^9.5.4
   '@zendeskgarden/react-modals': ^9.5.4
+  '@zendeskgarden/react-notifications': ^9.5.4
   '@zendeskgarden/react-tabs': ^9.5.4
   '@zendeskgarden/react-theming': ^9.5.3
   '@zendeskgarden/react-typography': ^9.5.3
@@ -34,6 +35,7 @@ dependencies:
   '@zendeskgarden/react-forms': 9.5.3_f4rotlbreubsf2wk646or2x62q
   '@zendeskgarden/react-loaders': 9.5.4_f4rotlbreubsf2wk646or2x62q
   '@zendeskgarden/react-modals': 9.5.4_f4rotlbreubsf2wk646or2x62q
+  '@zendeskgarden/react-notifications': 9.5.4_amemsrcxd7z5ilht7gl7nzoyuq
   '@zendeskgarden/react-tabs': 9.5.4_f4rotlbreubsf2wk646or2x62q
   '@zendeskgarden/react-theming': 9.5.3_jeltxlejatkzol7vsnhmqesxje
   '@zendeskgarden/react-typography': 9.5.3_f4rotlbreubsf2wk646or2x62q
@@ -1105,6 +1107,27 @@ packages:
       react-merge-refs: 2.1.1
       react-transition-group: 4.4.5_nnrd3gsncyragczmpvfhocinkq
       styled-components: 6.1.17_nnrd3gsncyragczmpvfhocinkq
+    dev: false
+
+  /@zendeskgarden/react-notifications/9.5.4_amemsrcxd7z5ilht7gl7nzoyuq:
+    resolution: {integrity: sha512-vkQJsbbcg6gjraRSX2Uza3f62stPiUcwSzNjsdDAbXSnYZIbyZpUwouSrqiP0fZRbbx7B/6D+tZMW8H3DmCJEA==}
+    peerDependencies:
+      '@zendeskgarden/react-theming': '>=9.0.0'
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+      styled-components: ^5.3.1 || ^6.0.0
+    dependencies:
+      '@zendeskgarden/react-buttons': 9.5.4_f4rotlbreubsf2wk646or2x62q
+      '@zendeskgarden/react-theming': 9.5.3_jeltxlejatkzol7vsnhmqesxje
+      polished: 4.3.1
+      prop-types: 15.8.1
+      react: 18.3.1
+      react-dom: 18.3.1_react@18.3.1
+      react-transition-group: 4.4.5_nnrd3gsncyragczmpvfhocinkq
+      react-uid: 2.4.0_po4keleilqsm4vrhgxl2cr46aq
+      styled-components: 6.1.17_nnrd3gsncyragczmpvfhocinkq
+    transitivePeerDependencies:
+      - '@types/react'
     dev: false
 
   /@zendeskgarden/react-tabs/9.5.4_f4rotlbreubsf2wk646or2x62q:
@@ -2622,6 +2645,21 @@ packages:
       prop-types: 15.8.1
       react: 18.3.1
       react-dom: 18.3.1_react@18.3.1
+    dev: false
+
+  /react-uid/2.4.0_po4keleilqsm4vrhgxl2cr46aq:
+    resolution: {integrity: sha512-+MVs/25NrcZuGrmlVRWPOSsbS8y72GJOBsR7d68j3/wqOrRBF52U29XAw4+XSelw0Vm6s5VmGH5mCbTCPGVCVg==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      '@types/react': ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dependencies:
+      '@types/react': 18.3.20
+      react: 18.3.1
+      tslib: 2.6.2
     dev: false
 
   /react/18.3.1:

@@ -4,22 +4,48 @@ import { useEffect, useState } from 'react';
 import { Button, IconButton } from '@zendeskgarden/react-buttons';
 import { setAppState } from '../lib/chromeExtension';
 import CreateDashboard from '../components/CreateDashboard';
-import { AddIcon, TrashIcon } from '../icons';
+import { AddIcon, EditIcon, TrashIcon } from '../icons';
 import useAppState from '../storage';
+import EditDashboard from './EditDashboard';
+import ConfirmationModal from './ConfirmationModal';
+import { useToast, Notification } from '@zendeskgarden/react-notifications';
 
 const Dashboards = () => {
+  const [editDashboardId, setEditDashboardId] = useState('');
+
   const dashboards = useAppState((state: any) => state.dashboards);
+  const configurations = useAppState((state: any) => state.configurations);
+
   const addDashboard = useAppState((state: any) => state.addDashboard);
   const removeDashboard = useAppState((state: any) => state.removeDashboard);
   const currentDashboardId = useAppState((state: any) => state.currentDashboard?.id);
+  const [dashboardToRemove, setDashboardToRemove] = useState('');
 
   const [isCreateDashboardOpen, setIsCreateDashboardOpen] = useState(false);
 
+  const { addToast } = useToast();
+
   const onCreateDashboard = async (currentDashboard: any) => {
-    const { id, name, sourceName } = currentDashboard;
+    const { id, name, sourceName, tabs } = currentDashboard;
     const newDashboard = {
       name,
       sourceName,
+      tabs: tabs.map((tab: any) => ({
+        id: tab.id,
+        name: tab.name,
+        queries: Object.entries(tab.queries).reduce((prev: any, current: any) => {
+          const [queryId, query] = current;
+          const { title, payload, visualizationType } = query;
+          return {
+            ...prev,
+            [queryId]: {
+              title,
+              visualizationType,
+              payload,
+            },
+          };
+        }, {}),
+      })),
     };
 
     addDashboard(id, newDashboard);
@@ -27,7 +53,40 @@ const Dashboards = () => {
   };
 
   const onDeleteDashboard = (dashboardId: string) => {
-    removeDashboard(dashboardId);
+    setDashboardToRemove(dashboardId);
+  };
+
+  const onConfirmDeleteConfiguration = () => {
+    const activeConfigurations = Object.entries(configurations)
+      .filter(([_, configuration]: any) => configuration.dashboards.includes(dashboardToRemove))
+      .map(([_, configuration]: any) => configuration.name);
+
+    if (activeConfigurations.length > 0) {
+      addToast(
+        ({ close }) => (
+          <Notification type="warning" style={{ maxWidth: '80%' }}>
+            <Notification.Title>Warning</Notification.Title>
+            <div
+              dangerouslySetInnerHTML={{
+                __html: `This dashboard is part of this configurations </br> <b>"${activeConfigurations.join(
+                  ', ',
+                )}"</b>. </br> Please delete it from this configurations first.`,
+              }}
+            />
+            <Notification.Close aria-label="Close" onClick={close} />
+          </Notification>
+        ),
+        { placement: 'top-end' },
+      );
+      setDashboardToRemove('');
+      return;
+    }
+    removeDashboard(dashboardToRemove);
+    setDashboardToRemove('');
+  };
+
+  const onEditDashboard = (dashboardId: string) => {
+    setEditDashboardId(dashboardId);
   };
 
   useEffect(() => {
@@ -42,14 +101,16 @@ const Dashboards = () => {
       {!isCreateDashboardOpen && !Object.keys(dashboards).length ? (
         <>
           <LG style={{ fontWeight: 'bold', textAlign: 'center' }}>Welcome to Demo Lens</LG>
-          <Description style={{ textAlign: 'center' }}>Create your firsDescription to start exploring</Description>
+          <Description style={{ textAlign: 'center' }}>
+            Create your first dashboard, then add it to a configuration.
+          </Description>
           <Button style={{ width: '100%', marginTop: '16px' }} onClick={() => setIsCreateDashboardOpen(true)}>
             Create your first dashboard
           </Button>
         </>
       ) : (
         <>
-          {!isCreateDashboardOpen && (
+          {!isCreateDashboardOpen && !Boolean(editDashboardId) && (
             <>
               <div
                 style={{
@@ -74,9 +135,15 @@ const Dashboards = () => {
                         {id}
                       </SM>
                     </div>
-                    <IconButton size="small" isDanger onClick={() => onDeleteDashboard(id)}>
-                      <TrashIcon style={{ width: '16px', height: '16px' }} />
-                    </IconButton>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '2px', marginLeft: 'auto' }}>
+                      <IconButton size="small" onClick={() => onEditDashboard(id)}>
+                        <EditIcon />
+                      </IconButton>
+
+                      <IconButton size="small" isDanger onClick={() => onDeleteDashboard(id)}>
+                        <TrashIcon />
+                      </IconButton>
+                    </div>
                   </ListItem>
                 ))}
               </List>
@@ -84,6 +151,17 @@ const Dashboards = () => {
           )}
           {isCreateDashboardOpen && (
             <CreateDashboard onClose={() => setIsCreateDashboardOpen(false)} handleSubmit={onCreateDashboard} />
+          )}
+          {Boolean(editDashboardId) && (
+            <EditDashboard dashboardId={editDashboardId} onClose={() => setEditDashboardId('')} />
+          )}
+          {Boolean(dashboardToRemove) && (
+            <ConfirmationModal
+              title="Delete configuration"
+              description={`Are you sure you want to delete this dashboard </br> <b>"${dashboards?.[dashboardToRemove]?.name}"</b>?`}
+              onClose={() => setDashboardToRemove('')}
+              handleSubmit={onConfirmDeleteConfiguration}
+            />
           )}
         </>
       )}

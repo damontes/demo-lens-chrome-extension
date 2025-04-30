@@ -13,6 +13,7 @@
     "@zendeskgarden/react-forms": "^9.5.3",
     "@zendeskgarden/react-loaders": "^9.5.4",
     "@zendeskgarden/react-modals": "^9.5.4",
+    "@zendeskgarden/react-notifications": "^9.5.4",
     "@zendeskgarden/react-tabs": "^9.5.4",
     "@zendeskgarden/react-theming": "^9.5.3",
     "@zendeskgarden/react-typography": "^9.5.3",

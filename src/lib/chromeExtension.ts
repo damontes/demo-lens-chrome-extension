@@ -4,12 +4,14 @@ const APP_STATE_KEY = 'state';
 
 export const getAppState = async () => {
   const result = await browser.storage.local.get(APP_STATE_KEY);
-  return result[APP_STATE_KEY];
+  const stringPayload = result[APP_STATE_KEY] ?? '{}';
+  return JSON.parse(stringPayload);
 };
 
 export const setAppState = async (value: any) => {
   const state = await getAppState();
-  const result = await browser.storage.local.set({ [APP_STATE_KEY]: { ...(state ?? {}), ...value } });
+  const payload = JSON.stringify({ ...(state ?? {}), ...value }, null, 0);
+  const result = await browser.storage.local.set({ [APP_STATE_KEY]: payload });
   return result;
 };
 

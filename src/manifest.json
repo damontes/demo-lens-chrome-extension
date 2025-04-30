@@ -1,5 +1,6 @@
 {
-  "{{chrome}}.name": "Z3N Zendesk Demo lens Exntesion",
+  "{{chrome}}.name": "Demo Lens Exntesion",
+  "{{chrome}}.description": "Simulate data by intercepting network requests",
   "{{chrome}}.version": "0.0.1",
   "{{chrome}}.manifest_version": 3,
   "{{firefox}}.manifest_version": 2,
@@ -22,7 +23,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://*.zendesk.com/explore/dashboard/precanned/*", "https://*.zendesk.com/explore/studio"],
+      "matches": ["https://*.zendesk.com/explore/dashboard/*", "https://*.zendesk.com/explore/studio"],
       "js": ["src/content_explore.js"],
       "run_at": "document_start",
       "all_frames": true

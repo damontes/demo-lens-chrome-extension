@@ -27,6 +27,24 @@ export const saveActiveConfiguration = async (activeConfiguration: string) => {
   await browser.tabs.reload(tab.id);
 };
 
+export const saveTabs = async (dashboards: any, dashboardId: string, tabs: any) => {
+  const browserTab = await getCurrentTab();
+
+  if (!browserTab.id) return;
+
+  await setAppState({
+    dashboards: {
+      ...dashboards,
+      [dashboardId]: {
+        ...dashboards[dashboardId],
+        tabs,
+      },
+    },
+  });
+
+  await browser.tabs.reload(browserTab.id);
+};
+
 function waitForDashboard() {
   return new Promise((resolve) => {
     const intervalId = setInterval(async () => {

@@ -8,14 +8,14 @@ import ExploreInterceptor from './models/exploreInterceptor';
 
   console.log('GET STATE FROM INJECT.JS', state);
 
-  const { startAnalyzis, activeConfiguration = '', configurations = {} } = state;
+  const { startAnalyzis, activeConfiguration = '', configurations = {}, dashboards = {} } = state;
 
   const exploreInterceptor = new ExploreInterceptor();
 
   const configurationDashboards = configurations[activeConfiguration]?.dashboards ?? [];
 
   if (startAnalyzis || configurationDashboards.length) {
-    exploreInterceptor.intercept(configurationDashboards);
+    exploreInterceptor.intercept(configurationDashboards, dashboards);
 
     const dashboard = await exploreInterceptor.getCurrentDashboard();
 

@@ -1,4 +1,4 @@
-import { inflatePayload } from '../lib/zendesk';
+import { inflatePayload, lighInflatePayload } from '../lib/zendesk';
 import FetchInterceptor from './fetchInterceptor';
 import XHRInterceptor from './xhrInterceptor';
 
@@ -1780,7 +1780,7 @@ export const SKELETON = {
       explosionsHierarchyXML: [],
       rowsHeaders: [],
       rowsDataFields: [],
-      rowsRelatedObjects: [],
+      rowsRelatedObjects: [null],
       columnsHierarchyXML: [],
       rowsHierarchyXML: [],
       cellData: [],
@@ -1791,76 +1791,7 @@ export const SKELETON = {
         minMaxColors: [],
         colors: [],
         gradientColor: 0,
-        measureNameToMinMaxValues: {
-          'D_COUNT(articleslinked-af8afd79a8)': {
-            minimum: 0,
-            maximum: 0,
-          },
-          'COUNT(articleslinked-af8afd79a8)': {
-            minimum: 0,
-            maximum: 0,
-          },
-          'COUNT(guide_user_sessions_assumed_deflection)': {
-            minimum: 0,
-            maximum: 0,
-          },
-          'COUNT(guide_user_sessions_confirmed_deflection)': {
-            minimum: 0,
-            maximum: 0,
-          },
-          'AVG(guide_user_sessions_service_ratio)': {
-            minimum: 0,
-            maximum: 0,
-          },
-          'SUM(guide_aggregated_page_analytics_total_tickets)': {
-            minimum: 0,
-            maximum: 0,
-          },
-          'SUM(guide_aggregated_page_analytics_total_confirmed_deflections)': {
-            minimum: 0,
-            maximum: 0,
-          },
-          'SUM(guide_aggregated_page_analytics_total_assumed_deflections)': {
-            minimum: 0,
-            maximum: 0,
-          },
-          'SUM(guide_aggregated_page_analytics_total_page_exits)': {
-            minimum: 0,
-            maximum: 0,
-          },
-          'MED(guide_aggregated_page_analytics_average_view_time)': {
-            minimum: 0,
-            maximum: 0,
-          },
-          'COUNT(articlescreated-1e6d98d826)': {
-            minimum: 0,
-            maximum: 0,
-          },
-          'COUNT(articlesflagged-4003e7c3b1)': {
-            minimum: 0,
-            maximum: 0,
-          },
-          'D_COUNT(knowledgecapturetickets-fac9201dfb)': {
-            minimum: 0,
-            maximum: 0,
-          },
-          'SUM(knowledgecapturetickets-5b72b30a15)': {
-            minimum: 0,
-            maximum: 0,
-          },
-          'COUNT(guide_user_sessions_with_quick_answer)': {
-            minimum: 0,
-            maximum: 0,
-          },
-          'COUNT(guide_user_sessions_without_search)': {
-            minimum: 0,
-            maximum: 0,
-          },
-          'COUNT(guide_user_sessions_with_any_search)': {
-            minimum: 0,
-            maximum: 0,
-          },
-        },
+        measureNameToMinMaxValues: {},
       },
       warningMessage: '',
       warningMessages: [],
@@ -1903,13 +1834,12 @@ class ExploreInterceptor {
     this.#fetchInterceptor = null;
   }
 
-  intercept(dashboards?: any[]) {
+  intercept(configurationDashboards?: any[], dashboards?: any) {
     this.#xhrInterceptor = new XHRInterceptor();
     this.#fetchInterceptor = new FetchInterceptor();
 
     const handleDashboard = (response: any) => {
       this.#currentDashboard = this.#parseDashboard(response);
-      console.log('Dashboard parsed:', this.#currentDashboard);
     };
 
     this.#xhrInterceptor.setConditionTarget((url) => {
@@ -1931,26 +1861,38 @@ class ExploreInterceptor {
       }
 
       if (ExploreInterceptor.isExploreQuery(url)) {
-        if (!dashboards?.includes(this.#currentDashboard.id)) {
+        if (!configurationDashboards?.includes(this.#currentDashboard.id)) {
           return response;
         }
 
         const queryId = json.content.queryId || json.queryId;
-        const currentTab = this.#currentDashboard.tabs.find((tab: any) => tab.queries[queryId]);
-        const { querySchema, visualizationType } = currentTab?.queries[queryId];
 
+        const currentTab = this.#currentDashboard.tabs.find((tab: any) => tab.queries[queryId]);
+        const query = currentTab?.queries[queryId];
+        const { querySchema, visualizationType, description, cubeModelId } = query;
+
+        console.log('===DESCRIPTION===', dashboards, visualizationType, description);
         try {
-          const payload = inflatePayload(SKELETON, querySchema, visualizationType);
+          const currentDashboard = dashboards[this.#currentDashboard.id];
+          console.log('SAVED DASHBOARD', currentDashboard);
+
+          const lightInfaltePayload = currentDashboard?.tabs.find((tab: any) => tab.id === currentTab.id).queries[
+            queryId
+          ].payload;
+
+          const payload = inflatePayload(SKELETON, querySchema, visualizationType, lightInfaltePayload);
 
           const newJson = {
             isSuccess: true,
             type: 'result',
             uuid: json.uuid,
             content: {
-              result: payload,
+              result: { ...payload, uuid: json.uuid, queryId: String(queryId), cubeModelId },
               queryId,
             },
           };
+
+          console.log({ newJson, json });
 
           return new Response(JSON.stringify(newJson), {
             status: response.status,
@@ -1960,7 +1902,9 @@ class ExploreInterceptor {
               'content-type': 'application/json',
             },
           });
-        } catch (error) {}
+        } catch (error) {
+          console.log('===ERROR===', error);
+        }
       }
 
       return response;
@@ -2001,6 +1945,7 @@ class ExploreInterceptor {
           .filter((widget: any) => widget.query_id)
           .reduce((prev: any, current: any) => {
             const currentQuery = rawQueries.find((item: any) => item.id === current.query_id);
+            const payload = lighInflatePayload(SKELETON, currentQuery.query_schema, currentQuery.visualization_type);
             return {
               ...prev,
               [currentQuery.id]: {
@@ -2009,6 +1954,8 @@ class ExploreInterceptor {
                 completed: true,
                 querySchema: currentQuery.query_schema,
                 title: current.title ?? currentQuery.description,
+                cubeModelId: String(currentQuery.cube_model_id),
+                payload,
               },
             };
           }, {});
