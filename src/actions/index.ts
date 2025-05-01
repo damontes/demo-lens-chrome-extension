@@ -1,5 +1,6 @@
 import browser from 'webextension-polyfill';
 import { getAppState, setAppState } from '../lib/chromeExtension';
+import { ACTIONS } from './dictionary';
 
 export const startAnalyzis = async () => {
   const tab = await getCurrentTab();
@@ -43,6 +44,13 @@ export const saveTabs = async (dashboards: any, dashboardId: string, tabs: any) 
   });
 
   await browser.tabs.reload(browserTab.id);
+};
+
+export const syncState = async (payload: any) => {
+  return browser.runtime.sendMessage({
+    type: ACTIONS.syncState,
+    payload,
+  });
 };
 
 function waitForDashboard() {

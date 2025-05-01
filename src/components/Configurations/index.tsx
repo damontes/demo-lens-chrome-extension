@@ -4,8 +4,7 @@ import { Button, IconButton } from '@zendeskgarden/react-buttons';
 import { AddIcon, EditIcon, PauseIcon, PlayIcon, TrashIcon } from '@/icons';
 import styled from 'styled-components';
 import useAppState from '@/storage';
-import { setAppState } from '@/lib/chromeExtension';
-import { saveActiveConfiguration } from '@/actions';
+import { saveActiveConfiguration, syncState } from '@/actions';
 import Collapsable from '@/components/Collapsable';
 import CreateConfiguration from './CreateConfiguration';
 import EditConfiguration from './EditConfiguration';
@@ -42,7 +41,7 @@ const Configurations = () => {
   };
 
   useEffect(() => {
-    setAppState({
+    syncState({
       configurations,
     });
   }, [configurations]);

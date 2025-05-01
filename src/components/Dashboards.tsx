@@ -2,13 +2,13 @@ import { MD, LG, SM } from '@zendeskgarden/react-typography';
 import styled from 'styled-components';
 import { useEffect, useState } from 'react';
 import { Button, IconButton } from '@zendeskgarden/react-buttons';
-import { setAppState } from '../lib/chromeExtension';
 import CreateDashboard from '../components/CreateDashboard';
 import { AddIcon, EditIcon, TrashIcon } from '../icons';
 import useAppState from '../storage';
 import EditDashboard from './EditDashboard';
 import ConfirmationModal from './ConfirmationModal';
 import { useToast, Notification } from '@zendeskgarden/react-notifications';
+import { syncState } from '@/actions';
 
 const Dashboards = () => {
   const [editDashboardId, setEditDashboardId] = useState('');
@@ -90,7 +90,7 @@ const Dashboards = () => {
   };
 
   useEffect(() => {
-    setAppState({
+    syncState({
       dashboards,
       currentDashboard: null,
     });
