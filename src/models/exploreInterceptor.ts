@@ -1871,10 +1871,8 @@ class ExploreInterceptor {
         const query = currentTab?.queries[queryId];
         const { querySchema, visualizationType, description, cubeModelId } = query;
 
-        console.log('===DESCRIPTION===', dashboards, visualizationType, description);
         try {
           const currentDashboard = dashboards[this.#currentDashboard.id];
-          console.log('SAVED DASHBOARD', currentDashboard);
 
           const lightInfaltePayload = currentDashboard?.tabs.find((tab: any) => tab.id === currentTab.id).queries[
             queryId
@@ -1891,8 +1889,6 @@ class ExploreInterceptor {
               queryId,
             },
           };
-
-          console.log({ newJson, json });
 
           return new Response(JSON.stringify(newJson), {
             status: response.status,
