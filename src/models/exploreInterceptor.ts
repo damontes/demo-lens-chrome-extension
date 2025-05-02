@@ -1780,7 +1780,7 @@ export const SKELETON = {
       explosionsHierarchyXML: [],
       rowsHeaders: [],
       rowsDataFields: [],
-      rowsRelatedObjects: [null],
+      rowsRelatedObjects: [],
       columnsHierarchyXML: [],
       rowsHierarchyXML: [],
       cellData: [],
@@ -1984,7 +1984,15 @@ class ExploreInterceptor {
     return /^https:\/\/([a-zA-Z0-9-]+\.)?zendesk\.com\/explore\/graphql\?PublishedDashboardQuery/.test(url);
   }
 
-  static getDefaultPaylload() {}
+  static isNotValidDashboard(url: string) {
+    const allowedPatterns = [
+      /^https:\/\/([a-zA-Z0-9_-]+\.)?zendesk\.com\/explore\/dashboard\/.*$/,
+
+      /^https:\/\/([a-zA-Z0-9_-]+\.)?zendesk\.com\/explore\/studio(?:[#?].*)?$/,
+    ];
+
+    return !allowedPatterns.some((pattern) => pattern.test(url));
+  }
 }
 
 export default ExploreInterceptor;

@@ -159,7 +159,7 @@ const EditDashboard = ({ dashboardId, onClose }: any) => {
         {dashboard.tabs.map((tab: any) => {
           const filteredQueries = Object.entries(tab.queries).filter(([_, query]: any) => {
             if (query.visualizationType === 'kpiChart') return false;
-            if (query.visualizationType === 'autoChart' && query.payload.rows.length < 1) return false;
+            if (query.visualizationType === 'autoChart' && query.payload.rows.length < 2) return false;
             return true;
           });
 

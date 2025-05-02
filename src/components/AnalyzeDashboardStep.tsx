@@ -6,6 +6,7 @@ import { getCurrentTabDetails } from '../lib/chromeExtension';
 import { Button } from '@zendeskgarden/react-buttons';
 import { startAnalyzis } from '../actions';
 import { Spinner } from '@zendeskgarden/react-loaders';
+import ExploreInterceptor from '@/models/exploreInterceptor';
 
 const DEFAULT_INITIAL_VALUES = {
   name: '',
@@ -22,6 +23,8 @@ type Props = {
 const AnalyzeDashboardStep = ({ onClose, onNext, handleCurrentDashboard }: Props) => {
   const [values, setValues] = useState(DEFAULT_INITIAL_VALUES);
   const [isLoading, setIsLoading] = useState(false);
+
+  const isNotValidDashboard = ExploreInterceptor.isNotValidDashboard(values.url);
 
   const analyzeDashboard = async (e: any) => {
     e.preventDefault();
@@ -45,6 +48,10 @@ const AnalyzeDashboardStep = ({ onClose, onNext, handleCurrentDashboard }: Props
 
     initialData();
   }, []);
+
+  if (isNotValidDashboard) {
+    return <EmptyText>This is not a valid dashboard please make sure you are in the correct URL.</EmptyText>;
+  }
 
   return (
     <Form onSubmit={analyzeDashboard}>
@@ -111,6 +118,13 @@ const Description = styled(SM)`
   overflow: hidden;
   text-overflow: ellipsis;
   text-wrap: nowrap;
+`;
+
+const EmptyText = styled(SM)`
+  margin: 0;
+  text-align: center;
+  color: ${({ theme }) => theme.palette.grey[600]};
+  padding: ${({ theme }) => theme.space.sm} 0px;
 `;
 
 export default AnalyzeDashboardStep;

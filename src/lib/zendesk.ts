@@ -63,8 +63,10 @@ export const inflatePayload = (
   result.stats.minimum = Math.min(...flat);
 
   // OPTIONAL: fill helpers Zendesk sometimes expects
-  result.columnsHeaders = meta.colHierarchies.map((c: any) => c['@_hierarchyDisplayName']);
-  result.columnsDataFields = meta.colHierarchies.map((c: any) => c['@_hierarchyName']);
+  result.columnsHeaders = meta.colHierarchies.map((c: any) => c['@_hierarchyDisplayName']).filter(Boolean);
+  result.columnsDataFields = meta.colHierarchies
+    .map((c: any) => c['@_hierarchyName'])
+    .filter((v: string) => v !== 'column all');
   const currentFields = [...meta.colHierarchies, ...meta.rowHierarchies]
     .map((c: any) => c['@_hierarchyName'])
     .filter(
@@ -171,7 +173,7 @@ function parseQuerySchema(querySchema: string, vizType: string, initialPoints?: 
 
   if (isKpiLike(vizType)) {
     axis = 'category'; // 1 col
-  } else if (getIsGrid(vizType, rowHierarchies.length)) {
+  } else if (getIsGrid(vizType, rowHierarchies.length, measures.length)) {
     axis = 'category'; // grid -> N col, lo dejamos como antes
   } else if (colHierarchies[0]?.['@_dimensionType'] === 'time') {
     axis = 'time';
@@ -180,7 +182,7 @@ function parseQuerySchema(querySchema: string, vizType: string, initialPoints?: 
     axis = 'category';
     categoryInfo = {
       points:
-        vizType !== 'barChart' && measures.length > 1
+        vizType === 'pieChart' && measures.length > 1
           ? 1
           : initialPoints ?? randInt(MIN_CATEGORY_POINTS, MAX_CATEGORY_POINTS),
     };
@@ -228,10 +230,6 @@ function buildColumns(meta: any, skeleton: any, maxLength?: number) {
   const tpl = skeleton.columns[0]; // original bare column
   const cols: any[] = [];
 
-  if (isKpiLike(meta.vizType)) {
-    return [produceColumn(tpl, 'Value', meta.colHierarchies, meta.measures[0])];
-  }
-
   const measuresCount = meta.measures.length;
 
   if (meta.axis === 'time' && meta.timeInfo) {
@@ -263,7 +261,9 @@ function buildColumns(meta: any, skeleton: any, maxLength?: number) {
   }
 
   meta.measures.forEach((m: any, idx: number) =>
-    cols.push(produceColumn(tpl, `<Category ${idx + 1}>`, meta.colHierarchies, m)),
+    cols.push(
+      produceColumn(tpl, isKpiLike(meta.vizType) ? 'column all' : `<Category ${idx + 1}>`, meta.colHierarchies, m),
+    ),
   );
 
   return cols;
@@ -274,7 +274,8 @@ function buildRows(meta: any, numberOfRows: number) {
 
   for (let i = 0; i < numberOfRows; i++) {
     const rowMembers = meta.rowHierarchies.map((h: any) => {
-      const value = `${h['@_hierarchyDisplayName']} ${i + 1}`;
+      const nothHasDisplayName = !h['@_hierarchyDisplayName'];
+      const value = nothHasDisplayName ? 'row all' : `${h['@_hierarchyDisplayName']} ${i + 1}`;
       return {
         name: value,
         levelName: h['@_hierarchyName'],
@@ -304,20 +305,24 @@ function produceColumn(
   colHierarchies: any,
   m: any, // measure meta
 ) {
-  const hierarchyMembers = colHierarchies.map((colHierarchy: any) => ({
-    name: timeDisplay ?? 'Category',
-    isAll: 'false',
-    isSubTotal: 'false',
-    displayName: timeDisplay ?? 'Category',
-    isRepetition: 'false',
-    levelDisplayName: colHierarchy['@_hierarchyDisplayName'],
-    dataField: colHierarchy['@_dataField'],
-    attributeDatafield: colHierarchy['@_dataField'],
-    dimensionName: colHierarchy['@_dimension'],
-    dimensionType: colHierarchy['@_dimensionType'],
-    attributeName: colHierarchy['@_hierarchyName'],
-    attributeDisplayName: colHierarchy['@_hierarchyDisplayName'],
-  }));
+  const hierarchyMembers = colHierarchies.map((colHierarchy: any) => {
+    const nothHasDisplayName = !colHierarchy['@_hierarchyDisplayName'];
+    const value = nothHasDisplayName ? 'column all' : `${colHierarchy['@_hierarchyDisplayName']} ${timeDisplay}`;
+    return {
+      name: timeDisplay ?? 'column all',
+      isAll: 'false',
+      isSubTotal: 'false',
+      displayName: timeDisplay ?? 'column all',
+      isRepetition: 'false',
+      levelDisplayName: value,
+      dataField: colHierarchy['@_dataField'],
+      attributeDatafield: colHierarchy['@_dataField'],
+      dimensionName: colHierarchy['@_dimension'],
+      dimensionType: colHierarchy['@_dimensionType'],
+      attributeName: colHierarchy['@_hierarchyName'],
+      attributeDisplayName: value,
+    };
+  });
 
   // merge into a fresh column object
   return {
@@ -329,17 +334,11 @@ function produceColumn(
 }
 
 function buildCellData(meta: any, columns: any): any[][] {
-  const isGrid = getIsGrid(meta.vizType, meta.rowHierarchies.length);
-  const isKpi = isKpiLike(meta.vizType);
+  const isGrid = getIsGrid(meta.vizType, meta.rowHierarchies.length, meta.measures.length);
 
-  const rows = isGrid ? 10 : 1; // tabla -> varias filas; gráfico -> 1
+  const rows = isGrid ? 5 : 1; // tabla -> varias filas; gráfico -> 1
 
   const buildRow = () => {
-    // kpiChart / autoChart → un solo valor
-    if (isKpi) {
-      return [{ value: fakeValue(meta.measures[0], meta.configJson) }];
-    }
-
     // simpleGrid2 → 1 celda por measure  (columns.length == measures.length)
     if (isGrid) {
       return meta.measures.map((m: any) => ({ value: fakeValue(m, meta.configJson) }));
@@ -364,8 +363,8 @@ function isKpiLike(v: string) {
   return ['kpichart', 'autochart'].includes(v.toLowerCase());
 }
 
-function getIsGrid(v: string, rows: any) {
-  return v === 'simpleGrid2' || (v === 'autoChart' && rows > 1);
+function getIsGrid(v: string, rows: any, measures: any) {
+  return v === 'simpleGrid2' || (v === 'autoChart' && rows > 1) || (v === 'autoChart' && measures > 1);
 }
 
 function randInt(min: number, max: number) {

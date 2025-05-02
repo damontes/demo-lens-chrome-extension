@@ -6,7 +6,7 @@ import ExploreInterceptor from './models/exploreInterceptor';
 
   let state = stateScript ? JSON.parse(stateScript?.textContent) : {};
 
-  // console.log('GET STATE FROM INJECT.JS', state);
+  console.log('GET STATE FROM INJECT.JS', state);
 
   const { startAnalyzis, activeConfiguration = '', configurations = {}, dashboards = {} } = state;
 
