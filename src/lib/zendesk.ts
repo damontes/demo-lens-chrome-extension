@@ -8,7 +8,7 @@ const DEFAULT_HIERARCHY_COLUMN = {
   '@_hierarchyDisplayName': '',
   '@_dimension': 'column all',
   '@_dimensionType': 'standard',
-  '@_dataField': 'column all',
+  '@_dataField': '',
   '@_isTime': 'false',
 };
 
@@ -32,7 +32,7 @@ export const inflatePayload = (
   visualizationType: string,
   lightInfaltePayload?: any,
 ) => {
-  const { columns: lightColumns, rows: lightRows } = lightInfaltePayload ?? {};
+  const { columns: lightColumns, rows: lightRows, cellData } = lightInfaltePayload ?? {};
 
   const meta = parseQuerySchema(querySchemaB64, visualizationType);
   const result = skeleton.content.result;
@@ -45,7 +45,8 @@ export const inflatePayload = (
     })),
   }));
 
-  result.cellData = buildCellData(meta, result.columns);
+  result.cellData = cellData;
+  // result.cellData = buildCellData(meta, result.columns);
   result.rows = buildRows(meta, result.cellData.length).map((row, rowIdx) => ({
     ...row,
     members: row.members.map((member: any, memberIdx: number) => ({
@@ -102,6 +103,14 @@ export const lighInflatePayload = (skeleton: any, querySchemaB64: string, visual
   const cellData = buildCellData(meta, rawColumns);
   const rawRaws = buildRows(meta, cellData.length);
 
+  const measures = meta.measures.reduce((prev: any, current: any) => {
+    const { dataField, displayNameWithoutAggregator } = current;
+    return {
+      ...prev,
+      [dataField]: displayNameWithoutAggregator,
+    };
+  }, {});
+
   const columns = rawColumns.map((column) => ({
     ...column,
     members: column.members
@@ -112,6 +121,15 @@ export const lighInflatePayload = (skeleton: any, querySchemaB64: string, visual
         levelDisplayName,
         attributeName,
       })),
+    cellDataDisplayName: column.members
+      .map((member: any) => {
+        if (member.isMeasure === 'true') {
+          return measures[member.dataField];
+        }
+
+        return member.name;
+      })
+      .join(', '),
   }));
 
   const rows = rawRaws.map((row) => ({
@@ -124,7 +142,7 @@ export const lighInflatePayload = (skeleton: any, querySchemaB64: string, visual
     })),
   }));
 
-  return { columns, rows };
+  return { columns, rows, cellData };
 };
 
 function parseQuerySchema(querySchema: string, vizType: string, initialPoints?: number) {
@@ -252,7 +270,7 @@ function buildColumns(meta: any, skeleton: any, maxLength?: number) {
     const pts = maxLength !== undefined ? Math.floor(maxLength / measuresCount) : meta.categoryInfo.points;
 
     for (let i = 0; i < pts; i++) {
-      const catLabel = `Category ${i + 1}`;
+      const catLabel = `${i + 1}`;
       meta.measures.forEach((m: any) => {
         cols.push(produceColumn(tpl, catLabel, meta.colHierarchies, m));
       });
@@ -309,12 +327,12 @@ function produceColumn(
     const nothHasDisplayName = !colHierarchy['@_hierarchyDisplayName'];
     const value = nothHasDisplayName ? 'column all' : `${colHierarchy['@_hierarchyDisplayName']} ${timeDisplay}`;
     return {
-      name: timeDisplay ?? 'column all',
+      name: value,
       isAll: 'false',
       isSubTotal: 'false',
-      displayName: timeDisplay ?? 'column all',
+      displayName: value,
       isRepetition: 'false',
-      levelDisplayName: value,
+      levelDisplayName: nothHasDisplayName ? '' : value,
       dataField: colHierarchy['@_dataField'],
       attributeDatafield: colHierarchy['@_dataField'],
       dimensionName: colHierarchy['@_dimension'],
@@ -335,8 +353,8 @@ function produceColumn(
 
 function buildCellData(meta: any, columns: any): any[][] {
   const isGrid = getIsGrid(meta.vizType, meta.rowHierarchies.length, meta.measures.length);
-
-  const rows = isGrid ? 5 : 1; // tabla -> varias filas; gráfico -> 1
+  const hasMultipleRows = meta.rowHierarchies[0]?.['@_dataField'] !== DEFAULT_HIERARCHY_ROW['@_dataField'];
+  const rows = isGrid || hasMultipleRows ? 4 : 1; // tabla -> varias filas; gráfico -> 1
 
   const buildRow = () => {
     // simpleGrid2 → 1 celda por measure  (columns.length == measures.length)
@@ -365,6 +383,10 @@ function isKpiLike(v: string) {
 
 function getIsGrid(v: string, rows: any, measures: any) {
   return v === 'simpleGrid2' || (v === 'autoChart' && rows > 1) || (v === 'autoChart' && measures > 1);
+}
+
+function hasMultipleRows(v: string, rows: any) {
+  return v !== 'simpleGrid2' && rows > 0;
 }
 
 function randInt(min: number, max: number) {

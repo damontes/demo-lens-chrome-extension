@@ -2,7 +2,7 @@ import { LG, MD } from '@zendeskgarden/react-typography';
 import styled from 'styled-components';
 import useAppState from '@/storage';
 import ConfigurationForm from './ConfigurationForm';
-import { useMemo } from 'react';
+import { reloadDashboard } from '@/actions';
 
 const EditConfiguration = ({ configurationId, onClose }: any) => {
   const addConfiguration = useAppState((state: any) => state.addConfiguration);
@@ -11,6 +11,7 @@ const EditConfiguration = ({ configurationId, onClose }: any) => {
 
   const handleSubmit = async (newConfiguration: any) => {
     addConfiguration(configurationId, newConfiguration);
+    await reloadDashboard();
     onClose();
   };
 

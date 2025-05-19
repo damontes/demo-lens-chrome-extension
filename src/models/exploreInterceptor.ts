@@ -1861,19 +1861,23 @@ class ExploreInterceptor {
       }
 
       if (ExploreInterceptor.isExploreQuery(url)) {
-        if (!configurationDashboards?.includes(this.#currentDashboard.id)) {
+        const queryId = json.content.queryId || json.queryId;
+        const activeDashboards = Object.entries(dashboards).filter(([id]) => configurationDashboards?.includes(id));
+
+        const [_, currentDashboard] =
+          (activeDashboards.find(([_, dashboard]: any) => {
+            return dashboard.dashboardId === this.#currentDashboard.id;
+          }) as any) ?? [];
+
+        if (!currentDashboard) {
           return response;
         }
-
-        const queryId = json.content.queryId || json.queryId;
 
         const currentTab = this.#currentDashboard.tabs.find((tab: any) => tab.queries[queryId]);
         const query = currentTab?.queries[queryId];
         const { querySchema, visualizationType, description, cubeModelId } = query;
 
         try {
-          const currentDashboard = dashboards[this.#currentDashboard.id];
-
           const lightInfaltePayload = currentDashboard?.tabs.find((tab: any) => tab.id === currentTab.id).queries[
             queryId
           ].payload;
@@ -1974,24 +1978,23 @@ class ExploreInterceptor {
     return exploreQueries.some((regex) => regex.test(url));
   }
 
-  static isDashboardBimeo(url: string) {
-    return /^https:\/\/bimeio-production-us-east-1-master\.s3\.amazonaws\.com\/studio\/cache\/.+\/front\.json/.test(
-      url,
-    );
+  static isDashboardBimeo(rawUrl: string) {
+    const url = new URL(rawUrl);
+
+    return url.hostname.endsWith('.amazonaws.com') && /^\/studio\/cache\/[^/]+\/front\.json$/.test(url.pathname);
   }
 
   static isDashboardFromZendesk(url: string) {
     return /^https:\/\/([a-zA-Z0-9-]+\.)?zendesk\.com\/explore\/graphql\?PublishedDashboardQuery/.test(url);
   }
 
-  static isNotValidDashboard(url: string) {
+  static isValidDashboard(url: string) {
     const allowedPatterns = [
-      /^https:\/\/([a-zA-Z0-9_-]+\.)?zendesk\.com\/explore\/dashboard\/.*$/,
-
-      /^https:\/\/([a-zA-Z0-9_-]+\.)?zendesk\.com\/explore\/studio(?:[#?].*)?$/,
+      /^https:\/\/z3n.*\.zendesk\.com\/explore\/dashboard\/.*$/,
+      /^https:\/\/z3n.*\.zendesk\.com\/explore\/studio(?:[#?].*)?$/,
     ];
 
-    return !allowedPatterns.some((pattern) => pattern.test(url));
+    return allowedPatterns.some((pattern) => pattern.test(url));
   }
 }
 

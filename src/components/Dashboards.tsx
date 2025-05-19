@@ -9,6 +9,7 @@ import EditDashboard from './EditDashboard';
 import ConfirmationModal from './ConfirmationModal';
 import { useToast, Notification } from '@zendeskgarden/react-notifications';
 import { syncState } from '@/actions';
+import { getRandomId } from '@/lib/general';
 
 const Dashboards = () => {
   const [editDashboardId, setEditDashboardId] = useState('');
@@ -26,8 +27,10 @@ const Dashboards = () => {
   const { addToast } = useToast();
 
   const onCreateDashboard = async (currentDashboard: any) => {
-    const { id, name, sourceName, tabs } = currentDashboard;
+    const { id: dashboardId, name, sourceName, tabs } = currentDashboard;
+    const id = getRandomId();
     const newDashboard = {
+      dashboardId,
       name,
       sourceName,
       tabs: tabs.map((tab: any) => ({

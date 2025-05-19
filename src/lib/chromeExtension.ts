@@ -49,3 +49,8 @@ export const getCurrentTabDetails = async () => {
 
   return { url, dashboardName, id };
 };
+
+export const getCurrentVersion = async () => {
+  const manifest = await browser.runtime.getManifest();
+  return manifest.version;
+};

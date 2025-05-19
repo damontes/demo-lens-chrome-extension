@@ -2,37 +2,30 @@ import browser from 'webextension-polyfill';
 import { getAppState, setAppState } from '../lib/chromeExtension';
 import { ACTIONS } from './dictionary';
 
-export const startAnalyzis = async () => {
+export const reloadDashboard = async () => {
   const tab = await getCurrentTab();
-
   if (!tab.id) return;
+  await browser.tabs.reload(tab.id);
+};
 
+export const startAnalyzis = async () => {
   await setAppState({
     startAnalyzis: true,
   });
 
-  await browser.tabs.reload(tab.id);
-
+  await reloadDashboard();
   return waitForDashboard();
 };
 
 export const saveActiveConfiguration = async (activeConfiguration: string) => {
-  const tab = await getCurrentTab();
-
-  if (!tab.id) return;
-
   await setAppState({
     activeConfiguration,
   });
 
-  await browser.tabs.reload(tab.id);
+  await reloadDashboard();
 };
 
 export const saveTabs = async (dashboards: any, dashboardId: string, tabs: any) => {
-  const browserTab = await getCurrentTab();
-
-  if (!browserTab.id) return;
-
   await setAppState({
     dashboards: {
       ...dashboards,
@@ -43,7 +36,7 @@ export const saveTabs = async (dashboards: any, dashboardId: string, tabs: any) 
     },
   });
 
-  await browser.tabs.reload(browserTab.id);
+  await reloadDashboard();
 };
 
 export const syncState = async (payload: any) => {

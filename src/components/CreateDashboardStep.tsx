@@ -1,9 +1,6 @@
 import { Accordion } from '@zendeskgarden/react-accordions';
 import { Button } from '@zendeskgarden/react-buttons';
 import styled from 'styled-components';
-import { getAppState, setAppState } from '../lib/chromeExtension';
-import { useState } from 'react';
-import { Spinner } from '@zendeskgarden/react-loaders';
 
 type Props = {
   handleSubmit: ({ name }: { name: string }) => void;

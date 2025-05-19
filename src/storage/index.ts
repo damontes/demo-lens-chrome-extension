@@ -10,6 +10,8 @@ const useAppState = create()(
     dashboards: {},
     dashboadDetails: {},
     activeConfiguration: '',
+    version: 0,
+    isEnabled: false,
     setInitialState: (state) => {
       set(state);
     },

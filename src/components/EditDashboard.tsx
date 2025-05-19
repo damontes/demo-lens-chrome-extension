@@ -42,12 +42,27 @@ const EditDashboard = ({ dashboardId, onClose }: any) => {
     Object.entries(currentTab.queries).forEach(([queryId, query]: any) => {
       const rows = query.payload.rows;
       rows.forEach((row: any, rowIdx: number) => {
-        row.members.forEach((member: any, memberIdx: number) => {
+        row.members.forEach((_: any, memberIdx: number) => {
           const identifier = `row-${rowIdx}#member-${memberIdx}#queryId-${queryId}`;
           const name = rawRows[identifier];
           if (name) {
             currentTab.queries[queryId].payload.rows[rowIdx].members[memberIdx].name = name;
             currentTab.queries[queryId].payload.rows[rowIdx].members[memberIdx].displayName = name;
+          }
+        });
+      });
+    });
+  };
+
+  const onChangeCellDataValues = (currentTab: any, rawCellData: any) => {
+    Object.entries(currentTab.queries).forEach(([queryId, query]: any) => {
+      const cellData = query.payload.cellData;
+      cellData.forEach((row: any, rowIdx: number) => {
+        row.forEach((_: any, columnIdx: number) => {
+          const identifier = `cellData-${rowIdx}-${columnIdx}#queryId-${queryId}`;
+          const value = rawCellData[identifier];
+          if (value) {
+            currentTab.queries[queryId].payload.cellData[rowIdx][columnIdx].value = Number(value);
           }
         });
       });
@@ -70,8 +85,13 @@ const EditDashboard = ({ dashboardId, onClose }: any) => {
       .filter(([key]) => key.startsWith('row'))
       .reduce((prev: any, [key, value]) => ({ ...prev, [key]: value }), {});
 
+    const rawCellData = Object.entries(values)
+      .filter(([key]) => key.startsWith('cellData'))
+      .reduce((prev: any, [key, value]) => ({ ...prev, [key]: value }), {});
+
     onChangeRowValues(currentTab, rawRows);
     onChangeColumnValues(currentTab, rawColumns);
+    onChangeCellDataValues(currentTab, rawCellData);
 
     const newTabs = dashboard.tabs.map((tab: any, idx: number) => {
       if (idx === currentTabIndex) return currentTab;
@@ -93,56 +113,87 @@ const EditDashboard = ({ dashboardId, onClose }: any) => {
   };
 
   const renderFields = (queryId: string, payload: any) => {
-    const { rows, columns } = payload;
-
-    if (rows.length > 1) {
-      return (
-        <ul style={{ padding: '0 16px' }}>
-          {rows.map((row: any, rowIdx: number) => (
-            <li
-              style={{ display: 'flex', gap: '8px', justifyContent: 'space-around', alignItems: 'center' }}
-              key={rowIdx}
-            >
-              <MD style={{ fontWeight: 'bold', marginTop: '12px', minWidth: '15%' }}>Row {rowIdx + 1}</MD>
-              <div
-                style={{ display: 'grid', gap: '8px', alignItems: 'center', flex: 1, gridTemplateColumns: '1fr 1fr' }}
-              >
-                {row.members.map((member: any, memberIdx: number) => (
-                  <Field key={memberIdx} style={{ flex: 1 }}>
-                    <Field.Label>{member.levelDisplayName}</Field.Label>
-                    <Input defaultValue={member.name} name={`row-${rowIdx}#member-${memberIdx}#queryId-${queryId}`} />
-                  </Field>
-                ))}
-              </div>
-            </li>
-          ))}
-        </ul>
-      );
-    }
-
+    const { rows, columns, cellData } = payload;
     const columnsByGroupName = Object.groupBy(columns, (item: any) => item.members[0].name);
+
     return (
-      <ul style={{ padding: '0 16px' }}>
-        {Object.entries(columnsByGroupName).map(([groupByName, columns]: any, idx: number) => {
-          const members = columns[0].members;
-          return (
-            <li style={{ display: 'flex', gap: '8px', justifyContent: 'space-around', alignItems: 'center' }} key={idx}>
-              <MD style={{ fontWeight: 'bold', marginTop: '12px', minWidth: '15%' }}>Column {idx + 1}</MD>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flex: 1 }}>
-                {members.map((member: any, idx: number) => (
-                  <Field key={idx} style={{ flex: 1 }}>
-                    <Field.Label>{member.levelDisplayName}</Field.Label>
-                    <Input
-                      defaultValue={groupByName}
-                      name={`col-${groupByName}#attributeName-${member.attributeName}#queryId-${queryId}`}
-                    />
-                  </Field>
-                ))}
-              </div>
-            </li>
-          );
-        })}
-      </ul>
+      <>
+        {rows.length > 1 && (
+          <ul style={{ padding: '0 16px' }}>
+            {rows.map((row: any, rowIdx: number) => (
+              <li
+                style={{ display: 'flex', gap: '8px', justifyContent: 'space-around', alignItems: 'center' }}
+                key={rowIdx}
+              >
+                <MD style={{ fontWeight: 'bold', marginTop: '12px', minWidth: '15%' }}>Row {rowIdx + 1}</MD>
+                <div
+                  style={{ display: 'grid', gap: '8px', alignItems: 'center', flex: 1, gridTemplateColumns: '1fr 1fr' }}
+                >
+                  {row.members.map((member: any, memberIdx: number) => (
+                    <Field key={memberIdx} style={{ flex: 1 }}>
+                      <Field.Label>{member.levelDisplayName}</Field.Label>
+                      <Input defaultValue={member.name} name={`row-${rowIdx}#member-${memberIdx}#queryId-${queryId}`} />
+                    </Field>
+                  ))}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+        {Object.entries(columnsByGroupName).length > 1 && (
+          <ul style={{ padding: '0 16px' }}>
+            {Object.entries(columnsByGroupName).map(([groupByName, columns]: any, idx: number) => {
+              const members = columns[0].members;
+              return (
+                <li
+                  style={{ display: 'flex', gap: '8px', justifyContent: 'space-around', alignItems: 'center' }}
+                  key={idx}
+                >
+                  <MD style={{ fontWeight: 'bold', marginTop: '12px', minWidth: '15%' }}>Column {idx + 1}</MD>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flex: 1 }}>
+                    {members.map((member: any, idx: number) => (
+                      <Field key={idx} style={{ flex: 1 }}>
+                        <Field.Label>{member.levelDisplayName}</Field.Label>
+                        <Input
+                          defaultValue={groupByName}
+                          name={`col-${groupByName}#attributeName-${member.attributeName}#queryId-${queryId}`}
+                        />
+                      </Field>
+                    ))}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+        <ul style={{ listStyleType: 'none', padding: '0 16px' }}>
+          {cellData.map((row: any, rowIdx: number) => {
+            return (
+              <li>
+                <MD style={{ fontWeight: 'bold', marginTop: '12px', minWidth: '15%' }}>
+                  {rows[rowIdx].members[0].name}
+                </MD>
+                <ul style={{ listStyleType: 'none' }}>
+                  {row.map((item: any, columnIdx: number) => {
+                    return (
+                      <li>
+                        <Field style={{ flex: 1 }}>
+                          <Field.Label>{columns[columnIdx].cellDataDisplayName}</Field.Label>
+                          <Input
+                            defaultValue={item.value}
+                            type="number"
+                            name={`cellData-${rowIdx}-${columnIdx}#queryId-${queryId}`}
+                          />
+                        </Field>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </li>
+            );
+          })}
+        </ul>
+      </>
     );
   };
 

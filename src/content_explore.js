@@ -1,5 +1,6 @@
 import { initilizeApp, setAppState } from './lib/chromeExtension';
 import { ACTIONS } from './actions/dictionary';
+import ExploreInterceptor from './models/exploreInterceptor';
 
 window.addEventListener(ACTIONS.savedCurrentDashboard, async (event) => {
   const currentDashboard = event.detail;
@@ -10,4 +11,4 @@ window.addEventListener(ACTIONS.savedCurrentDashboard, async (event) => {
   });
 });
 
-if (location.hostname.startsWith('z3n')) initilizeApp(document);
+initilizeApp(document);

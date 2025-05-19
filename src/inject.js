@@ -6,8 +6,6 @@ import ExploreInterceptor from './models/exploreInterceptor';
 
   let state = stateScript ? JSON.parse(stateScript?.textContent) : {};
 
-  console.log('GET STATE FROM INJECT.JS', state);
-
   const { startAnalyzis, activeConfiguration = '', configurations = {}, dashboards = {} } = state;
 
   const exploreInterceptor = new ExploreInterceptor();
@@ -17,9 +15,9 @@ import ExploreInterceptor from './models/exploreInterceptor';
   if (startAnalyzis || configurationDashboards.length) {
     exploreInterceptor.intercept(configurationDashboards, dashboards);
 
-    const dashboard = await exploreInterceptor.getCurrentDashboard();
-
     if (startAnalyzis) {
+      const dashboard = await exploreInterceptor.getCurrentDashboard();
+
       window.dispatchEvent(
         new CustomEvent(ACTIONS.savedCurrentDashboard, {
           detail: dashboard,

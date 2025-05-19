@@ -1,8 +1,9 @@
 import { Button } from '@zendeskgarden/react-buttons';
 import { Field, Input, Fieldset, Checkbox } from '@zendeskgarden/react-forms';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
 import useAppState from '@/storage';
+import { Notification, useToast } from '@zendeskgarden/react-notifications';
 
 const DEFAULT_INITIAL_VALUES: { name: string; dashboards: string[] } = {
   name: '',
@@ -20,6 +21,7 @@ const ConfigurationForm = ({ onClose, handleSubmit, initialValues = DEFAULT_INIT
   const [showError, setShowError] = useState(false);
 
   const dashboards = useAppState((state: any) => state.dashboards);
+  const { addToast } = useToast();
 
   const onSubmit = (e: any) => {
     e.preventDefault();
@@ -32,6 +34,45 @@ const ConfigurationForm = ({ onClose, handleSubmit, initialValues = DEFAULT_INIT
     }
 
     handleSubmit(values);
+  };
+
+  const onAddDashboard = (id: string, dashboardId: string) => {
+    const selectedDashboards = values.dashboards;
+
+    const dashboardIds = Object.entries(dashboards)
+      .filter(([id]) => selectedDashboards.includes(id))
+      .map(([_, item]: any) => item.dashboardId);
+
+    const alreadyExist = selectedDashboards.includes(id);
+
+    if (alreadyExist) {
+      setValues((prev: any) => ({
+        ...prev,
+        dashboards: prev.dashboards.filter((comparedId: string) => comparedId !== id),
+      }));
+      return;
+    }
+
+    const isDuplicated = dashboardIds.includes(dashboardId);
+
+    if (isDuplicated) {
+      addToast(
+        ({ close }) => (
+          <Notification type="warning" style={{ maxWidth: '80%' }}>
+            <Notification.Title>Warning</Notification.Title>
+            Two dashboards of the same type cannot be selected, please unselect the other one.
+            <Notification.Close aria-label="Close" onClick={close} />
+          </Notification>
+        ),
+        { placement: 'top-end' },
+      );
+      return;
+    }
+
+    setValues((prev: any) => ({
+      ...prev,
+      dashboards: [...prev.dashboards, id],
+    }));
   };
 
   return (
@@ -50,17 +91,7 @@ const ConfigurationForm = ({ onClose, handleSubmit, initialValues = DEFAULT_INIT
         {Object.entries(dashboards).map(([id, item]: any) => {
           return (
             <Field key={id}>
-              <Checkbox
-                checked={values.dashboards.includes(id)}
-                onChange={() => {
-                  setValues((prev: any) => ({
-                    ...prev,
-                    dashboards: prev.dashboards.includes(id)
-                      ? prev.dashboards.filter((comparedId: string) => comparedId !== id)
-                      : [...prev.dashboards, id],
-                  }));
-                }}
-              >
+              <Checkbox checked={values.dashboards.includes(id)} onChange={() => onAddDashboard(id, item.dashboardId)}>
                 <Field.Label>{item.name}</Field.Label>
               </Checkbox>
             </Field>
