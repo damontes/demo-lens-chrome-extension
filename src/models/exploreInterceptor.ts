@@ -1,8 +1,9 @@
-import { inflatePayload, lighInflatePayload } from '../lib/zendesk';
+import { inflatePayload, lighInflatePayload } from '../lib/exploreInflatePayload';
+import ControllerInterpceptor from './controllerInterceptor';
 import FetchInterceptor from './fetchInterceptor';
 import XHRInterceptor from './xhrInterceptor';
 
-export const SKELETON = {
+export const EXPLORE_SKELETON = {
   type: 'result',
   content: {
     result: {
@@ -1862,27 +1863,29 @@ class ExploreInterceptor {
 
       if (ExploreInterceptor.isExploreQuery(url)) {
         const queryId = json.content.queryId || json.queryId;
-        const activeDashboards = Object.entries(dashboards).filter(([id]) => configurationDashboards?.includes(id));
 
-        const [_, currentDashboard] =
-          (activeDashboards.find(([_, dashboard]: any) => {
-            return dashboard.dashboardId === this.#currentDashboard.id;
-          }) as any) ?? [];
+        const activeDashboard = ControllerInterpceptor.findActiveDashboard(
+          configurationDashboards,
+          dashboards,
+          this.#currentDashboard,
+        );
 
-        if (!currentDashboard) {
+        if (!activeDashboard) {
           return response;
         }
 
         const currentTab = this.#currentDashboard.tabs.find((tab: any) => tab.queries[queryId]);
         const query = currentTab?.queries[queryId];
-        const { querySchema, visualizationType, description, cubeModelId } = query;
+        const { querySchema, visualizationType, cubeModelId } = query;
 
         try {
-          const lightInfaltePayload = currentDashboard?.tabs.find((tab: any) => tab.id === currentTab.id).queries[
-            queryId
-          ].payload;
+          const isLive = activeDashboard.isLive ?? false;
 
-          const payload = inflatePayload(SKELETON, querySchema, visualizationType, lightInfaltePayload);
+          const lightInfaltePayload = !isLive
+            ? activeDashboard?.tabs.find((tab: any) => tab.id === currentTab.id).queries[queryId].payload
+            : null;
+
+          const payload = inflatePayload(EXPLORE_SKELETON, querySchema, visualizationType, lightInfaltePayload);
 
           const newJson = {
             isSuccess: true,
@@ -1939,13 +1942,18 @@ class ExploreInterceptor {
 
     return {
       id: mainTag.guid,
+      type: ExploreInterceptor.getDashboardType(),
       tabs: tabs.map((tab: any) => {
         const { id, name, name_translation_key, widgets: rawWidgets, tag_id: tagId } = tab;
         const queries = rawWidgets
           .filter((widget: any) => widget.query_id)
           .reduce((prev: any, current: any) => {
             const currentQuery = rawQueries.find((item: any) => item.id === current.query_id);
-            const payload = lighInflatePayload(SKELETON, currentQuery.query_schema, currentQuery.visualization_type);
+            const payload = lighInflatePayload(
+              EXPLORE_SKELETON,
+              currentQuery.query_schema,
+              currentQuery.visualization_type,
+            );
             return {
               ...prev,
               [currentQuery.id]: {
@@ -1970,6 +1978,10 @@ class ExploreInterceptor {
     };
   }
 
+  static getDashboardType() {
+    return 'explore';
+  }
+
   static isExploreQuery(url: string) {
     const exploreQueries = [
       /^https:\/\/([a-zA-Z0-9-]+\.)?zendesk\.com\/explore-fast\/api\/v2\/viewer\/dashboard\/query$/,
@@ -1986,15 +1998,6 @@ class ExploreInterceptor {
 
   static isDashboardFromZendesk(url: string) {
     return /^https:\/\/([a-zA-Z0-9-]+\.)?zendesk\.com\/explore\/graphql\?PublishedDashboardQuery/.test(url);
-  }
-
-  static isValidDashboard(url: string) {
-    const allowedPatterns = [
-      /^https:\/\/z3n.*\.zendesk\.com\/explore\/dashboard\/.*$/,
-      /^https:\/\/z3n.*\.zendesk\.com\/explore\/studio(?:[#?].*)?$/,
-    ];
-
-    return allowedPatterns.some((pattern) => pattern.test(url));
   }
 }
 

@@ -9,11 +9,11 @@ import { Spinner } from '@zendeskgarden/react-loaders';
 import useAppState from '../storage';
 import Configurations from '@/components/Configurations';
 import { ToastProvider } from '@zendeskgarden/react-notifications';
-import ExploreInterceptor from '@/models/exploreInterceptor';
+import ZendeskIcon from '@zendeskgarden/svg-icons/src/26/zendesk.svg?react';
 
 const TABS = [
   { id: 'tab-1', title: 'Dashboards', content: Dashboards },
-  { id: 'tab-2', title: 'Configurations', content: Configurations },
+  { id: 'tab-2', title: 'Use cases', content: Configurations },
 ];
 const Popup = () => {
   const { colorScheme } = useColorScheme();
@@ -21,16 +21,14 @@ const Popup = () => {
   const [loading, setLoading] = useState(true);
 
   const setInitalState = useAppState((state: any) => state.setInitialState);
-  const isEnabled = useAppState((state: any) => state.isEnabled);
   const version = useAppState((state: any) => state.version);
 
   const getInitialState = async () => {
     setLoading(true);
     const state = await getAppState();
-    const dashboadDetails = await getCurrentTabDetails();
+    const dashboardDetails = await getCurrentTabDetails();
     const version = await getCurrentVersion();
-    const isEnabled = ExploreInterceptor.isValidDashboard(dashboadDetails.url);
-    setInitalState({ ...state, isEnabled, dashboadDetails, version });
+    setInitalState({ ...state, dashboardDetails, version });
     setLoading(false);
   };
 
@@ -47,26 +45,20 @@ const Popup = () => {
     <ThemeProvider
       theme={{ ...DEFAULT_THEME, colors: { ...DEFAULT_THEME.colors, base: colorScheme, primaryHue: 'green' } }}
     >
-      <ToastProvider zIndex={1}>
+      <ToastProvider zIndex={10}>
         <Container>
           <Header>
-            <Image src="/icon_zendesk.png" alt="Zendesk logo" />
+            <ZendeskIcon style={{ color: 'white' }} width={25} height={25} />
             <Title style={{ fontWeight: '900', color: '#eee' }}>DemoLens</Title>
             <SM style={{ color: 'white', marginLeft: 'auto' }}>v {version}</SM>
           </Header>
         </Container>
-        {loading && (
+        {loading ? (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Spinner size="large" />
             <SM>Loading...</SM>
           </div>
-        )}
-        {!loading && !isEnabled && (
-          <EmptyText style={{ maxWidth: '420px', margin: '0 auto' }}>
-            This is not a valid dashboard please make sure you are in the correct URL and its a z3n subdomain account
-          </EmptyText>
-        )}
-        {!loading && isEnabled && (
+        ) : (
           <Tabs selectedItem={selectedTab} onChange={setSelectedTab}>
             <Tabs.TabList style={{ display: 'flex' }}>
               {TABS.map((tab: any) => (
@@ -117,14 +109,6 @@ const Header = styled.header`
   padding: ${({ theme }) => theme.space.md};
 `;
 
-const Image = styled.img`
-  width: 24px;
-  height: 24px;
-  aspect-ratio: 1;
-  border-radius: 2px;
-  overflow: hidden;
-`;
-
 const Container = styled.div`
   margin-bottom: 12px;
 `;
@@ -135,11 +119,4 @@ const Content = styled.div`
 
 const Title = styled(MD)`
   font-weight: ${({ theme }) => theme.fontWeights.semibold};
-`;
-
-const EmptyText = styled(SM)`
-  margin: 0;
-  text-align: center;
-  color: ${({ theme }) => theme.palette.grey[600]};
-  padding: ${({ theme }) => theme.space.sm} 0px;
 `;

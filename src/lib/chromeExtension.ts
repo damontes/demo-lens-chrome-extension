@@ -1,3 +1,4 @@
+import { ACTIONS } from '@/actions/dictionary';
 import browser from 'webextension-polyfill';
 
 const APP_STATE_KEY = 'state';
@@ -18,6 +19,11 @@ export const setAppState = async (value: any) => {
 export const initilizeApp = async (document: Document) => {
   const savedState = await getAppState();
 
+  const isActive = savedState?.activeConfiguration ?? false;
+  const pathIcon = isActive ? 'icon/16_active.png' : 'icon/16.png';
+
+  await changeTabIcon(pathIcon);
+
   const stateTag = document.createElement('script');
   stateTag.id = '__EXTENSION_STATE__';
   stateTag.type = 'application/json';
@@ -26,8 +32,8 @@ export const initilizeApp = async (document: Document) => {
 
   // Inject script
   const script = document.createElement('script');
+  script.id = '__MY_INJECTED_SCRIPT__';
   script.src = browser.runtime.getURL('src/inject.js');
-  script.onload = () => script.remove();
   document.head.appendChild(script);
 };
 
@@ -53,4 +59,19 @@ export const getCurrentTabDetails = async () => {
 export const getCurrentVersion = async () => {
   const manifest = await browser.runtime.getManifest();
   return manifest.version;
+};
+
+export const setTabIcon = async (path: string) => {
+  await browser.action.setIcon({
+    path: {
+      '16': path,
+    },
+  });
+};
+
+export const changeTabIcon = async (iconPath: string) => {
+  browser.runtime.sendMessage({
+    type: ACTIONS.changeIcon,
+    payload: { iconPath },
+  });
 };

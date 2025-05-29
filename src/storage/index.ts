@@ -4,26 +4,36 @@ import { act } from 'react';
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
-const useAppState = create()(
+type AppState = {
+  configurations: Record<string, any>;
+  dashboards: Record<string, any>;
+  dashboardDetails: Record<string, any>;
+  activeConfiguration: string;
+  version: number;
+  setInitialState: (state: AppState) => void;
+  saveDashboard: (id: string, dashboard: any) => void;
+  removeDashboard: (id: string) => void;
+  addConfiguration: (id: string, configuration: any) => void;
+  removeConfiguration: (id: string) => void;
+  setActiveConfiguration: (id: string) => void;
+  dashboardToAnalyze: any;
+};
+
+const useAppState = create<AppState>()(
   immer((set) => ({
     configurations: {},
     dashboards: {},
-    dashboadDetails: {},
+    dashboardDetails: {},
     activeConfiguration: '',
     version: 0,
     isEnabled: false,
     setInitialState: (state) => {
       set(state);
     },
-    addDashboard: (id, dashboard) =>
+    saveDashboard: (id, dashboard) =>
       set((state) => {
         state.dashboards[id] = dashboard;
       }),
-    saveTab: (id, tabIndex, tab) => {
-      set((state) => {
-        state.dashboards[id].tabs[tabIndex] = tab;
-      });
-    },
     removeDashboard: (id) =>
       set((state) => {
         delete state.dashboards[id];
@@ -42,6 +52,10 @@ const useAppState = create()(
         state.activeConfiguration = id;
       });
     },
+    setDashboardToAnalyze: (dashboard) =>
+      set((state) => {
+        state.dashboardToAnalyze = dashboard;
+      }),
   })),
 );
 

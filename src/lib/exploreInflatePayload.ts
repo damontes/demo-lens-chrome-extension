@@ -1,5 +1,6 @@
 import { ungzip } from 'pako';
 import { XMLParser } from 'fast-xml-parser';
+import { randInt } from './general';
 
 const xmlParser = new XMLParser({ ignoreAttributes: false });
 
@@ -45,8 +46,7 @@ export const inflatePayload = (
     })),
   }));
 
-  result.cellData = cellData;
-  // result.cellData = buildCellData(meta, result.columns);
+  result.cellData = cellData ?? buildCellData(meta, result.columns);
   result.rows = buildRows(meta, result.cellData.length).map((row, rowIdx) => ({
     ...row,
     members: row.members.map((member: any, memberIdx: number) => ({
@@ -58,12 +58,10 @@ export const inflatePayload = (
   result.rowsHeaders = meta.rowsHeaders;
   result.rowsDataFields = meta.rowsDataFields;
 
-  // quick stats
   const flat = result.cellData.flat().map((o: any) => o.value as number);
   result.stats.maximum = Math.max(...flat);
   result.stats.minimum = Math.min(...flat);
 
-  // OPTIONAL: fill helpers Zendesk sometimes expects
   result.columnsHeaders = meta.colHierarchies.map((c: any) => c['@_hierarchyDisplayName']).filter(Boolean);
   result.columnsDataFields = meta.colHierarchies
     .map((c: any) => c['@_hierarchyName'])
@@ -150,7 +148,6 @@ function parseQuerySchema(querySchema: string, vizType: string, initialPoints?: 
 
   const xml = ungzip(binary, { to: 'string' });
   const parsedXml = xmlParser.parse(xml);
-
   const { Query: query } = parsedXml;
 
   const { Measures: rawMeasures, Columns: rawColumns, Rows: rawRows, Config } = query;
@@ -383,14 +380,6 @@ function isKpiLike(v: string) {
 
 function getIsGrid(v: string, rows: any, measures: any) {
   return v === 'simpleGrid2' || (v === 'autoChart' && rows > 1) || (v === 'autoChart' && measures > 1);
-}
-
-function hasMultipleRows(v: string, rows: any) {
-  return v !== 'simpleGrid2' && rows > 0;
-}
-
-function randInt(min: number, max: number) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 function getMeasureMetadata(measure: any, configJson: any) {

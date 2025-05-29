@@ -2,14 +2,17 @@ import { MD, LG, SM } from '@zendeskgarden/react-typography';
 import styled from 'styled-components';
 import { useEffect, useState } from 'react';
 import { Button, IconButton } from '@zendeskgarden/react-buttons';
-import CreateDashboard from '../components/CreateDashboard';
-import { AddIcon, EditIcon, TrashIcon } from '../icons';
-import useAppState from '../storage';
-import EditDashboard from './EditDashboard';
-import ConfirmationModal from './ConfirmationModal';
 import { useToast, Notification } from '@zendeskgarden/react-notifications';
-import { syncState } from '@/actions';
-import { getRandomId } from '@/lib/general';
+import { reloadDashboard, syncState } from '@/actions';
+import useAppState from '@/storage';
+import { AddIcon, EditIcon, TrashIcon } from '@/icons';
+import ConfirmationModal from '../ui/ConfirmationModal';
+import EditDashboard from './EditDashboard';
+import Categories from '../Categories';
+import { Accordion } from '@zendeskgarden/react-accordions';
+import AdminInterceptor from '@/models/adminInterceptor';
+import { Tag } from '@zendeskgarden/react-tags';
+import ExploreInterceptor from '@/models/exploreInterceptor';
 
 const Dashboards = () => {
   const [editDashboardId, setEditDashboardId] = useState('');
@@ -17,7 +20,7 @@ const Dashboards = () => {
   const dashboards = useAppState((state: any) => state.dashboards);
   const configurations = useAppState((state: any) => state.configurations);
 
-  const addDashboard = useAppState((state: any) => state.addDashboard);
+  const saveDashboard = useAppState((state: any) => state.saveDashboard);
   const removeDashboard = useAppState((state: any) => state.removeDashboard);
   const currentDashboardId = useAppState((state: any) => state.currentDashboard?.id);
   const [dashboardToRemove, setDashboardToRemove] = useState('');
@@ -26,33 +29,16 @@ const Dashboards = () => {
 
   const { addToast } = useToast();
 
-  const onCreateDashboard = async (currentDashboard: any) => {
-    const { id: dashboardId, name, sourceName, tabs } = currentDashboard;
-    const id = getRandomId();
-    const newDashboard = {
-      dashboardId,
-      name,
-      sourceName,
-      tabs: tabs.map((tab: any) => ({
-        id: tab.id,
-        name: tab.name,
-        queries: Object.entries(tab.queries).reduce((prev: any, current: any) => {
-          const [queryId, query] = current;
-          const { title, payload, visualizationType } = query;
-          return {
-            ...prev,
-            [queryId]: {
-              title,
-              visualizationType,
-              payload,
-            },
-          };
-        }, {}),
-      })),
-    };
+  const dashboardEntries = Object.entries(dashboards);
+  const dashbordsByType = Object.groupBy(
+    dashboardEntries,
+    ([_, dashboard]: any) => dashboard.type ?? ExploreInterceptor.getDashboardType(),
+  );
 
-    addDashboard(id, newDashboard);
-    setIsCreateDashboardOpen(false);
+  const onEditDashboard = async (newDashboard: any) => {
+    saveDashboard(editDashboardId, newDashboard);
+    setEditDashboardId('');
+    await reloadDashboard();
   };
 
   const onDeleteDashboard = (dashboardId: string) => {
@@ -67,15 +53,14 @@ const Dashboards = () => {
     if (activeConfigurations.length > 0) {
       addToast(
         ({ close }) => (
-          <Notification type="warning" style={{ maxWidth: '80%' }}>
+          <Notification type="warning">
             <Notification.Title>Warning</Notification.Title>
-            <div
-              dangerouslySetInnerHTML={{
-                __html: `This dashboard is part of this configurations </br> <b>"${activeConfigurations.join(
-                  ', ',
-                )}"</b>. </br> Please delete it from this configurations first.`,
-              }}
-            />
+
+            <p style={{ maxWidth: '356px', margin: 0 }}>
+              This dashboard is part of the following configurations: <br /> <b>{activeConfigurations.join(', ')}</b>.
+              <br />
+              Please delete it from this configurations first..
+            </p>
             <Notification.Close aria-label="Close" onClick={close} />
           </Notification>
         ),
@@ -86,10 +71,6 @@ const Dashboards = () => {
     }
     removeDashboard(dashboardToRemove);
     setDashboardToRemove('');
-  };
-
-  const onEditDashboard = (dashboardId: string) => {
-    setEditDashboardId(dashboardId);
   };
 
   useEffect(() => {
@@ -128,35 +109,60 @@ const Dashboards = () => {
                   Create Dashboard
                 </Button>
               </div>
-              <List>
-                {Object.entries(dashboards).map(([id, item]: any) => (
-                  <ListItem key={id} isActive={currentDashboardId === id}>
-                    <div style={{ maxWidth: '80%', marginBottom: '8px' }}>
-                      <LG style={{ fontWeight: '700' }}>{item.name}</LG>
-                      <MD>{item.sourceName}</MD>
-                      <SM tag="p" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {id}
-                      </SM>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '2px', marginLeft: 'auto' }}>
-                      <IconButton size="small" onClick={() => onEditDashboard(id)}>
-                        <EditIcon />
-                      </IconButton>
+              <Accordion level={4}>
+                {Object.entries(dashbordsByType).map(([type, dashboards]: any) => {
+                  return (
+                    <Accordion.Section>
+                      <Accordion.Header>
+                        <Accordion.Label>{type}</Accordion.Label>
+                      </Accordion.Header>
+                      <Accordion.Panel>
+                        <List>
+                          {dashboards.map(([id, item]: any) => (
+                            <ListItem key={id} isActive={currentDashboardId === id}>
+                              <div style={{ maxWidth: '80%', marginBottom: '8px' }}>
+                                <LG style={{ fontWeight: '700' }}>{item.name}</LG>
+                                <MD>{item.sourceName}</MD>
+                                <footer style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                                  <SM
+                                    tag="p"
+                                    style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                                  >
+                                    {id}
+                                  </SM>
+                                  {type === AdminInterceptor.getDashboardType() ? (
+                                    <Tag hue="yellow" isPill size="small">
+                                      Instance: {item.dashboardId.split(':').at(0)}
+                                    </Tag>
+                                  ) : null}
+                                </footer>
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '2px', marginLeft: 'auto' }}>
+                                <IconButton size="small" onClick={() => setEditDashboardId(id)}>
+                                  <EditIcon />
+                                </IconButton>
 
-                      <IconButton size="small" isDanger onClick={() => onDeleteDashboard(id)}>
-                        <TrashIcon />
-                      </IconButton>
-                    </div>
-                  </ListItem>
-                ))}
-              </List>
+                                <IconButton size="small" isDanger onClick={() => onDeleteDashboard(id)}>
+                                  <TrashIcon />
+                                </IconButton>
+                              </div>
+                            </ListItem>
+                          ))}
+                        </List>
+                      </Accordion.Panel>
+                    </Accordion.Section>
+                  );
+                })}
+              </Accordion>
             </>
           )}
-          {isCreateDashboardOpen && (
-            <CreateDashboard onClose={() => setIsCreateDashboardOpen(false)} handleSubmit={onCreateDashboard} />
-          )}
+          {isCreateDashboardOpen && <Categories onClose={() => setIsCreateDashboardOpen(false)} />}
           {Boolean(editDashboardId) && (
-            <EditDashboard dashboardId={editDashboardId} onClose={() => setEditDashboardId('')} />
+            <EditDashboard
+              dashboardId={editDashboardId}
+              onClose={() => setEditDashboardId('')}
+              handleSubmit={onEditDashboard}
+            />
           )}
           {Boolean(dashboardToRemove) && (
             <ConfirmationModal

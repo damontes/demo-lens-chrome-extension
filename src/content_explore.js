@@ -1,6 +1,7 @@
 import { initilizeApp, setAppState } from './lib/chromeExtension';
 import { ACTIONS } from './actions/dictionary';
-import ExploreInterceptor from './models/exploreInterceptor';
+
+initilizeApp(document);
 
 window.addEventListener(ACTIONS.savedCurrentDashboard, async (event) => {
   const currentDashboard = event.detail;
@@ -10,5 +11,3 @@ window.addEventListener(ACTIONS.savedCurrentDashboard, async (event) => {
     currentDashboard,
   });
 });
-
-initilizeApp(document);

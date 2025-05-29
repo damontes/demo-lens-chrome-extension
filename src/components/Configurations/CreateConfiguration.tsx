@@ -5,7 +5,7 @@ import ConfigurationForm from './ConfigurationForm';
 import { getRandomId } from '@/lib/general';
 
 const CreateConfiguration = ({ onClose }: any) => {
-  const addConfiguration = useAppState((state: any) => state.addConfiguration);
+  const addConfiguration = useAppState((state) => state.addConfiguration);
 
   const handleSubmit = async (newConfiguration: any) => {
     const id = getRandomId();
@@ -16,8 +16,8 @@ const CreateConfiguration = ({ onClose }: any) => {
   return (
     <Container>
       <Header>
-        <Title>Create configuration</Title>
-        <Description>Group multiple dashboards to create a configuration.</Description>
+        <Title>Create use case</Title>
+        <Description>Group multiple dashboards to create a use case.</Description>
       </Header>
       <ConfigurationForm onClose={onClose} handleSubmit={handleSubmit} />
     </Container>

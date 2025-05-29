@@ -1,17 +1,44 @@
 import { Accordion } from '@zendeskgarden/react-accordions';
 import { Button } from '@zendeskgarden/react-buttons';
 import styled from 'styled-components';
+import { useStepWizardStore } from '../ui/StepWizard/StepWizardProvider';
+import { getRandomId } from '@/lib/general';
 
 type Props = {
-  handleSubmit: ({ name }: { name: string }) => void;
-  onBack: () => void;
-  currentDashboard: any;
+  handleSubmit: (id: string, payload: any) => void;
 };
 
-const CreateDashboardStep = ({ onBack, currentDashboard, handleSubmit }: Props) => {
+const AddExploreDashboard = ({ handleSubmit }: Props) => {
+  const prev = useStepWizardStore((state) => state.prev);
+  const currentDashboard = useStepWizardStore((state) => state.values.currentDashboard);
+
   const onSubmit = async (e: any) => {
     e.preventDefault();
-    handleSubmit(currentDashboard);
+    const { id: dashboardId, name, sourceName, tabs, type } = currentDashboard;
+    const id = getRandomId();
+    const payload = {
+      dashboardId,
+      name,
+      sourceName,
+      type,
+      tabs: tabs.map((tab: any) => ({
+        id: tab.id,
+        name: tab.name,
+        queries: Object.entries(tab.queries).reduce((prev: any, current: any) => {
+          const [queryId, query] = current;
+          const { title, payload, visualizationType } = query;
+          return {
+            ...prev,
+            [queryId]: {
+              title,
+              visualizationType,
+              payload,
+            },
+          };
+        }, {}),
+      })),
+    };
+    handleSubmit(id, payload);
   };
 
   return (
@@ -56,7 +83,7 @@ const CreateDashboardStep = ({ onBack, currentDashboard, handleSubmit }: Props) 
         })}
       </Accordion>
       <footer style={{ display: 'flex', justifyContent: 'flex-end', gap: '16px', marginTop: '8px' }}>
-        <Button size="medium" style={{ width: '100%' }} onClick={onBack}>
+        <Button size="medium" style={{ width: '100%' }} onClick={prev}>
           Back
         </Button>
         <Button type="submit" isPrimary size="medium" style={{ width: '100%' }}>
@@ -100,4 +127,4 @@ const QueryItem = styled.div`
   margin: ${({ theme }) => theme.space.sm} 0;
 `;
 
-export default CreateDashboardStep;
+export default AddExploreDashboard;

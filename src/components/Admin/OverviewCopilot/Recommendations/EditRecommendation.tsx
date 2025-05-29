@@ -1,0 +1,46 @@
+import { MD } from '@zendeskgarden/react-typography';
+import styled, { useTheme } from 'styled-components';
+import { EditIcon } from '@/icons';
+import RecommendationForm from './RecommendationForm';
+
+type Props = {
+  groups: any[];
+  intents: any[];
+  assignees: any[];
+  onSubmit: (recommendation: any) => void;
+  onCancel: () => void;
+  recommendation: any;
+};
+
+const EditRecommendation = ({ groups, intents, assignees, onSubmit, onCancel, recommendation }: Props) => {
+  const theme = useTheme();
+
+  return (
+    <Article>
+      <header style={{ display: 'flex', alignItems: 'center', gap: '8px', color: theme.palette.blue[600] }}>
+        <EditIcon style={{ width: 16, height: '16' }} />
+        <MD style={{ fontWeight: 'semibold' }}>Add Recommendation</MD>
+      </header>
+      <RecommendationForm
+        groups={groups}
+        intents={intents}
+        assignees={assignees}
+        onCancel={onCancel}
+        onSubmit={onSubmit}
+        initialValues={recommendation}
+      />
+    </Article>
+  );
+};
+
+const Article = styled.article`
+  display: flex;
+  flex-direction: column;
+  border: 1px solid ${({ theme }) => theme.palette.blue[600]};
+  border-radius: 8px;
+  padding: 16px;
+  gap: 16px;
+  background-color: ${({ theme }) => theme.palette.blue[200]}99;
+`;
+
+export default EditRecommendation;

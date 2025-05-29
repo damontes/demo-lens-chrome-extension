@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { ChevronDownIcon } from '../icons';
+import { ChevronDownIcon } from '../../icons';
 
 const Collapsable = ({ headerContent, children, isActive }: any) => {
   const [isOpen, setIsOpen] = useState(false);

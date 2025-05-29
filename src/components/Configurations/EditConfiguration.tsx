@@ -5,8 +5,8 @@ import ConfigurationForm from './ConfigurationForm';
 import { reloadDashboard } from '@/actions';
 
 const EditConfiguration = ({ configurationId, onClose }: any) => {
-  const addConfiguration = useAppState((state: any) => state.addConfiguration);
-  const configurations = useAppState((state: any) => state.configurations);
+  const addConfiguration = useAppState((state) => state.addConfiguration);
+  const configurations = useAppState((state) => state.configurations);
   const initialValues = configurations[configurationId];
 
   const handleSubmit = async (newConfiguration: any) => {

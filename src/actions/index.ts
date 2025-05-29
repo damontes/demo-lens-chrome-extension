@@ -25,20 +25,6 @@ export const saveActiveConfiguration = async (activeConfiguration: string) => {
   await reloadDashboard();
 };
 
-export const saveTabs = async (dashboards: any, dashboardId: string, tabs: any) => {
-  await setAppState({
-    dashboards: {
-      ...dashboards,
-      [dashboardId]: {
-        ...dashboards[dashboardId],
-        tabs,
-      },
-    },
-  });
-
-  await reloadDashboard();
-};
-
 export const syncState = async (payload: any) => {
   return browser.runtime.sendMessage({
     type: ACTIONS.syncState,
@@ -47,8 +33,16 @@ export const syncState = async (payload: any) => {
 };
 
 function waitForDashboard() {
-  return new Promise((resolve) => {
+  const MAX_WAIT_TIME = 10000; // 10 seconds
+  const startTime = Date.now();
+
+  return new Promise((resolve, reject) => {
     const intervalId = setInterval(async () => {
+      if (Date.now() - startTime > MAX_WAIT_TIME) {
+        clearInterval(intervalId);
+        reject(new Error('Timeout waiting for analyzing dashboard'));
+      }
+
       const state = await getAppState();
       const { currentDashboard } = state;
       if (currentDashboard) {

@@ -2,10 +2,13 @@ import { Field, Input } from '@zendeskgarden/react-forms';
 import { MD, SM } from '@zendeskgarden/react-typography';
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { getCurrentTabDetails } from '../lib/chromeExtension';
+import { getCurrentTabDetails } from '../../lib/chromeExtension';
 import { Button } from '@zendeskgarden/react-buttons';
-import { startAnalyzis } from '../actions';
+import { startAnalyzis } from '../../actions';
 import { Spinner } from '@zendeskgarden/react-loaders';
+import { useStepWizardStore } from '../ui/StepWizard/StepWizardProvider';
+import useAppState from '@/storage';
+import { Alert } from '@zendeskgarden/react-notifications';
 
 const DEFAULT_INITIAL_VALUES = {
   name: '',
@@ -15,21 +18,35 @@ const DEFAULT_INITIAL_VALUES = {
 
 type Props = {
   onClose: () => void;
-  handleCurrentDashboard: (dashboard: any) => void;
-  onNext: () => void;
 };
 
-const AnalyzeDashboardStep = ({ onClose, onNext, handleCurrentDashboard }: Props) => {
+const AnalyzeDashboardStep = ({ onClose }: Props) => {
   const [values, setValues] = useState(DEFAULT_INITIAL_VALUES);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<any>(null);
+
+  const next = useStepWizardStore((state) => state.next);
+  const setValue = useStepWizardStore((state) => state.setValue);
+  const dashboardToAnalyze = useAppState((state: any) => state.dashboardToAnalyze);
 
   const analyzeDashboard = async (e: any) => {
     e.preventDefault();
     setIsLoading(true);
-    const dashboard = await startAnalyzis();
-    handleCurrentDashboard({ ...(dashboard ?? {}), name: values.name, sourceName: values.sourceName });
-    setIsLoading(false);
-    onNext();
+    setError(null);
+
+    try {
+      const dashboard = await startAnalyzis();
+      const currentDashboard = { ...(dashboard ?? {}), name: values.name, sourceName: values.sourceName };
+      setValue('currentDashboard', currentDashboard);
+      next();
+    } catch (error: any) {
+      setError({
+        title: error.message,
+        description: dashboardToAnalyze.errorMessage,
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -64,6 +81,13 @@ const AnalyzeDashboardStep = ({ onClose, onNext, handleCurrentDashboard }: Props
           <Description>{values.url}</Description>
         </CurrentTabContainer>
       </Field>
+      {Boolean(error) && (
+        <Alert type="error">
+          <Alert.Title>{error?.title}</Alert.Title>
+          {error.description}
+          <Alert.Close aria-label="Close Error Alert" onClick={() => setError(null)} />
+        </Alert>
+      )}
       <footer style={{ display: 'flex', justifyContent: 'flex-end', gap: '16px', marginTop: '8px' }}>
         <Button size="medium" style={{ width: '100%' }} onClick={onClose}>
           Cancel

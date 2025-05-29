@@ -5,21 +5,21 @@ import { AddIcon, EditIcon, PauseIcon, PlayIcon, TrashIcon } from '@/icons';
 import styled from 'styled-components';
 import useAppState from '@/storage';
 import { saveActiveConfiguration, syncState } from '@/actions';
-import Collapsable from '@/components/Collapsable';
+import Collapsable from '@/components/ui/Collapsable';
 import CreateConfiguration from './CreateConfiguration';
 import EditConfiguration from './EditConfiguration';
-import ConfirmationModal from '../ConfirmationModal';
+import ConfirmationModal from '../ui/ConfirmationModal';
 
 const Configurations = () => {
   const [isCreateConfigurationOpen, setIsCreateConfigurationOpen] = useState(false);
   const [editConfigurationId, setEditConfigurationId] = useState('');
   const [configurationToRemove, setConfigurationToRemove] = useState('');
 
-  const configurations = useAppState((state: any) => state.configurations);
-  const removeConfiguration = useAppState((state: any) => state.removeConfiguration);
-  const dashboards = useAppState((state: any) => state.dashboards);
-  const activeConfiguration = useAppState((state: any) => state.activeConfiguration);
-  const setActiveConfiguration = useAppState((state: any) => state.setActiveConfiguration);
+  const configurations = useAppState((state) => state.configurations);
+  const removeConfiguration = useAppState((state) => state.removeConfiguration);
+  const dashboards = useAppState((state) => state.dashboards);
+  const activeConfiguration = useAppState((state) => state.activeConfiguration);
+  const setActiveConfiguration = useAppState((state) => state.setActiveConfiguration);
 
   const onDeleteconfiguration = (id: string) => {
     setConfigurationToRemove(id);
@@ -27,6 +27,7 @@ const Configurations = () => {
 
   const onConfirmDeleteConfiguration = () => {
     removeConfiguration(configurationToRemove);
+    setConfigurationToRemove('');
     if (activeConfiguration === configurationToRemove) saveActiveConfiguration('');
   };
 
@@ -51,11 +52,9 @@ const Configurations = () => {
       {!isCreateConfigurationOpen && !Object.keys(configurations).length ? (
         <>
           <LG style={{ fontWeight: 'bold', textAlign: 'center' }}>Welcome to Demo Lens</LG>
-          <Description style={{ textAlign: 'center' }}>
-            Group multiple dashboards to create a configuration.
-          </Description>
+          <Description style={{ textAlign: 'center' }}>Group multiple dashboards to create a use case.</Description>
           <Button style={{ width: '100%', marginTop: '16px' }} onClick={() => setIsCreateConfigurationOpen(true)}>
-            Create your first configuration
+            Create your first use case
           </Button>
         </>
       ) : (
@@ -70,9 +69,10 @@ const Configurations = () => {
                   marginBottom: '24px',
                 }}
               >
+                <MD style={{ fontWeight: 'bold' }}>You can only have one use case active at a time</MD>
                 <Button size="small" style={{ marginLeft: 'auto' }} onClick={() => setIsCreateConfigurationOpen(true)}>
                   <AddIcon style={{ width: '16px', height: '16px', marginRight: '8px' }} />
-                  Create configuration
+                  Create use case
                 </Button>
               </div>
               <List>

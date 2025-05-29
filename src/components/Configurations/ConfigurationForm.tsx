@@ -4,6 +4,9 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import useAppState from '@/storage';
 import { Notification, useToast } from '@zendeskgarden/react-notifications';
+import { Accordion } from '@zendeskgarden/react-accordions';
+import AdminInterceptor from '@/models/adminInterceptor';
+import { Tag } from '@zendeskgarden/react-tags';
 
 const DEFAULT_INITIAL_VALUES: { name: string; dashboards: string[] } = {
   name: '',
@@ -20,8 +23,11 @@ const ConfigurationForm = ({ onClose, handleSubmit, initialValues = DEFAULT_INIT
   const [values, setValues] = useState(initialValues);
   const [showError, setShowError] = useState(false);
 
-  const dashboards = useAppState((state: any) => state.dashboards);
+  const dashboards = useAppState((state) => state.dashboards);
   const { addToast } = useToast();
+
+  const dashboardEntries = Object.entries(dashboards);
+  const dashbordsByType = Object.groupBy(dashboardEntries, ([_, dashboard]: any) => dashboard.type);
 
   const onSubmit = (e: any) => {
     e.preventDefault();
@@ -88,15 +94,38 @@ const ConfigurationForm = ({ onClose, handleSubmit, initialValues = DEFAULT_INIT
       </Field>
       <Fieldset>
         <Fieldset.Legend>Select dashboards</Fieldset.Legend>
-        {Object.entries(dashboards).map(([id, item]: any) => {
-          return (
-            <Field key={id}>
-              <Checkbox checked={values.dashboards.includes(id)} onChange={() => onAddDashboard(id, item.dashboardId)}>
-                <Field.Label>{item.name}</Field.Label>
-              </Checkbox>
-            </Field>
-          );
-        })}
+        <Accordion level={4}>
+          {Object.entries(dashbordsByType).map(([type, dashboards]: any) => {
+            return (
+              <Accordion.Section>
+                <Accordion.Header>
+                  <Accordion.Label>{type}</Accordion.Label>
+                </Accordion.Header>
+                <Accordion.Panel>
+                  {dashboards.map(([id, item]: any) => {
+                    return (
+                      <Field key={id}>
+                        <Checkbox
+                          checked={values.dashboards.includes(id)}
+                          onChange={() => onAddDashboard(id, item.dashboardId)}
+                        >
+                          <Field.Label>
+                            {item.name}
+                            {type === AdminInterceptor.getDashboardType() ? (
+                              <Tag hue="yellow" isPill size="small">
+                                Instance: {item.dashboardId.split(':').at(0)}
+                              </Tag>
+                            ) : null}
+                          </Field.Label>
+                        </Checkbox>
+                      </Field>
+                    );
+                  })}
+                </Accordion.Panel>
+              </Accordion.Section>
+            );
+          })}
+        </Accordion>
 
         {showError && <Field.Message validation="error">At least one dashboard must be selected</Field.Message>}
       </Fieldset>

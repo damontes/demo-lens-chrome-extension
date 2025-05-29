@@ -1,24 +1,30 @@
 import { ACTIONS } from './actions/dictionary';
-import ExploreInterceptor from './models/exploreInterceptor';
+import ControllerInterceptor from './models/controllerInterceptor';
 
 (async function () {
   const stateScript = document.getElementById('__EXTENSION_STATE__');
 
   let state = stateScript ? JSON.parse(stateScript?.textContent) : {};
 
+  console.log('GET STATE FROM INJECT.JS', state);
+
   const { startAnalyzis, activeConfiguration = '', configurations = {}, dashboards = {} } = state;
 
-  const exploreInterceptor = new ExploreInterceptor();
+  const url = window.location.href;
+
+  const controllerInterceptor = new ControllerInterceptor();
+
+  const interceptor = controllerInterceptor.getInterceptor(url);
 
   const configurationDashboards = configurations[activeConfiguration]?.dashboards ?? [];
 
   if (startAnalyzis || configurationDashboards.length) {
-    exploreInterceptor.intercept(configurationDashboards, dashboards);
+    interceptor.intercept(configurationDashboards, dashboards);
 
     if (startAnalyzis) {
-      const dashboard = await exploreInterceptor.getCurrentDashboard();
+      const dashboard = await interceptor.getCurrentDashboard();
 
-      window.dispatchEvent(
+      window.parent.dispatchEvent(
         new CustomEvent(ACTIONS.savedCurrentDashboard, {
           detail: dashboard,
         }),

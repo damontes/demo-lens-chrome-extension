@@ -1,6 +1,6 @@
 {
   "{{chrome}}.name": "Zendesk DemoLens (z3n demo accounts only)",
-  "{{chrome}}.version": "0.0.6",
+  "{{chrome}}.version": "0.0.7",
   "{{chrome}}.manifest_version": 3,
   "{{firefox}}.manifest_version": 2,
   "icons": {
@@ -24,8 +24,12 @@
     {
       "matches": ["https://*.zendesk.com/explore/dashboard/*", "https://*.zendesk.com/explore/studio"],
       "js": ["src/content_explore.js"],
-      "run_at": "document_start",
-      "all_frames": true
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://*.zendesk.com/admin/*"],
+      "js": ["src/content_admin.js"],
+      "run_at": "document_start"
     }
   ],
   "{{chrome}}.web_accessible_resources": [
