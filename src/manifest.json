@@ -1,6 +1,6 @@
 {
   "{{chrome}}.name": "Zendesk DemoLens (z3n demo accounts only)",
-  "{{chrome}}.version": "0.0.7",
+  "{{chrome}}.version": "0.0.8",
   "{{chrome}}.manifest_version": 3,
   "{{firefox}}.manifest_version": 2,
   "icons": {

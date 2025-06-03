@@ -19,7 +19,7 @@ import { useToast, Notification } from '@zendeskgarden/react-notifications';
 const STATUS = {
   active: 'ACTIVE',
   inactive: 'INACTIVE',
-  commingSoon: 'COMING_SOON',
+  comingSoon: 'COMING_SOON',
 };
 
 const CATEGORIES: any = {
@@ -51,25 +51,25 @@ const CATEGORIES: any = {
     name: 'Talk',
     description: 'Configure your Zendesk applications and preferences.',
     icon: PhoneIcon,
-    status: STATUS.commingSoon,
+    status: STATUS.comingSoon,
   },
   AI_AGENTS: {
     name: 'AI Agents',
     description: 'Manage your sales and customer relationships.',
     icon: BotSparkleIcon,
-    status: STATUS.commingSoon,
+    status: STATUS.comingSoon,
   },
   WFM: {
     name: 'WFM',
     description: 'Chat with your customers and support team.',
     icon: CalendarIcon,
-    status: STATUS.commingSoon,
+    status: STATUS.comingSoon,
   },
   SUPPORT: {
     name: 'Support',
     description: 'Get help and support for your Zendesk applications.',
     icon: HeadsetIcon,
-    status: STATUS.commingSoon,
+    status: STATUS.comingSoon,
   },
 };
 
@@ -179,8 +179,8 @@ const Categories = ({ onClose }: Props) => {
       <ListTiles name="categories" isCentered={false} onChange={onChange} value={buffer.at(-1) || ''}>
         {Object.entries(categories).map(([key, category]: any) => {
           const { name, description, status, icon: Icon } = category;
-          const isDisabled = status === STATUS.commingSoon || status === STATUS.inactive;
-          const isCommingsoon = status === STATUS.commingSoon;
+          const isDisabled = status === STATUS.comingSoon || status === STATUS.inactive;
+          const isComingsoon = status === STATUS.comingSoon;
 
           return (
             <Tiles.Tile value={key} disabled={isDisabled} key={key}>
@@ -189,9 +189,9 @@ const Categories = ({ onClose }: Props) => {
               </Tiles.Icon>
               <TileLabel>
                 {name}
-                {isCommingsoon && (
+                {isComingsoon && (
                   <Tag isPill>
-                    <span>Comming soon</span>
+                    <span>Coming soon</span>
                   </Tag>
                 )}
               </TileLabel>

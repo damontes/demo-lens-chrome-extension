@@ -11,6 +11,7 @@ export const reloadDashboard = async () => {
 export const startAnalyzis = async () => {
   await setAppState({
     startAnalyzis: true,
+    currentDashboard: null,
   });
 
   await reloadDashboard();
@@ -33,7 +34,7 @@ export const syncState = async (payload: any) => {
 };
 
 function waitForDashboard() {
-  const MAX_WAIT_TIME = 10000; // 10 seconds
+  const MAX_WAIT_TIME = 12000; // 10 seconds
   const startTime = Date.now();
 
   return new Promise((resolve, reject) => {

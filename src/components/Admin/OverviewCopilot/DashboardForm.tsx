@@ -1,7 +1,7 @@
 import { SUPPORT_SKELETON } from '@/models/adminInterceptor';
-import { Input } from '@zendeskgarden/react-forms';
-import { LG, SM } from '@zendeskgarden/react-typography';
-import styled from 'styled-components';
+import { Field, Input, Toggle } from '@zendeskgarden/react-forms';
+import { LG, MD, SM } from '@zendeskgarden/react-typography';
+import styled, { useTheme } from 'styled-components';
 import { useState } from 'react';
 import { Button } from '@zendeskgarden/react-buttons';
 import AddRecomendation from './Recommendations/AddRecommendation';
@@ -11,9 +11,9 @@ import ArrowTrendingIcon from '@zendeskgarden/svg-icons/src/16/arrow-trending-st
 
 type Props = {
   footer: JSX.Element;
-  initialValues?: any;
   onSubmit: (values: any) => void;
-  currentDashboard?: any;
+  currentDashboard: any;
+  initialValues?: any;
 };
 
 const DEFAULT_INITIAL_VALUES = {
@@ -27,8 +27,17 @@ const OverviewCopilotForm = ({
   currentDashboard = {},
   initialValues = DEFAULT_INITIAL_VALUES,
 }: Props) => {
-  const [values, setValues] = useState<any>(initialValues);
+  const initialSetupTasks = currentDashboard?.setupTasks.reduce(
+    (prev: any, item: any) => ({
+      ...prev,
+      [item.id]: item.dismissed,
+    }),
+    {},
+  );
+  const [values, setValues] = useState<any>({ setupTasks: initialSetupTasks, ...initialValues });
   const [showAddRecommendation, setShowAddRecommendation] = useState(false);
+
+  const theme = useTheme();
 
   const getSectionsLabelName = (section: string) => {
     switch (section) {
@@ -42,6 +51,22 @@ const OverviewCopilotForm = ({
         return 'Tickets with agent copilot';
       default:
         return '';
+    }
+  };
+
+  const getSetupTaskLabel = (id: string) => {
+    const name = id.split('+').at(-1);
+    switch (name) {
+      case 'intro':
+        return 'Intro to AI features';
+      case 'auto_assist':
+        return 'Setup auto assist';
+      case 'entities':
+        return 'Add entities';
+      case 'intents':
+        return 'Start using intents';
+      default:
+        return name;
     }
   };
 
@@ -77,6 +102,16 @@ const OverviewCopilotForm = ({
     }));
   };
 
+  const handleDismissSetupTask = (id: string) => {
+    setValues((prev: any) => ({
+      ...prev,
+      setupTasks: {
+        ...prev.setupTasks,
+        [id]: !prev.setupTasks[id],
+      },
+    }));
+  };
+
   const handleSubmit = (e: any) => {
     e.preventDefault();
     onSubmit(values);
@@ -84,6 +119,27 @@ const OverviewCopilotForm = ({
 
   return (
     <Form onSubmit={handleSubmit}>
+      <Section>
+        <header>
+          <Subtitle>Setup tasks</Subtitle>
+          <SM style={{ color: theme.palette.grey[600] }}>
+            Dismissed the getting started setup tasks. (This will be the <b>initial state</b> always you enter the view)
+          </SM>
+        </header>
+        <SetupTasksList>
+          {Object.entries(values.setupTasks)?.map(([id, value]: any) => {
+            return (
+              <li key={id}>
+                <Field>
+                  <Toggle checked={value} onChange={() => handleDismissSetupTask(id)}>
+                    <Field.Label>{getSetupTaskLabel(id)}</Field.Label>
+                  </Toggle>
+                </Field>
+              </li>
+            );
+          })}
+        </SetupTasksList>
+      </Section>
       <Section>
         <Subtitle>Metrics</Subtitle>
         <Table>
@@ -193,6 +249,15 @@ const Section = styled.div`
   display: flex;
   flex-direction: column;
   margin-top: 12px;
+`;
+
+const SetupTasksList = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin: 14px 0px 0px 0px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 `;
 
 export default OverviewCopilotForm;

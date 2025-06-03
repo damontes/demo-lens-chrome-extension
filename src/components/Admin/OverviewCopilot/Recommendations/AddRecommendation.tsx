@@ -2,6 +2,7 @@ import styled, { useTheme } from 'styled-components';
 import { MD } from '@zendeskgarden/react-typography';
 import { AddIcon } from '@/icons';
 import RecommendationForm from './RecommendationForm';
+import { Alert } from '@zendeskgarden/react-notifications';
 
 type Props = {
   groups: any[];
@@ -20,6 +21,13 @@ const AddRecomendation = ({ groups, intents, assignees, onSubmit, onCancel }: Pr
         <AddIcon style={{ width: 16, height: '16' }} />
         <MD style={{ fontWeight: 'semibold' }}>Add Recommendation</MD>
       </header>
+      {!intents.length ? (
+        <Alert type="warning">
+          <Alert.Title>No intents found</Alert.Title>
+          We didn't find any intents in your account, make sure you have eneabled <b>"AI Copilot"</b> (Inteligent
+          triage) in your Zendesk account.
+        </Alert>
+      ) : null}
       <RecommendationForm
         groups={groups}
         intents={intents}

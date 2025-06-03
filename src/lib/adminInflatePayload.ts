@@ -2,9 +2,11 @@ import { RECOMMENDATION_ACTION_TYPES } from '@/components/Admin/OverviewCopilot/
 
 export const inflatePayload = (skeleton: any, payload: any) => {
   const result = skeleton;
-  const { metrics, recommendations } = payload;
+  const { metrics, recommendations, setupTasks } = payload;
 
   result.adminAiCenterMetrics.aiUsageMetrics = metrics;
+  result.adminAiCenterSetupTasks = setupTasks;
+
   result.adminAiCenterSuggestions.suggestions = recommendations.map((recommendation: any) => {
     const suggestionSkeleton = structuredClone(result.adminAiCenterSuggestions.suggestions[0]);
     const { id, actionType, action, intent, ...metrics } = recommendation;

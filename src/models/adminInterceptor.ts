@@ -53,15 +53,19 @@ export const SUPPORT_SKELETON = {
     updatedAt: '2025-03-26 19:43:08',
     sampleSize: 12760,
   },
+  adminAiCenterSetupTasks: {
+    setupTasks: null,
+  },
 };
 
 const TYPE_QUERY = {
   AdminAiCenterSuggestions: 'ADMIN_CENTER_SUGGESTIONS',
   AdminAiCenterMetrics: 'ADMIN_CENTER_METRICS',
+  AdminAiCenterSetupTasks: 'ADMIN_CENTER_SETUP_TASKS',
 };
 
 class AdminInterceptor {
-  #currentDashboard: any;
+  #currentDashboard: any = {};
   #fetchInterceptor: FetchInterceptor | null;
   #originUrl: string;
 
@@ -75,7 +79,19 @@ class AdminInterceptor {
 
     const handleParseDashboard = (response: any) => {
       const { actions } = response.definitions;
-      this.#currentDashboard = this.#parseDashboard(actions);
+      this.#currentDashboard = {
+        ...this.#parseDashboard(actions),
+        ...this.#currentDashboard,
+      };
+    };
+
+    const handleSetupTasks = (response: any) => {
+      const { setupTasks } = response.data.adminAiCenterSetupTasks;
+
+      this.#currentDashboard = {
+        ...this.#currentDashboard,
+        setupTasks: setupTasks.map(({ __typename, ...task }: any) => task),
+      };
     };
 
     this.#fetchInterceptor.startIntercept(async (url, response, requestBody) => {
@@ -88,7 +104,15 @@ class AdminInterceptor {
 
       const type = AdminInterceptor.getTypeQuery(url, requestBody);
 
-      if (type === TYPE_QUERY.AdminAiCenterMetrics || type === TYPE_QUERY.AdminAiCenterSuggestions) {
+      if (type === TYPE_QUERY.AdminAiCenterSetupTasks) {
+        handleSetupTasks(json);
+      }
+
+      if (
+        type === TYPE_QUERY.AdminAiCenterMetrics ||
+        type === TYPE_QUERY.AdminAiCenterSuggestions ||
+        type === TYPE_QUERY.AdminAiCenterSetupTasks
+      ) {
         const currentDashboard = await this.getCurrentDashboard();
         const activeDashboard = ControllerInterceptor.findActiveDashboard(
           configurationDashboards,
@@ -101,6 +125,7 @@ class AdminInterceptor {
         }
 
         const payload = inflatePayload(SUPPORT_SKELETON, activeDashboard);
+
         let newJson = { ...json };
 
         if (type === TYPE_QUERY.AdminAiCenterMetrics) {
@@ -115,6 +140,19 @@ class AdminInterceptor {
             ...newJson,
             data: {
               adminAiCenterSuggestions: payload.adminAiCenterSuggestions,
+            },
+          };
+        } else if (type === TYPE_QUERY.AdminAiCenterSetupTasks) {
+          const { setupTasks } = json.data.adminAiCenterSetupTasks;
+          newJson = {
+            ...newJson,
+            data: {
+              adminAiCenterSetupTasks: {
+                setupTasks: setupTasks.map((item: any) => {
+                  const taskDismissed = payload.adminAiCenterSetupTasks[item.id];
+                  return { ...item, dismissed: taskDismissed ?? item.dismissed };
+                }),
+              },
             },
           };
         }
@@ -143,8 +181,8 @@ class AdminInterceptor {
   getCurrentDashboard() {
     return new Promise((resolve) => {
       const intervalId = setInterval(() => {
-        const { groups = [], intents = [] } = this.#currentDashboard ?? {};
-        const isComplete = groups.length && intents.length;
+        const { groups = [], intents, setupTasks } = this.#currentDashboard;
+        const isComplete = groups.length && intents && setupTasks.length;
         if (isComplete) {
           clearInterval(intervalId);
           resolve(this.#currentDashboard);
@@ -166,7 +204,7 @@ class AdminInterceptor {
       type: AdminInterceptor.getDashboardType(),
       groups,
       assignees,
-      intents: intents.map((item: any) => ({ ...item, title: item.title.split('::').at(-1) })),
+      intents: intents?.map((item: any) => ({ ...item, title: item.title.split('::').at(-1) })) ?? [],
     };
   }
 
