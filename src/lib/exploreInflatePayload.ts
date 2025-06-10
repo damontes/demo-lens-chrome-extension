@@ -9,7 +9,7 @@ const DEFAULT_HIERARCHY_COLUMN = {
   '@_hierarchyDisplayName': '',
   '@_dimension': 'column all',
   '@_dimensionType': 'standard',
-  '@_dataField': '',
+  '@_dataField': 'column all',
   '@_isTime': 'false',
 };
 
