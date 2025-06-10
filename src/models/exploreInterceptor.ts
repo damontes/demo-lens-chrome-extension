@@ -1363,7 +1363,7 @@ class ExploreInterceptor {
       return response;
     });
 
-    this.#fetchInterceptor.startIntercept(async (url, response) => {
+    this.#fetchInterceptor.startIntercept(async (url, response, requestBody) => {
       const clone = response.clone();
       const json = await clone.json();
 
@@ -1385,7 +1385,10 @@ class ExploreInterceptor {
           return response;
         }
 
-        const currentTab = this.#currentDashboard.tabs.find((tab: any) => tab.queries[queryId]);
+        const tabId = requestBody?.content?.tabId;
+        const currentTab = this.#currentDashboard.tabs.find((tab: any) =>
+          tabId ? tab.id === tabId : tab.queries[queryId],
+        );
         const query = currentTab?.queries[queryId];
         const { querySchema, visualizationType, cubeModelId } = query;
 

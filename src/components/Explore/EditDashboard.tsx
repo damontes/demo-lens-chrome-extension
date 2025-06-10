@@ -34,9 +34,7 @@ const EditExploreDashboard = ({ dashboardId, onClose, handleSubmit }: Props) => 
       columns.forEach((column: any, columnIdx: number) => {
         const columName = parseCellDisplayName(column.cellDataDisplayName);
         column.members.forEach((_member: any, memberIdx: number) => {
-          // const attributeName = member.attributeName;
-
-          const identifier = `col-${columName}#member-${memberIdx}#queryId-${queryId}`;
+          const identifier = `col-${columName}#member-${memberIdx}#queryId-${queryId}#tabId-${currentTab.id}`;
           const name = rawColumns[identifier];
           if (name) {
             currentTab.queries[queryId].payload.columns[columnIdx].members[memberIdx].name = name;
@@ -52,7 +50,7 @@ const EditExploreDashboard = ({ dashboardId, onClose, handleSubmit }: Props) => 
       const rows = query.payload.rows;
       rows.forEach((row: any, rowIdx: number) => {
         row.members.forEach((_: any, memberIdx: number) => {
-          const identifier = `row-${rowIdx}#member-${memberIdx}#queryId-${queryId}`;
+          const identifier = `row-${rowIdx}#member-${memberIdx}#queryId-${queryId}#tabId-${currentTab.id}`;
           const name = rawRows[identifier];
           if (name) {
             currentTab.queries[queryId].payload.rows[rowIdx].members[memberIdx].name = name;
@@ -68,7 +66,7 @@ const EditExploreDashboard = ({ dashboardId, onClose, handleSubmit }: Props) => 
       const cellData = query.payload.cellData;
       cellData.forEach((row: any, rowIdx: number) => {
         row.forEach((_: any, columnIdx: number) => {
-          const identifier = `cellData-${rowIdx}-${columnIdx}#queryId-${queryId}`;
+          const identifier = `cellData-${rowIdx}-${columnIdx}#queryId-${queryId}#tabId-${currentTab.id}`;
           const value = rawCellData[identifier];
           if (value) {
             currentTab.queries[queryId].payload.cellData[rowIdx][columnIdx].value = Number(value);
@@ -126,7 +124,7 @@ const EditExploreDashboard = ({ dashboardId, onClose, handleSubmit }: Props) => 
     );
   };
 
-  const renderFields = (queryId: string, payload: any) => {
+  const renderFields = (tabId: string, queryId: string, payload: any) => {
     const { rows, columns, cellData } = payload;
     const columnsByCellDisplayName = Object.groupBy(columns, (item: any) =>
       parseCellDisplayName(item.cellDataDisplayName),
@@ -148,7 +146,10 @@ const EditExploreDashboard = ({ dashboardId, onClose, handleSubmit }: Props) => 
                   {row.members.map((member: any, memberIdx: number) => (
                     <Field key={memberIdx} style={{ flex: 1 }}>
                       <Field.Label>{member.levelDisplayName}</Field.Label>
-                      <Input defaultValue={member.name} name={`row-${rowIdx}#member-${memberIdx}#queryId-${queryId}`} />
+                      <Input
+                        defaultValue={member.name}
+                        name={`row-${rowIdx}#member-${memberIdx}#queryId-${queryId}#tabId-${tabId}`}
+                      />
                     </Field>
                   ))}
                 </div>
@@ -172,7 +173,7 @@ const EditExploreDashboard = ({ dashboardId, onClose, handleSubmit }: Props) => 
                         <Field.Label>{member.levelDisplayName}</Field.Label>
                         <Input
                           defaultValue={member.name}
-                          name={`col-${cellDisplayName}#member-${idx}#queryId-${queryId}`}
+                          name={`col-${cellDisplayName}#member-${idx}#queryId-${queryId}#tabId-${tabId}`}
                         />
                       </Field>
                     ))}
@@ -198,7 +199,8 @@ const EditExploreDashboard = ({ dashboardId, onClose, handleSubmit }: Props) => 
                           <Input
                             defaultValue={item.value}
                             type="number"
-                            name={`cellData-${rowIdx}-${columnIdx}#queryId-${queryId}`}
+                            step="any"
+                            name={`cellData-${rowIdx}-${columnIdx}#queryId-${queryId}#tabId-${tabId}`}
                           />
                         </Field>
                       </li>
@@ -249,7 +251,7 @@ const EditExploreDashboard = ({ dashboardId, onClose, handleSubmit }: Props) => 
                     }
                     key={queryId}
                   >
-                    {renderFields(queryId, query.payload)}
+                    {renderFields(tab.id, queryId, query.payload)}
                   </Collapsable>
                 ))}
               </TabPanel>
