@@ -197,7 +197,7 @@ function parseQuerySchema(querySchema: string, vizType: string, initialPoints?: 
     axis = 'category';
     categoryInfo = {
       points:
-        vizType === 'pieChart' && measures.length > 1
+        (vizType === 'pieChart' && measures.length > 1) || vizType === 'gaugeChart'
           ? 1
           : initialPoints ?? randInt(MIN_CATEGORY_POINTS, MAX_CATEGORY_POINTS),
     };
