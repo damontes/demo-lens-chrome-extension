@@ -13,6 +13,7 @@ import { Accordion } from '@zendeskgarden/react-accordions';
 import AdminInterceptor from '@/models/adminInterceptor';
 import { Tag } from '@zendeskgarden/react-tags';
 import ExploreInterceptor from '@/models/exploreInterceptor';
+import TextEditable from '../ui/TextEditable';
 
 const Dashboards = () => {
   const [editDashboardId, setEditDashboardId] = useState('');
@@ -39,6 +40,10 @@ const Dashboards = () => {
     saveDashboard(editDashboardId, newDashboard);
     setEditDashboardId('');
     await reloadDashboard();
+  };
+
+  const onEditDashboardName = (dashboardId: string, newDashboard: any) => {
+    saveDashboard(dashboardId, newDashboard);
   };
 
   const onDeleteDashboard = (dashboardId: string) => {
@@ -120,8 +125,12 @@ const Dashboards = () => {
                         <List>
                           {dashboards.map(([id, item]: any) => (
                             <ListItem key={id} isActive={currentDashboardId === id}>
-                              <div style={{ maxWidth: '80%', marginBottom: '8px' }}>
-                                <LG style={{ fontWeight: '700' }}>{item.name}</LG>
+                              <div style={{ maxWidth: '80%', marginBottom: '8px', width: '100%' }}>
+                                <TextEditable
+                                  value={item.name}
+                                  style={{ fontWeight: '700', fontSize: '18px' }}
+                                  onChange={(name) => onEditDashboardName(id, { ...item, name })}
+                                />
                                 <MD>{item.sourceName}</MD>
                                 <footer style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
                                   <SM
