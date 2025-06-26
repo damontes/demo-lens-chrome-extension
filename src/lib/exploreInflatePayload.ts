@@ -1,6 +1,6 @@
 import { ungzip } from 'pako';
 import { XMLParser } from 'fast-xml-parser';
-import { randInt } from './general';
+import { generateMaskedValues, randInt } from './general';
 
 const xmlParser = new XMLParser({ ignoreAttributes: false });
 
@@ -32,8 +32,9 @@ export const inflatePayload = (
   querySchemaB64: string,
   visualizationType: string,
   lightInfaltePayload?: any,
+  config?: any,
 ) => {
-  const { columns: lightColumns, rows: lightRows, cellData } = lightInfaltePayload ?? {};
+  const { columns: lightColumns, rows: lightRows } = lightInfaltePayload ?? {};
 
   const meta = parseQuerySchema(querySchemaB64, visualizationType);
   const result = skeleton.content.result;
@@ -46,7 +47,7 @@ export const inflatePayload = (
     })),
   }));
 
-  result.cellData = cellData ?? buildCellData(meta, result.columns);
+  result.cellData = buildCellData(meta, result.columns, config);
   result.rows = buildRows(meta, result.cellData.length).map((row, rowIdx) => ({
     ...row,
     members: row.members.map((member: any, memberIdx: number) => ({
@@ -219,25 +220,25 @@ function parseQuerySchema(querySchema: string, vizType: string, initialPoints?: 
   };
 }
 
-function fakeValue(m: any, configJson: any) {
-  const rnd = (min: number, max: number) => Math.random() * (max - min) + min;
-  const { isPercentage, limit } = getMeasureMetadata(m, configJson);
+function fakeValue(raw: number, m: any, configJson: any) {
+  const { isPercentage } = getMeasureMetadata(m, configJson);
+
   if (isPercentage) {
-    return Number(rnd(0.2, 0.95).toFixed(2));
+    return Number(Math.min(0.95, Math.max(0.2, raw)).toFixed(2));
   }
 
   switch (m.aggregator) {
     case 'COUNT':
-      return Math.round(rnd(10, 500));
+      return raw;
     case 'D_COUNT':
-      return Math.round(rnd(5, 300));
+      return raw;
     case 'SUM':
-      return Math.round(rnd(100, limit < 10000 ? limit : 10000));
+      return raw;
     case 'AVG':
     case 'MED':
-      return Number(rnd(4, 120).toFixed(1));
+      return Number(raw.toFixed(1));
     default:
-      return Math.round(rnd(1, 100));
+      return raw;
   }
 }
 
@@ -348,26 +349,31 @@ function produceColumn(
   };
 }
 
-function buildCellData(meta: any, columns: any): any[][] {
+function buildCellData(meta: any, columns: any, config?: any): any[][] {
   const isGrid = getIsGrid(meta.vizType, meta.rowHierarchies.length, meta.measures.length);
   const hasMultipleRows = meta.rowHierarchies[0]?.['@_dataField'] !== DEFAULT_HIERARCHY_ROW['@_dataField'];
   const rows = isGrid || hasMultipleRows ? 4 : 1; // tabla -> varias filas; gráfico -> 1
 
-  const buildRow = () => {
+  const cols = isGrid ? meta.measures.length : columns.length;
+  const maskedValues: number[][] = Array.from({ length: rows }, () => generateMaskedValues(config, cols));
+
+  const buildRow = (rowIdx: number) => {
+    const values = maskedValues[rowIdx];
+
     // simpleGrid2 → 1 celda por measure  (columns.length == measures.length)
     if (isGrid) {
-      return meta.measures.map((m: any) => ({ value: fakeValue(m, meta.configJson) }));
+      return meta.measures.map((m: any, idx: number) => ({ value: fakeValue(values[idx], m, meta.configJson) }));
     }
 
     // Resto de charts → 1 celda por columna
-    return columns.map((c: any) => {
+    return columns.map((c: any, idx: number) => {
       const measureMeta = c.members[c.members.length - 1];
 
-      return { value: fakeValue(measureMeta, meta.configJson) };
+      return { value: fakeValue(values[idx], measureMeta, meta.configJson) };
     });
   };
 
-  return Array.from({ length: rows }, buildRow);
+  return Array.from({ length: rows }, (_, idx) => buildRow(idx));
 }
 
 function toStr(v: unknown, fallback = '') {

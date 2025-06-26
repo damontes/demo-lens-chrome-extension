@@ -1,5 +1,6 @@
 // @ts-nocheck
 
+import { syncState } from '@/actions';
 import { act } from 'react';
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
@@ -16,7 +17,6 @@ type AppState = {
   addConfiguration: (id: string, configuration: any) => void;
   removeConfiguration: (id: string) => void;
   setActiveConfiguration: (id: string) => void;
-  dashboardToAnalyze: any;
 };
 
 const useAppState = create<AppState>()(
@@ -52,11 +52,22 @@ const useAppState = create<AppState>()(
         state.activeConfiguration = id;
       });
     },
-    setDashboardToAnalyze: (dashboard) =>
-      set((state) => {
-        state.dashboardToAnalyze = dashboard;
-      }),
   })),
 );
+
+useAppState.subscribe((newState, previousState) => {
+  // ✅ Place your "after state change" logic here
+  const payload = {};
+  if (JSON.stringify(newState.dashboards) !== JSON.stringify(previousState.dashboards)) {
+    syncState({
+      dashboards: newState.dashboards,
+      currentDashboard: null,
+    });
+  } else if (JSON.stringify(newState.configurations) !== JSON.stringify(previousState.configurations)) {
+    syncState({
+      configurations: newState.configurations,
+    });
+  }
+});
 
 export default useAppState;

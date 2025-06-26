@@ -8,7 +8,7 @@ type Props = {
   handleSubmit: (id: string, payload: any) => void;
 };
 
-const AddExploreDashboard = ({ handleSubmit }: Props) => {
+const AddExploreSkeleton = ({ handleSubmit }: Props) => {
   const prev = useStepWizardStore((state) => state.prev);
   const currentDashboard = useStepWizardStore((state) => state.values.currentDashboard);
 
@@ -127,4 +127,4 @@ const QueryItem = styled.div`
   margin: ${({ theme }) => theme.space.sm} 0;
 `;
 
-export default AddExploreDashboard;
+export default AddExploreSkeleton;

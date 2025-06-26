@@ -2,13 +2,13 @@ import { Field, Input } from '@zendeskgarden/react-forms';
 import { MD, SM } from '@zendeskgarden/react-typography';
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { getCurrentTabDetails } from '../../lib/chromeExtension';
 import { Button } from '@zendeskgarden/react-buttons';
-import { startAnalyzis } from '../../actions';
 import { Spinner } from '@zendeskgarden/react-loaders';
-import { useStepWizardStore } from '../ui/StepWizard/StepWizardProvider';
 import useAppState from '@/storage';
 import { Alert } from '@zendeskgarden/react-notifications';
+import { useStepWizardStore } from '../../../components/ui/StepWizard/StepWizardProvider';
+import { getCurrentTabDetails } from '@/lib/chromeExtension';
+import { startAnalyzis } from '@/actions';
 
 const DEFAULT_INITIAL_VALUES = {
   name: '',
@@ -20,7 +20,7 @@ type Props = {
   onClose: () => void;
 };
 
-const AnalyzeDashboardStep = ({ onClose }: Props) => {
+const AnalyzeView = ({ onClose }: Props) => {
   const [values, setValues] = useState(DEFAULT_INITIAL_VALUES);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<any>(null);
@@ -137,4 +137,4 @@ const Description = styled(SM)`
   text-wrap: nowrap;
 `;
 
-export default AnalyzeDashboardStep;
+export default AnalyzeView;

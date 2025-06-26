@@ -12,7 +12,7 @@ type Props = {
   handleSubmit: (payload: any) => void;
 };
 
-const EditOverviewCopilotDashboard = ({ dashboardId, handleSubmit, onClose }: Props) => {
+const EditOverviewCopilotSkeleton = ({ dashboardId, handleSubmit, onClose }: Props) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [currentDashboard, setCurrentDashboard] = useState<any>(null);
@@ -124,4 +124,4 @@ const EditOverviewCopilotDashboard = ({ dashboardId, handleSubmit, onClose }: Pr
   );
 };
 
-export default EditOverviewCopilotDashboard;
+export default EditOverviewCopilotSkeleton;

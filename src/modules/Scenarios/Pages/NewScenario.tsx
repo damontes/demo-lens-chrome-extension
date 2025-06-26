@@ -1,11 +1,17 @@
 import { LG, MD } from '@zendeskgarden/react-typography';
 import styled from 'styled-components';
 import useAppState from '@/storage';
-import ConfigurationForm from './ConfigurationForm';
 import { getRandomId } from '@/lib/general';
+import ScenarioForm from '../Components/ScenarioForm';
+import { useNavigate } from 'react-router';
 
-const CreateConfiguration = ({ onClose }: any) => {
+const NewScenario = () => {
   const addConfiguration = useAppState((state) => state.addConfiguration);
+  const navigate = useNavigate();
+
+  const onClose = () => {
+    navigate(-1);
+  };
 
   const handleSubmit = async (newConfiguration: any) => {
     const id = getRandomId();
@@ -16,10 +22,10 @@ const CreateConfiguration = ({ onClose }: any) => {
   return (
     <Container>
       <Header>
-        <Title>Create use case</Title>
-        <Description>Group multiple dashboards to create a use case.</Description>
+        <Title>Create a scneario</Title>
+        <Description>Group multiple skeletons to create a scenario.</Description>
       </Header>
-      <ConfigurationForm onClose={onClose} handleSubmit={handleSubmit} />
+      <ScenarioForm onClose={onClose} handleSubmit={handleSubmit} />
     </Container>
   );
 };
@@ -46,4 +52,4 @@ const Description = styled(MD)`
   color: ${({ theme }) => theme.palette.grey[600]};
 `;
 
-export default CreateConfiguration;
+export default NewScenario;

@@ -1,9 +1,9 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import Popup from "./pages/Popup";
+import ReactDOM from 'react-dom/client';
+import Popup from './pages/Popup';
+import { HashRouter } from 'react-router';
 
 ReactDOM.createRoot(document.body).render(
-  <React.StrictMode>
+  <HashRouter>
     <Popup />
-  </React.StrictMode>
+  </HashRouter>,
 );

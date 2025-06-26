@@ -304,16 +304,13 @@ class ExploreInterceptor {
           tabId ? tab.id === tabId : tab.queries[queryId],
         );
         const query = currentTab?.queries[queryId];
-        const { querySchema, visualizationType, cubeModelId } = query;
+        const { querySchema, visualizationType, cubeModelId, description } = query;
 
         try {
-          const isLive = activeDashboard.isLive ?? false;
+          const activeQuery = activeDashboard?.tabs.find((tab: any) => tab.id === currentTab.id).queries[queryId];
+          const { payload: lightInflatePayload, config } = activeQuery || {};
 
-          const lightInfaltePayload = !isLive
-            ? activeDashboard?.tabs.find((tab: any) => tab.id === currentTab.id).queries[queryId].payload
-            : null;
-
-          const payload = inflatePayload(EXPLORE_SKELETON, querySchema, visualizationType, lightInfaltePayload);
+          const payload = inflatePayload(EXPLORE_SKELETON, querySchema, visualizationType, lightInflatePayload, config);
 
           const newJson = {
             isSuccess: true,

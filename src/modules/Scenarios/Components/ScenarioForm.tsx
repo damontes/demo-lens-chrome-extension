@@ -19,7 +19,7 @@ type Props = {
   initialValues?: typeof DEFAULT_INITIAL_VALUES;
 };
 
-const ConfigurationForm = ({ onClose, handleSubmit, initialValues = DEFAULT_INITIAL_VALUES }: Props) => {
+const ScenarioForm = ({ onClose, handleSubmit, initialValues = DEFAULT_INITIAL_VALUES }: Props) => {
   const [values, setValues] = useState(initialValues);
   const [showError, setShowError] = useState(false);
 
@@ -148,4 +148,4 @@ const Form = styled.form`
   gap: 12px;
 `;
 
-export default ConfigurationForm;
+export default ScenarioForm;

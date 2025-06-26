@@ -1,7 +1,7 @@
 import { MD } from '@zendeskgarden/react-typography';
 import styled, { useTheme } from 'styled-components';
-import { EditIcon } from '@/icons';
 import RecommendationForm from './RecommendationForm';
+import PencilIcon from '@zendeskgarden/svg-icons/src/16/pencil-stroke.svg?react';
 
 type Props = {
   groups: any[];
@@ -18,7 +18,7 @@ const EditRecommendation = ({ groups, intents, assignees, onSubmit, onCancel, re
   return (
     <Article>
       <header style={{ display: 'flex', alignItems: 'center', gap: '8px', color: theme.palette.blue[600] }}>
-        <EditIcon style={{ width: 16, height: '16' }} />
+        <PencilIcon style={{ width: 16, height: '16' }} />
         <MD style={{ fontWeight: 'semibold' }}>Add Recommendation</MD>
       </header>
       <RecommendationForm

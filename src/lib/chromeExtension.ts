@@ -1,4 +1,5 @@
 import { ACTIONS } from '@/actions/dictionary';
+import ExploreInterceptor from '@/models/exploreInterceptor';
 import browser from 'webextension-polyfill';
 
 const APP_STATE_KEY = 'state';
@@ -6,7 +7,8 @@ const APP_STATE_KEY = 'state';
 export const getAppState = async () => {
   const result = await browser.storage.local.get(APP_STATE_KEY);
   const stringPayload = result[APP_STATE_KEY] ?? '{}';
-  return JSON.parse(stringPayload);
+  const payload = JSON.parse(stringPayload);
+  return injectMissingData(payload);
 };
 
 export const setAppState = async (value: any) => {
@@ -75,3 +77,38 @@ export const changeTabIcon = async (iconPath: string) => {
     payload: { iconPath },
   });
 };
+
+function injectMissingData(payload: any) {
+  const DEFAULT_CONFIG = {
+    range: ['', ''],
+    preset: 'random',
+  };
+
+  return {
+    ...payload,
+    dashboards: Object.entries(payload.dashboards ?? {}).reduce((acc, [key, item]: any) => {
+      if (item.type === ExploreInterceptor.getDashboardType()) {
+        return {
+          ...acc,
+          [key]: {
+            ...item,
+            tabs: item.tabs?.map((tab: any) => ({
+              ...tab,
+              queries: Object.entries(tab.queries).reduce((acc, [key, item]: any) => {
+                return {
+                  ...acc,
+                  [key]: {
+                    ...item,
+                    config: item.config ?? DEFAULT_CONFIG,
+                  },
+                };
+              }, {}),
+            })),
+          },
+        };
+      }
+
+      return acc;
+    }, {}),
+  };
+}

@@ -1,7 +1,7 @@
 import { Progress, Spinner } from '@zendeskgarden/react-loaders';
 import { MD, SM } from '@zendeskgarden/react-typography';
 import styled, { useTheme } from 'styled-components';
-import { CheckIcon } from '../../icons';
+import CheckIcon from '@zendeskgarden/svg-icons/src/16/check-lg-stroke.svg?react';
 
 const ProgressBar = ({ progress, label, spinner = false, ...props }: any) => {
   const theme = useTheme();

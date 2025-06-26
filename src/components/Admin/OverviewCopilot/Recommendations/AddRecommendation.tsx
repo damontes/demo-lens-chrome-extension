@@ -1,8 +1,8 @@
 import styled, { useTheme } from 'styled-components';
 import { MD } from '@zendeskgarden/react-typography';
-import { AddIcon } from '@/icons';
 import RecommendationForm from './RecommendationForm';
 import { Alert } from '@zendeskgarden/react-notifications';
+import PlusIcon from '@zendeskgarden/svg-icons/src/16/plus-stroke.svg?react';
 
 type Props = {
   groups: any[];
@@ -18,7 +18,7 @@ const AddRecomendation = ({ groups, intents, assignees, onSubmit, onCancel }: Pr
   return (
     <Article>
       <header style={{ display: 'flex', alignItems: 'center', gap: '8px', color: theme.palette.green[600] }}>
-        <AddIcon style={{ width: 16, height: '16' }} />
+        <PlusIcon style={{ width: 16, height: '16' }} />
         <MD style={{ fontWeight: 'semibold' }}>Add Recommendation</MD>
       </header>
       {!intents.length ? (

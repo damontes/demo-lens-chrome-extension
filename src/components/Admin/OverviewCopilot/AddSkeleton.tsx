@@ -7,7 +7,7 @@ type Props = {
   handleSubmit: (id: string, payload: any) => void;
 };
 
-const AddOverviewCopilotDashboard = ({ handleSubmit }: Props) => {
+const AddOverviewCopilotSkeleton = ({ handleSubmit }: Props) => {
   const prev = useStepWizardStore((state) => state.prev);
   const currentDashboard = useStepWizardStore((state) => state.values.currentDashboard);
 
@@ -42,4 +42,4 @@ const AddOverviewCopilotDashboard = ({ handleSubmit }: Props) => {
   );
 };
 
-export default AddOverviewCopilotDashboard;
+export default AddOverviewCopilotSkeleton;

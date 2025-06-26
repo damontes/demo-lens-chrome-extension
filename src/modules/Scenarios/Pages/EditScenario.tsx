@@ -1,16 +1,24 @@
 import { LG, MD } from '@zendeskgarden/react-typography';
 import styled from 'styled-components';
 import useAppState from '@/storage';
-import ConfigurationForm from './ConfigurationForm';
 import { reloadDashboard } from '@/actions';
+import ScenarioForm from '../Components/ScenarioForm';
+import { useNavigate, useParams } from 'react-router';
 
-const EditConfiguration = ({ configurationId, onClose }: any) => {
+const EditScenario = () => {
   const addConfiguration = useAppState((state) => state.addConfiguration);
   const configurations = useAppState((state) => state.configurations);
-  const initialValues = configurations[configurationId];
+  const { scenarioId = '' } = useParams();
+  const navigate = useNavigate();
+
+  const initialValues = configurations[scenarioId];
+
+  const onClose = () => {
+    navigate(-1);
+  };
 
   const handleSubmit = async (newConfiguration: any) => {
-    addConfiguration(configurationId, newConfiguration);
+    addConfiguration(scenarioId, newConfiguration);
     await reloadDashboard();
     onClose();
   };
@@ -21,7 +29,7 @@ const EditConfiguration = ({ configurationId, onClose }: any) => {
         <Title>{initialValues.name}</Title>
         <Description>Edit configuration</Description>
       </Header>
-      <ConfigurationForm onClose={onClose} handleSubmit={handleSubmit} initialValues={initialValues} />
+      <ScenarioForm onClose={onClose} handleSubmit={handleSubmit} initialValues={initialValues} />
     </Container>
   );
 };
@@ -48,4 +56,4 @@ const Description = styled(MD)`
   color: ${({ theme }) => theme.palette.grey[600]};
 `;
 
-export default EditConfiguration;
+export default EditScenario;

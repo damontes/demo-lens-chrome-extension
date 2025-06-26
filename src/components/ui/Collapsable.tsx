@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { ChevronDownIcon } from '../../icons';
+import ChevronDownIcon from '@zendeskgarden/svg-icons/src/16/chevron-down-stroke.svg?react';
 
 const Collapsable = ({ headerContent, children, isActive }: any) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,8 +19,6 @@ const Collapsable = ({ headerContent, children, isActive }: any) => {
         {headerContent}
         <ChevronDownIcon
           style={{
-            width: '16px',
-            height: '16px',
             marginLeft: 'auto',
             transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
             transition: 'transform 0.2s ease-in-out',
@@ -38,15 +36,15 @@ const Details = styled.details<{ isActive: boolean }>`
   border: none;
   display: flex;
   flex-direction: column;
-  gap: 8px;
   border-radius: ${({ theme }) => theme.borderRadii.md};
   border: 1px solid ${({ theme, isActive }) => (isActive ? theme.palette.green[600] : theme.palette.grey[200])};
+  background-color: white;
 
   summary {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 16px;
+    padding: 12px 16px;
     cursor: pointer;
     flex: 1;
   }
