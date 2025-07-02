@@ -1,7 +1,11 @@
+import { ungzip } from 'pako';
 import { inflatePayload, lighInflatePayload } from '../lib/exploreInflatePayload';
 import ControllerInterpceptor from './controllerInterceptor';
 import FetchInterceptor from './fetchInterceptor';
 import XHRInterceptor from './xhrInterceptor';
+import { XMLParser } from 'fast-xml-parser';
+
+const xmlParser = new XMLParser({ ignoreAttributes: false });
 
 export const EXPLORE_SKELETON = {
   type: 'result',
@@ -14,18 +18,18 @@ export const EXPLORE_SKELETON = {
           isForecast: 0,
           members: [
             {
-              name: '',
-              levelName: '',
+              name: 'column all',
+              levelName: 'column all',
               levelDisplayName: '',
-              dataField: '',
-              isAll: '',
-              isSubTotal: '',
-              attributeDatafield: '',
-              displayName: '',
-              dimensionName: '',
-              dimensionType: '',
-              isRepetition: '',
-              attributeName: '',
+              dataField: 'column all',
+              isAll: 'false',
+              isSubTotal: 'false',
+              attributeDatafield: null,
+              displayName: 'column all',
+              dimensionName: 'column all',
+              dimensionType: 'standard',
+              isRepetition: 'false',
+              attributeName: 'column all',
               attributeDisplayName: '',
             },
           ],
@@ -266,6 +270,7 @@ class ExploreInterceptor {
 
     const handleDashboard = (response: any) => {
       this.#currentDashboard = this.#parseDashboard(response);
+      console.log('current dashboard', this.#currentDashboard);
     };
 
     this.#xhrInterceptor.setConditionTarget((url) => {
@@ -304,11 +309,17 @@ class ExploreInterceptor {
           tabId ? tab.id === tabId : tab.queries[queryId],
         );
         const query = currentTab?.queries[queryId];
-        const { querySchema, visualizationType, cubeModelId, description } = query;
+        const { querySchema: rawQuerySchema, visualizationType, cubeModelId } = query;
 
         try {
           const activeQuery = activeDashboard?.tabs.find((tab: any) => tab.id === currentTab.id).queries[queryId];
           const { payload: lightInflatePayload, config } = activeQuery || {};
+          console.log('Request body', requestBody);
+
+          const querySchema = ExploreInterceptor.generateQuerySchema(
+            rawQuerySchema,
+            requestBody?.content?.query?.interactions_list,
+          );
 
           const payload = inflatePayload(EXPLORE_SKELETON, querySchema, visualizationType, lightInflatePayload, config);
 
@@ -321,6 +332,7 @@ class ExploreInterceptor {
               queryId,
             },
           };
+          console.log('INFALTE PAYLOAD', { query, activeQuery, json, newJson });
 
           return new Response(JSON.stringify(newJson), {
             status: response.status,
@@ -363,6 +375,7 @@ class ExploreInterceptor {
   }
 
   #parseDashboard(dashboard: any) {
+    console.log('Parsing dashboard', dashboard);
     const { mainTag, queries: rawQueries, tabs } = dashboard;
 
     return {
@@ -374,11 +387,9 @@ class ExploreInterceptor {
           .filter((widget: any) => widget.query_id)
           .reduce((prev: any, current: any) => {
             const currentQuery = rawQueries.find((item: any) => item.id === current.query_id);
-            const payload = lighInflatePayload(
-              EXPLORE_SKELETON,
-              currentQuery.query_schema,
-              currentQuery.visualization_type,
-            );
+            const query = ExploreInterceptor.getQuerySchema(currentQuery.query_schema);
+
+            const payload = lighInflatePayload(EXPLORE_SKELETON, query, currentQuery.visualization_type);
             return {
               ...prev,
               [currentQuery.id]: {
@@ -405,6 +416,41 @@ class ExploreInterceptor {
 
   static getDashboardType() {
     return 'explore';
+  }
+
+  static generateQuerySchema(rawQuerySchema: string, interactionList: any[]) {
+    const query = ExploreInterceptor.getQuerySchema(rawQuerySchema);
+
+    if (!interactionList?.length) {
+      return query;
+    }
+
+    const lastDrillRawSchema = interactionList.at(-1);
+
+    if (lastDrillRawSchema && lastDrillRawSchema.type !== 'drillin') {
+      return query;
+    }
+
+    const { attributes, selectedColumns: rawSelectedColumns } = lastDrillRawSchema;
+    const selectedColumns = rawSelectedColumns.map((item: any) => item.members.at(0).levelDisplayName);
+
+    const rowHierarchies = attributes.map((item: any) => {
+      const { hierarchyXML } = item;
+      const parsedXml = xmlParser.parse(hierarchyXML);
+      return parsedXml.Hierarchy;
+    });
+
+    return { ...query, Rows: { Hierarchy: rowHierarchies }, selectedColumns };
+  }
+
+  static getQuerySchema(rawQuerySchema: string) {
+    const binary = Uint8Array.from(atob(rawQuerySchema.replace(/\n/g, '')), (c) => c.charCodeAt(0));
+
+    const xml = ungzip(binary, { to: 'string' });
+    const parsedXml = xmlParser.parse(xml);
+    const { Query: query } = parsedXml;
+
+    return query;
   }
 
   static isExploreQuery(url: string) {

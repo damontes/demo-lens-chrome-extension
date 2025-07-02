@@ -1,8 +1,4 @@
-import { ungzip } from 'pako';
-import { XMLParser } from 'fast-xml-parser';
 import { generateMaskedValues, randInt } from './general';
-
-const xmlParser = new XMLParser({ ignoreAttributes: false });
 
 const DEFAULT_HIERARCHY_COLUMN = {
   '@_hierarchyName': 'column all',
@@ -29,23 +25,45 @@ const MAX_CATEGORY_POINTS = 5;
 
 export const inflatePayload = (
   skeleton: any,
-  querySchemaB64: string,
+  querySchema: any,
   visualizationType: string,
   lightInfaltePayload?: any,
   config?: any,
 ) => {
   const { columns: lightColumns, rows: lightRows } = lightInfaltePayload ?? {};
+  const selectedColumns = querySchema?.selectedColumns ?? [];
+  console.log('Selected Columns:', selectedColumns);
 
-  const meta = parseQuerySchema(querySchemaB64, visualizationType);
+  const meta = parseQuerySchema(querySchema, visualizationType);
   const result = skeleton.content.result;
 
-  result.columns = buildColumns(meta, result, lightColumns?.length).map((column, columnIdx) => ({
-    ...column,
-    members: column.members.map((member: any, memberIdx: number) => ({
-      ...member,
-      ...(lightColumns?.[columnIdx]?.members?.[memberIdx] ?? {}),
-    })),
-  }));
+  result.columns = buildColumns(meta, result, lightColumns?.length)
+    .map((column, columnIdx) => ({
+      ...column,
+      members: column.members.map((member: any, memberIdx: number) => ({
+        ...member,
+        ...(lightColumns?.[columnIdx]?.members?.[memberIdx] ?? {}),
+      })),
+    }))
+    .filter(
+      (column: any) =>
+        !selectedColumns.length ||
+        column.members
+          .flatMap((item: any) => item.levelDisplayName)
+          .some((value: string) => selectedColumns.includes(value)),
+    )
+    .map((column) => {
+      if (selectedColumns.length) {
+        return {
+          ...column,
+          members: column.members.map((member: any) =>
+            member.isMeasure !== 'true' ? skeleton.content.result.columns[0].members[0] : member,
+          ),
+        };
+      }
+      return column;
+    });
+  console.log('Result Columns:', result.columns);
 
   result.cellData = buildCellData(meta, result.columns, config);
   result.rows = buildRows(meta, result.cellData.length).map((row, rowIdx) => ({
@@ -94,8 +112,8 @@ export const inflatePayload = (
   return { ...result, measures: meta.measures, configJson: meta.configJson };
 };
 
-export const lighInflatePayload = (skeleton: any, querySchemaB64: string, visualizationType: string) => {
-  const meta = parseQuerySchema(querySchemaB64, visualizationType);
+export const lighInflatePayload = (skeleton: any, query: any, visualizationType: string) => {
+  const meta = parseQuerySchema(query, visualizationType);
   const result = skeleton.content.result;
 
   const rawColumns = buildColumns(meta, result);
@@ -144,14 +162,15 @@ export const lighInflatePayload = (skeleton: any, querySchemaB64: string, visual
   return { columns, rows, cellData };
 };
 
-function parseQuerySchema(querySchema: string, vizType: string, initialPoints?: number) {
-  const binary = Uint8Array.from(atob(querySchema.replace(/\n/g, '')), (c) => c.charCodeAt(0));
+function parseQuerySchema(querySchema: any, vizType: string) {
+  // const binary = Uint8Array.from(atob(querySchema.replace(/\n/g, '')), (c) => c.charCodeAt(0));
 
-  const xml = ungzip(binary, { to: 'string' });
-  const parsedXml = xmlParser.parse(xml);
-  const { Query: query } = parsedXml;
+  // const xml = ungzip(binary, { to: 'string' });
+  // const parsedXml = xmlParser.parse(xml);
+  // console.log('Parsed XML:', parsedXml);
+  // const { Query: query } = parsedXml;
 
-  const { Measures: rawMeasures, Columns: rawColumns, Rows: rawRows, Config } = query;
+  const { Measures: rawMeasures, Columns: rawColumns, Rows: rawRows, Config } = querySchema;
   const colHierarchies = Array.isArray(rawColumns.Hierarchy)
     ? rawColumns.Hierarchy
     : [rawColumns.Hierarchy || DEFAULT_HIERARCHY_COLUMN];
@@ -193,14 +212,14 @@ function parseQuerySchema(querySchema: string, vizType: string, initialPoints?: 
     axis = 'category'; // grid -> N col, lo dejamos como antes
   } else if (colHierarchies[0]?.['@_dimensionType'] === 'time') {
     axis = 'time';
-    timeInfo = { unit: 'day', points: initialPoints ?? DEFAULT_TIME_POINTS };
+    timeInfo = { unit: 'day', points: DEFAULT_TIME_POINTS };
   } else {
     axis = 'category';
     categoryInfo = {
       points:
-        (vizType === 'pieChart' && measures.length > 1) || vizType === 'gaugeChart'
+        ((vizType === 'pieChart' || vizType === 'funnelChart') && measures.length > 1) || vizType === 'gaugeChart'
           ? 1
-          : initialPoints ?? randInt(MIN_CATEGORY_POINTS, MAX_CATEGORY_POINTS),
+          : randInt(MIN_CATEGORY_POINTS, MAX_CATEGORY_POINTS),
     };
   }
 
