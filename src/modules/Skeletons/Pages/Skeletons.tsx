@@ -94,13 +94,13 @@ const Skeletons = () => {
           >
             <Button size="small" style={{ marginLeft: 'auto' }} onClick={() => navigate('/skeletons/categories')}>
               <PlusIcon style={{ marginRight: '8px' }} />
-              Create Dashboard
+              Create Scenario
             </Button>
           </div>
           <Accordion level={4}>
             {Object.entries(dashbordsByType).map(([type, dashboards]: any) => {
               return (
-                <Accordion.Section>
+                <Accordion.Section key={type}>
                   <ItemHeader>
                     <Accordion.Label>{type}</Accordion.Label>
                   </ItemHeader>

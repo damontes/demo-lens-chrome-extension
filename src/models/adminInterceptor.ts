@@ -1,4 +1,4 @@
-import { inflatePayload } from '@/lib/adminInflatePayload';
+import { inflateOverviewCopilotPayload } from '@/lib/adminInflatePayload';
 import ControllerInterceptor from './controllerInterceptor';
 import FetchInterceptor from './fetchInterceptor';
 
@@ -124,7 +124,7 @@ class AdminInterceptor {
           return response;
         }
 
-        const payload = inflatePayload(SUPPORT_SKELETON, activeDashboard);
+        const payload = inflateOverviewCopilotPayload(SUPPORT_SKELETON, activeDashboard);
 
         let newJson = { ...json };
 

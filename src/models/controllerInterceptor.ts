@@ -40,14 +40,18 @@ class ControllerInterceptor {
   }
 
   static findActiveDashboard(configurationDashboards: any, dashboards: any, currentDashboard: any) {
-    const activeDashboards = Object.entries(dashboards).filter(([id]) => configurationDashboards?.includes(id));
+    const activeDashboards = Object.entries(dashboards ?? {}).filter(([id]) => configurationDashboards?.includes(id));
 
-    const [_, activeDashboard] =
+    const [activeDashboardId, activeDashboard] =
       (activeDashboards.find(([_, dashboard]: any) => {
         return dashboard.dashboardId === currentDashboard.id;
       }) as any) ?? [];
 
-    return activeDashboard;
+    if (!activeDashboardId) {
+      return null;
+    }
+
+    return { ...activeDashboard, id: activeDashboardId };
   }
 }
 

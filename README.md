@@ -1,6 +1,6 @@
 # Zendesk Explore Data Simulator
 
-A Chrome extension that allows you to create dashboards, manage configurations, and simulate realistic, production-like data for Zendesk Explore.
+A Chrome extension that allows you to create scenarios, manage configurations, and simulate realistic, production-like data for Zendesk Explore.
 
 ---
 

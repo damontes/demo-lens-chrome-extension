@@ -17,5 +17,10 @@ browser.runtime.onMessage.addListener(async (message) => {
     const iconUrl = browser.runtime.getURL(iconPath);
     await setTabIcon(iconUrl);
   }
+
+  if (message.type === ACTIONS.openChromeExtension) {
+    await browser.action.openPopup();
+  }
+
   return true;
 });

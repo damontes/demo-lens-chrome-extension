@@ -1,4 +1,5 @@
 import { generateMaskedValues, randInt } from './general';
+import { faker } from '@faker-js/faker';
 
 const DEFAULT_HIERARCHY_COLUMN = {
   '@_hierarchyName': 'column all',
@@ -18,10 +19,23 @@ const DEFAULT_HIERARCHY_ROW = {
   '@_isTime': 'false',
 };
 
+const DEFAULT_CHANNELS = ['SUPPORT', 'TALK', 'MESSAGING', 'CHAT'];
+const DEFAULT_STATES = ['ONLINE', 'OFFLINE', 'AWAY', 'TRANSFERS_ONLY'];
+
 const MIN_TIME_POINTS = 10; // > 10 columnas
 const DEFAULT_TIME_POINTS = 5; // usado si no se indica
 const MIN_CATEGORY_POINTS = 3; // 3-5 columnas
 const MAX_CATEGORY_POINTS = 5;
+
+export const parseRowMember = (rowMember: any) => {
+  const { name, displayName, levelDisplayName, attributeName } = rowMember;
+  return {
+    name,
+    displayName,
+    levelDisplayName,
+    attributeName,
+  };
+};
 
 export const inflatePayload = (
   skeleton: any,
@@ -31,11 +45,10 @@ export const inflatePayload = (
   config?: any,
 ) => {
   const { columns: lightColumns, rows: lightRows } = lightInfaltePayload ?? {};
-  const selectedColumns = querySchema?.selectedColumns ?? [];
-  console.log('Selected Columns:', selectedColumns);
+  const isDrillIn = querySchema?.isDrillIn;
 
   const meta = parseQuerySchema(querySchema, visualizationType);
-  const result = skeleton.content.result;
+  const result = structuredClone(skeleton.content.result);
 
   result.columns = buildColumns(meta, result, lightColumns?.length)
     .map((column, columnIdx) => ({
@@ -45,15 +58,8 @@ export const inflatePayload = (
         ...(lightColumns?.[columnIdx]?.members?.[memberIdx] ?? {}),
       })),
     }))
-    .filter(
-      (column: any) =>
-        !selectedColumns.length ||
-        column.members
-          .flatMap((item: any) => item.levelDisplayName)
-          .some((value: string) => selectedColumns.includes(value)),
-    )
     .map((column) => {
-      if (selectedColumns.length) {
+      if (isDrillIn) {
         return {
           ...column,
           members: column.members.map((member: any) =>
@@ -63,14 +69,15 @@ export const inflatePayload = (
       }
       return column;
     });
-  console.log('Result Columns:', result.columns);
 
-  result.cellData = buildCellData(meta, result.columns, config);
+  result.cellData = buildCellData(meta, result.columns, config, lightRows?.length);
   result.rows = buildRows(meta, result.cellData.length).map((row, rowIdx) => ({
     ...row,
-    members: row.members.map((member: any, memberIdx: number) => ({
+    members: row.members.map((member: any) => ({
       ...member,
-      ...(lightRows?.[rowIdx]?.members?.[memberIdx] ?? {}),
+      ...(lightRows?.[rowIdx]?.members.find(
+        (lightMember: any) => lightMember.levelDisplayName === member.levelDisplayName,
+      ) ?? {}),
     })),
   }));
 
@@ -112,15 +119,17 @@ export const inflatePayload = (
   return { ...result, measures: meta.measures, configJson: meta.configJson };
 };
 
-export const lighInflatePayload = (skeleton: any, query: any, visualizationType: string) => {
-  const meta = parseQuerySchema(query, visualizationType);
+export const lighInflatePayload = (skeleton: any, querySchema: any, visualizationType: string) => {
+  const meta = parseQuerySchema(querySchema, visualizationType);
   const result = skeleton.content.result;
+  const isDrillIn = querySchema.isDrillIn;
 
   const rawColumns = buildColumns(meta, result);
   const cellData = buildCellData(meta, rawColumns);
   const rawRaws = buildRows(meta, cellData.length);
+  const rawMeasures = meta.measures;
 
-  const measures = meta.measures.reduce((prev: any, current: any) => {
+  const measures = rawMeasures.reduce((prev: any, current: any) => {
     const { dataField, displayNameWithoutAggregator } = current;
     return {
       ...prev,
@@ -151,25 +160,180 @@ export const lighInflatePayload = (skeleton: any, query: any, visualizationType:
 
   const rows = rawRaws.map((row) => ({
     ...row,
-    members: row.members.map(({ name, displayName, levelDisplayName, attributeName }: any) => ({
-      name,
-      displayName,
-      levelDisplayName,
-      attributeName,
-    })),
+    members: row.members.map(parseRowMember),
   }));
 
-  return { columns, rows, cellData };
+  return { columns: isDrillIn ? columns.slice(0, rawMeasures.length) : columns, rows };
 };
 
+export const inflateAgentsPayload = (filterBy: any) => {
+  const { channels: initialChanels, states: initialStates, unifiedStateIds: initialUnifiedStatusId } = filterBy;
+  const numberOfAgents = randInt(1, 15);
+  const states = !initialStates?.length ? DEFAULT_STATES : initialStates;
+  const unifiedStateIds = !initialUnifiedStatusId?.length ? ['2', '3', '4', '5'] : initialUnifiedStatusId;
+  const channels = !initialChanels?.length ? DEFAULT_CHANNELS : initialChanels;
+
+  const createAgentChannelInfoEdge = () => {
+    return {
+      node: {
+        id: faker.string.numeric({ length: 14, allowLeadingZeros: false }),
+        agentChannelUnifiedState: {
+          id: faker.helpers.arrayElement(unifiedStateIds),
+          __typename: 'AgentChannelUnifiedState',
+        },
+        unifiedStateLastUpdatedAt: faker.date.recent().getTime(),
+        agent: {
+          id: faker.string.numeric({ length: 14, allowLeadingZeros: false }),
+          name: faker.person.fullName(),
+          role: faker.helpers.arrayElement(['AGENT', 'ADMIN']),
+          photo: {
+            contentUrl: faker.image.avatar(),
+            __typename: 'Image',
+          },
+          __typename: 'Agent',
+        },
+        channelInfo: [generateChannelInfo(faker.helpers.arrayElement(channels), states)],
+        __typename: 'AgentChannelInfo',
+      },
+      __typename: 'AgentChannelInfoEdge',
+    };
+  };
+
+  return Array.from({ length: numberOfAgents }, () => createAgentChannelInfoEdge());
+};
+
+export const inflateAgentPayload = (agent: any) => {
+  const {
+    agent: { id, name, role, photo },
+    channelInfo: rawChannelInfo,
+  } = agent;
+  const channelInfo = DEFAULT_CHANNELS.map((channel) => {
+    if (rawChannelInfo.at(0)?.channel !== channel) {
+      return generateChannelInfo(channel);
+    }
+    return rawChannelInfo.at(0);
+  });
+
+  return {
+    agentsChannelInfo: {
+      edges: [
+        {
+          node: {
+            channelInfo,
+            unifiedStateLastUpdatedAt: 1750300246000,
+            __typename: 'AgentChannelInfo',
+          },
+          __typename: 'AgentChannelInfoEdge',
+        },
+      ],
+      __typename: 'AgentChannelInfoConnection',
+    },
+    user: {
+      id,
+      nonPaginatedAgentStatus: [
+        ...generateRandomItems(generateTicketWorkItem, 1, 5),
+        ...generateRandomItems(generateTalkWorkItem, 1, 2),
+        ...generateRandomItems(generateMessageWorkItems, 1, 3),
+      ],
+      photo,
+      name,
+      role,
+      __typename: 'Agent',
+    },
+  };
+};
+
+function generateChannelInfo(channel: string, states?: string[]) {
+  const state = faker.helpers.arrayElement(states ?? DEFAULT_STATES);
+
+  return {
+    channel: channel,
+    stateUpdatedAt: faker.date.recent().getTime(),
+    state,
+    capacity: {
+      acceptedCapacity: faker.number.int({ min: 0, max: 3 }),
+      maxCapacity: faker.number.int({ min: 1, max: 5 }),
+      freeCapacityPercentage: faker.number.float({ min: 0, max: 100 }),
+      __typename: 'AgentCapacityInfo',
+    },
+    __typename: 'AgentChannelStatus',
+  };
+}
+
+function generateTicketWorkItem() {
+  const priority = faker.helpers.arrayElement(['NOT_SET', 'URGENT']);
+  const requesterType = faker.helpers.arrayElement(['Agent', 'Customer']);
+  const createdAt = faker.date.past().toISOString();
+  const updatedAt = faker.date.recent().toISOString();
+  const status = faker.helpers.arrayElement(['NEW', 'OPEN', 'CLOSED', 'PENDING']);
+  const groupName = faker.helpers.arrayElement(['Talk', 'Email', 'Messaging', 'Chat']);
+  const brandName = faker.helpers.arrayElement(['Master', 'Premium', 'Basic']);
+  const id = faker.string.numeric({ length: 3, allowLeadingZeros: false });
+  return {
+    id,
+    ticket: {
+      id,
+      createdAt,
+      updatedAt,
+      status,
+      priority,
+      brand: {
+        name: brandName,
+        __typename: 'Brand',
+      },
+      requester: {
+        name: faker.person.fullName(),
+        __typename: requesterType,
+      },
+      assignee: {
+        group: {
+          name: groupName,
+          __typename: 'SupportGroup',
+        },
+        __typename: 'Assignee',
+      },
+      __typename: 'Issue',
+    },
+    __typename: 'SupportWorkItem',
+  };
+}
+
+function generateTalkWorkItem() {
+  return {
+    details: {
+      fromLine: faker.phone.number({ style: 'international' }),
+      callDirection: faker.helpers.arrayElement(['INBOUND', 'OUTBOUND']),
+      createdAt: faker.date.recent().toISOString(),
+      ticket: {
+        id: faker.string.numeric(3),
+        __typename: 'Issue',
+      },
+      __typename: 'TalkWorkItemDetails',
+    },
+    __typename: 'TalkWorkItem',
+  };
+}
+
+function generateMessageWorkItems() {
+  return {
+    id: '13636770',
+    details: {
+      duration: 0,
+      requester: 'Peter Sax',
+      __typename: 'MessagingWorkItemDetails',
+    },
+    channelName: 'messaging',
+    reason: 'REOPENED',
+    __typename: 'MessagingWorkItem',
+  };
+}
+
+function generateRandomItems(callback: () => any, min = 1, max = 5) {
+  const count = faker.number.int({ min, max });
+  return Array.from({ length: count }, callback);
+}
+
 function parseQuerySchema(querySchema: any, vizType: string) {
-  // const binary = Uint8Array.from(atob(querySchema.replace(/\n/g, '')), (c) => c.charCodeAt(0));
-
-  // const xml = ungzip(binary, { to: 'string' });
-  // const parsedXml = xmlParser.parse(xml);
-  // console.log('Parsed XML:', parsedXml);
-  // const { Query: query } = parsedXml;
-
   const { Measures: rawMeasures, Columns: rawColumns, Rows: rawRows, Config } = querySchema;
   const colHierarchies = Array.isArray(rawColumns.Hierarchy)
     ? rawColumns.Hierarchy
@@ -368,10 +532,10 @@ function produceColumn(
   };
 }
 
-function buildCellData(meta: any, columns: any, config?: any): any[][] {
+function buildCellData(meta: any, columns: any, config?: any, rowsLength: number = 4): any[][] {
   const isGrid = getIsGrid(meta.vizType, meta.rowHierarchies.length, meta.measures.length);
   const hasMultipleRows = meta.rowHierarchies[0]?.['@_dataField'] !== DEFAULT_HIERARCHY_ROW['@_dataField'];
-  const rows = isGrid || hasMultipleRows ? 4 : 1; // tabla -> varias filas; gráfico -> 1
+  const rows = isGrid || hasMultipleRows ? rowsLength : 1; // tabla -> varias filas; gráfico -> 1
 
   const cols = isGrid ? meta.measures.length : columns.length;
   const maskedValues: number[][] = Array.from({ length: rows }, () => generateMaskedValues(config, cols));

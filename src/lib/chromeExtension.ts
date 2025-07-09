@@ -1,4 +1,4 @@
-import { ACTIONS } from '@/actions/dictionary';
+import { ACTIONS, DEFAULT_CONFIG, NOTIFICATION_TYPES } from '@/actions/dictionary';
 import ExploreInterceptor from '@/models/exploreInterceptor';
 import browser from 'webextension-polyfill';
 
@@ -16,6 +16,12 @@ export const setAppState = async (value: any) => {
   const payload = JSON.stringify({ ...(state ?? {}), ...value }, null, 0);
   const result = await browser.storage.local.set({ [APP_STATE_KEY]: payload });
   return result;
+};
+
+export const openChromeExtension = () => {
+  browser.runtime.sendMessage({
+    type: ACTIONS.openChromeExtension,
+  });
 };
 
 export const initilizeApp = async (document: Document) => {
@@ -79,11 +85,6 @@ export const changeTabIcon = async (iconPath: string) => {
 };
 
 function injectMissingData(payload: any) {
-  const DEFAULT_CONFIG = {
-    range: ['', ''],
-    preset: 'random',
-  };
-
   return {
     ...payload,
     dashboards: Object.entries(payload.dashboards ?? {}).reduce((acc, [key, item]: any) => {

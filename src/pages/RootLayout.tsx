@@ -12,7 +12,7 @@ const RootLayout = () => {
     <main id="main-container" style={{ flex: 1, minHeight: 0, overflowY: 'auto', position: 'relative' }}>
       <Navigation>
         {NAV_LINKS.map((navLink: any) => (
-          <NavigationLinkContainer>
+          <NavigationLinkContainer key={navLink.id}>
             <NavLink key={navLink.id} to={navLink.path} className={({ isActive }) => (isActive ? 'active' : '')}>
               <MD>{navLink.title}</MD>
             </NavLink>

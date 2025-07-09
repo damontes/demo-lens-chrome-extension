@@ -24,6 +24,7 @@ const Popup = () => {
 
   const setInitalState = useAppState((state: any) => state.setInitialState);
   const version = useAppState((state: any) => state.version);
+  const initialRoute = useAppState((state: any) => state.initialRoute);
 
   const getInitialState = async () => {
     setLoading(true);
@@ -31,16 +32,12 @@ const Popup = () => {
     const dashboardDetails = await getCurrentTabDetails();
     const version = await getCurrentVersion();
     setInitalState({ ...state, dashboardDetails, version });
+    setAppState({ currentDashboard: null, initialRoute: null });
     setLoading(false);
   };
 
   useEffect(() => {
     getInitialState();
-    return () => {
-      setAppState({
-        currentDashboard: null,
-      });
-    };
   }, []);
 
   return (
@@ -61,7 +58,7 @@ const Popup = () => {
         ) : (
           <Routes>
             <Route element={<RootLayout />}>
-              <Route index element={<Navigate to="/skeletons" replace />} />
+              <Route index element={<Navigate to={initialRoute ? initialRoute : '/skeletons'} replace />} />
               <Route path="skeletons" element={<SkeletonsLayout />}>
                 <Route index element={<Skeletons />} />
                 <Route path="categories/*" element={<Categories />} />

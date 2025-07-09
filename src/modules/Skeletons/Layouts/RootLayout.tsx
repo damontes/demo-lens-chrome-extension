@@ -1,5 +1,5 @@
 import { Breadcrumb } from '@zendeskgarden/react-breadcrumbs';
-import { Link, Outlet, useLocation, useParams } from 'react-router';
+import { Link, Outlet, useLocation, useNavigate, useParams } from 'react-router';
 import ArrowLeftIcon from '@zendeskgarden/svg-icons/src/16/arrow-left-stroke.svg?react';
 import styled from 'styled-components';
 import { IconButton } from '@zendeskgarden/react-buttons';
@@ -13,6 +13,8 @@ const LABELS: Record<string, string> = {
 
 const SkeletonsLayout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+
   const { skeletonId } = useParams();
   const dashboards = useAppState((state) => state.dashboards);
 
@@ -37,11 +39,19 @@ const SkeletonsLayout = () => {
     return path;
   };
 
+  const handleBack = () => {
+    if (window.history.length <= 1) {
+      navigate('/skeletons');
+    } else {
+      navigate(-1);
+    }
+  };
+
   return (
     <div>
       {links.length < 2 ? null : (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingBottom: '8px' }}>
-          <IconButton size="small" aria-label="Go back" onClick={() => window.history.back()}>
+          <IconButton size="small" aria-label="Go back" onClick={handleBack}>
             <ArrowLeftIcon />
           </IconButton>
 

@@ -1,6 +1,6 @@
 import { RECOMMENDATION_ACTION_TYPES } from '@/components/Admin/OverviewCopilot/Recommendations/RecommendationForm';
 
-export const inflatePayload = (skeleton: any, payload: any) => {
+export const inflateOverviewCopilotPayload = (skeleton: any, payload: any) => {
   const result = skeleton;
   const { metrics, recommendations, setupTasks } = payload;
 

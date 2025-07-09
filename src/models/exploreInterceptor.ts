@@ -1,9 +1,16 @@
 import { ungzip } from 'pako';
-import { inflatePayload, lighInflatePayload } from '../lib/exploreInflatePayload';
+import {
+  inflateAgentPayload,
+  inflateAgentsPayload,
+  inflatePayload,
+  lighInflatePayload,
+  parseRowMember,
+} from '../lib/exploreInflatePayload';
 import ControllerInterpceptor from './controllerInterceptor';
 import FetchInterceptor from './fetchInterceptor';
 import XHRInterceptor from './xhrInterceptor';
 import { XMLParser } from 'fast-xml-parser';
+import { ACTIONS, DEFAULT_CONFIG } from '@/actions/dictionary';
 
 const xmlParser = new XMLParser({ ignoreAttributes: false });
 
@@ -258,19 +265,23 @@ class ExploreInterceptor {
   #currentDashboard: any;
   #xhrInterceptor: XHRInterceptor | null;
   #fetchInterceptor: FetchInterceptor | null;
+  #temporalDashboards: any;
+  #lastWidgetId: number | null;
+  #temporalAgents: any;
 
   constructor() {
     this.#xhrInterceptor = null;
     this.#fetchInterceptor = null;
+    this.#lastWidgetId = null;
   }
 
   intercept(configurationDashboards?: any[], dashboards?: any) {
     this.#xhrInterceptor = new XHRInterceptor();
     this.#fetchInterceptor = new FetchInterceptor();
+    this.#temporalDashboards = dashboards;
 
     const handleDashboard = (response: any) => {
       this.#currentDashboard = this.#parseDashboard(response);
-      console.log('current dashboard', this.#currentDashboard);
     };
 
     this.#xhrInterceptor.setConditionTarget((url) => {
@@ -293,55 +304,81 @@ class ExploreInterceptor {
 
       if (ExploreInterceptor.isExploreQuery(url)) {
         const queryId = json.content.queryId || json.queryId;
+        const tabId = requestBody?.content?.tabId;
 
         const activeDashboard = ControllerInterpceptor.findActiveDashboard(
           configurationDashboards,
-          dashboards,
+          this.#temporalDashboards,
           this.#currentDashboard,
         );
 
-        if (!activeDashboard) {
-          return response;
-        }
+        try {
+          if (!activeDashboard) return response;
 
-        const tabId = requestBody?.content?.tabId;
-        const currentTab = this.#currentDashboard.tabs.find((tab: any) =>
-          tabId ? tab.id === tabId : tab.queries[queryId],
+          const queries = this.#getQueries(queryId, tabId, activeDashboard);
+          const payload = this.#handleQueryExplorePayload(
+            queryId,
+            tabId,
+            queries,
+            requestBody,
+            json,
+            activeDashboard,
+            this.#temporalDashboards,
+          );
+          return ExploreInterceptor.handleResponse(response, payload);
+        } catch (error) {
+          console.log('===ERROR===', error);
+        }
+      }
+
+      if (ExploreInterceptor.isExploreAgentQuery(url) && this.#lastWidgetId) {
+        const activeDashboard = ControllerInterpceptor.findActiveDashboard(
+          configurationDashboards,
+          this.#temporalDashboards,
+          this.#currentDashboard,
         );
-        const query = currentTab?.queries[queryId];
-        const { querySchema: rawQuerySchema, visualizationType, cubeModelId } = query;
 
         try {
-          const activeQuery = activeDashboard?.tabs.find((tab: any) => tab.id === currentTab.id).queries[queryId];
-          const { payload: lightInflatePayload, config } = activeQuery || {};
-          console.log('Request body', requestBody);
+          if (!activeDashboard) return response;
 
-          const querySchema = ExploreInterceptor.generateQuerySchema(
-            rawQuerySchema,
-            requestBody?.content?.query?.interactions_list,
-          );
+          // const queries = this.#getQueriesFromWidgetId(this.#lastWidgetId, activeDashboard);
+          const { operationName, variables } = requestBody;
+          let payload = json;
 
-          const payload = inflatePayload(EXPLORE_SKELETON, querySchema, visualizationType, lightInflatePayload, config);
+          if (operationName === 'AgentListOCR') {
+            const agents = inflateAgentsPayload(variables.filterBy);
+            this.#temporalAgents = agents;
+            payload = {
+              ...json,
+              data: {
+                agentsChannelInfo: {
+                  edges: agents,
+                  count: agents.length,
+                  pageInfo: {
+                    endCursor: 'eyJvIjoiIiwidiI6IiJ9',
+                    hasNextPage: false,
+                    __typename: 'PageInfo',
+                  },
+                  __typename: 'AgentChannelInfoConnection',
+                },
+              },
+            };
+          }
 
-          const newJson = {
-            isSuccess: true,
-            type: 'result',
-            uuid: json.uuid,
-            content: {
-              result: { ...payload, uuid: json.uuid, queryId: String(queryId), cubeModelId },
-              queryId,
-            },
-          };
-          console.log('INFALTE PAYLOAD', { query, activeQuery, json, newJson });
+          if (operationName === 'WorkItems') {
+            const agentId = variables.agentId;
+            const temporalAgent = this.#temporalAgents?.find((item: any) => item.node.agent.id === agentId);
+            const { agentsChannelInfo, user } = inflateAgentPayload(temporalAgent.node);
+            payload = {
+              ...payload,
+              data: {
+                agentsChannelInfo,
+                user,
+              },
+            };
+          }
 
-          return new Response(JSON.stringify(newJson), {
-            status: response.status,
-            statusText: response.statusText,
-            headers: {
-              ...Object.fromEntries(response.headers.entries()),
-              'content-type': 'application/json',
-            },
-          });
+          return ExploreInterceptor.handleResponse(response, payload);
         } catch (error) {
           console.log('===ERROR===', error);
         }
@@ -349,6 +386,8 @@ class ExploreInterceptor {
 
       return response;
     });
+
+    this.#listenLastDrillWidget();
   }
 
   reset() {
@@ -375,7 +414,6 @@ class ExploreInterceptor {
   }
 
   #parseDashboard(dashboard: any) {
-    console.log('Parsing dashboard', dashboard);
     const { mainTag, queries: rawQueries, tabs } = dashboard;
 
     return {
@@ -393,6 +431,7 @@ class ExploreInterceptor {
             return {
               ...prev,
               [currentQuery.id]: {
+                widgetId: current.id,
                 visualizationType: currentQuery.visualization_type,
                 description: currentQuery.description,
                 completed: true,
@@ -414,13 +453,163 @@ class ExploreInterceptor {
     };
   }
 
+  #handleQueryExplorePayload(
+    queryId: string,
+    tabId: number,
+    queries: any,
+    requestBody: any,
+    json: any,
+    activeDashboard: any,
+    dashboards: any,
+  ) {
+    const { query, activeQuery: rawActiveQuery } = queries;
+    const { querySchema: rawQuerySchema, visualizationType, cubeModelId } = query;
+    const interactionList = requestBody?.content?.query?.interactions_list ?? [];
+
+    const querySchema = ExploreInterceptor.generateQuerySchema(rawQuerySchema, interactionList);
+
+    const drillInIndex = !interactionList.length ? -1 : interactionList.length - 1;
+    let drillInQuery = rawActiveQuery.interactionList?.[drillInIndex];
+
+    if (drillInIndex > -1 && !drillInQuery) {
+      const payload = lighInflatePayload(EXPLORE_SKELETON, querySchema, visualizationType);
+      drillInQuery = { payload, config: DEFAULT_CONFIG };
+      const { id, ...newDashboard } = activeDashboard;
+      const rawActiveQuery = newDashboard.tabs.find((tab: any) => tab.id === tabId).queries[queryId];
+      rawActiveQuery.interactionList = (rawActiveQuery.interactionList ?? []).concat(drillInQuery);
+
+      this.#temporalDashboards[id] = newDashboard;
+      window.dispatchEvent(
+        new CustomEvent(ACTIONS.saveDrillInQuery, {
+          detail: {
+            initialRoute: `/skeletons/${id}?tabId=${tabId}&queryId=${queryId}&drillInIndex=${drillInIndex}`,
+            newDashboards: {
+              ...dashboards,
+              [id]: newDashboard,
+            },
+          },
+        }),
+      );
+    }
+
+    const activeQuery = drillInQuery ?? rawActiveQuery;
+    const { payload: lightInflatePayload, config } = activeQuery;
+    const payload = inflatePayload(EXPLORE_SKELETON, querySchema, visualizationType, lightInflatePayload, config);
+    const measureDataFieldToDisplayFormat = json.content?.result?.measureDataFieldToDisplayFormat;
+    if (measureDataFieldToDisplayFormat) {
+      payload.measureDataFieldToDisplayFormat = measureDataFieldToDisplayFormat;
+    }
+
+    if (drillInQuery) {
+      const savedAttributes = new Set(
+        lightInflatePayload.rows.at(0).members.map((member: any) => member.levelDisplayName),
+      );
+      const currentAttributes = new Set(payload.rows.at(0).members.map((member: any) => member.levelDisplayName));
+      const difference = currentAttributes.difference(savedAttributes);
+
+      if (difference.size > 0) {
+        const newRows = lightInflatePayload.rows.map((row: any, rowIdx: number) => {
+          const payloadMembers = payload.rows[rowIdx].members;
+          const filterMembers = payloadMembers.filter((member: any) => difference.has(member.levelDisplayName));
+          return {
+            ...row,
+            members: row.members.concat(filterMembers.map(parseRowMember)),
+          };
+        });
+        const { id, ...newDashboard } = activeDashboard;
+        const savedQuery = newDashboard.tabs.find((tab: any) => tab.id === tabId).queries[queryId];
+        savedQuery.interactionList[drillInIndex].payload.rows = newRows;
+
+        this.#temporalDashboards[id] = newDashboard;
+        window.dispatchEvent(
+          new CustomEvent(ACTIONS.updateDrillInQuery, {
+            detail: {
+              newDashboards: {
+                ...dashboards,
+                [id]: newDashboard,
+              },
+            },
+          }),
+        );
+      }
+    }
+
+    const newJson = {
+      isSuccess: true,
+      type: 'result',
+      uuid: json.uuid,
+      content: {
+        result: { ...payload, uuid: json.uuid, queryId: String(queryId), cubeModelId },
+        queryId,
+      },
+    };
+
+    return newJson;
+  }
+
+  #getQueries(queryId: string, tabId: string, activeDashboard: any) {
+    const currentTab = this.#currentDashboard.tabs.find((tab: any) =>
+      tabId ? tab.id === tabId : tab.queries[queryId],
+    );
+    const query = currentTab?.queries[queryId];
+    const activeQuery = activeDashboard?.tabs.find((tab: any) => tab.id === currentTab.id).queries[queryId];
+
+    return { query, activeQuery };
+  }
+
+  // #getQueriesFromWidgetId(widgetId: number, activeDashboard: any) {
+  //   const tab = this.#currentDashboard.tabs.find((tab: any) => {
+  //     const queryIndex = Object.values(tab.queries).findIndex((query: any) => query.widgetId === widgetId);
+  //     return queryIndex > -1;
+  //   });
+
+  //   const [queryId, query] =
+  //     Object.entries(this.#currentDashboard.tabs.find((currentTab: any) => tab.id === currentTab.id).queries).find(
+  //       ([_, query]: any) => query.widgetId === widgetId,
+  //     ) ?? [];
+
+  //   if (!queryId) {
+  //     return { query: null, activeQuery: null };
+  //   }
+
+  //   const activeQuery = activeDashboard?.tabs.find((currentTab: any) => tab.id === currentTab.id).queries[queryId];
+
+  //   return { query, activeQuery };
+  // }
+
+  #listenLastDrillWidget() {
+    let lastWidget: any = null;
+    document.addEventListener(
+      'click',
+      (e: any) => {
+        const $widget = e.target.closest('[id^="widget-"]');
+
+        if ($widget) {
+          lastWidget = $widget;
+        }
+
+        const $drillInMenu = document.querySelector('.drill-in') || document.querySelector('.realtime-drill-in');
+        const drillInClicked = $drillInMenu?.contains(e.target) || e.target === $drillInMenu;
+        const rawWidgetId = lastWidget?.getAttribute('id');
+        if (rawWidgetId && drillInClicked) {
+          const widgetId = rawWidgetId.split('-').at(-1);
+          if (widgetId && widgetId !== this.#lastWidgetId) {
+            this.#temporalAgents = null;
+          }
+
+          this.#lastWidgetId = Number(widgetId);
+        }
+      },
+      true,
+    );
+  }
+
   static getDashboardType() {
     return 'explore';
   }
 
   static generateQuerySchema(rawQuerySchema: string, interactionList: any[]) {
     const query = ExploreInterceptor.getQuerySchema(rawQuerySchema);
-
     if (!interactionList?.length) {
       return query;
     }
@@ -431,16 +620,16 @@ class ExploreInterceptor {
       return query;
     }
 
-    const { attributes, selectedColumns: rawSelectedColumns } = lastDrillRawSchema;
-    const selectedColumns = rawSelectedColumns.map((item: any) => item.members.at(0).levelDisplayName);
+    const { attributes } = lastDrillRawSchema;
+    const rowHierarchies = !attributes.length
+      ? ''
+      : attributes.map((item: any) => {
+          const { hierarchyXML } = item;
+          const parsedXml = xmlParser.parse(hierarchyXML);
+          return parsedXml.Hierarchy;
+        });
 
-    const rowHierarchies = attributes.map((item: any) => {
-      const { hierarchyXML } = item;
-      const parsedXml = xmlParser.parse(hierarchyXML);
-      return parsedXml.Hierarchy;
-    });
-
-    return { ...query, Rows: { Hierarchy: rowHierarchies }, selectedColumns };
+    return { ...query, Rows: { Hierarchy: rowHierarchies }, isDrillIn: true };
   }
 
   static getQuerySchema(rawQuerySchema: string) {
@@ -461,6 +650,10 @@ class ExploreInterceptor {
     return exploreQueries.some((regex) => regex.test(url));
   }
 
+  static isExploreAgentQuery(url: string) {
+    return /^https:\/\/([a-zA-Z0-9-]+\.)?zendesk\.com\/api\/lotus\/graphql$/.test(url);
+  }
+
   static isDashboardBimeo(rawUrl: string) {
     const url = new URL(rawUrl);
 
@@ -469,6 +662,17 @@ class ExploreInterceptor {
 
   static isDashboardFromZendesk(url: string) {
     return /^https:\/\/([a-zA-Z0-9-]+\.)?zendesk\.com\/explore\/graphql\?PublishedDashboardQuery/.test(url);
+  }
+
+  static handleResponse(response: Response, payload: any) {
+    return new Response(JSON.stringify(payload), {
+      status: response.status,
+      statusText: response.statusText,
+      headers: {
+        ...Object.fromEntries(response.headers.entries()),
+        'content-type': 'application/json',
+      },
+    });
   }
 }
 

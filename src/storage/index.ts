@@ -56,8 +56,6 @@ const useAppState = create<AppState>()(
 );
 
 useAppState.subscribe((newState, previousState) => {
-  // ✅ Place your "after state change" logic here
-  const payload = {};
   if (JSON.stringify(newState.dashboards) !== JSON.stringify(previousState.dashboards)) {
     syncState({
       dashboards: newState.dashboards,
