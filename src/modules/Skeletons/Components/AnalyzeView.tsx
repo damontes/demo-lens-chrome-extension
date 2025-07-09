@@ -18,16 +18,16 @@ const DEFAULT_INITIAL_VALUES = {
 
 type Props = {
   onClose: () => void;
+  category: any;
 };
 
-const AnalyzeView = ({ onClose }: Props) => {
+const AnalyzeView = ({ onClose, category }: Props) => {
   const [values, setValues] = useState(DEFAULT_INITIAL_VALUES);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<any>(null);
 
   const next = useStepWizardStore((state) => state.next);
   const setValue = useStepWizardStore((state) => state.setValue);
-  const dashboardToAnalyze = useAppState((state: any) => state.dashboardToAnalyze);
 
   const analyzeDashboard = async (e: any) => {
     e.preventDefault();
@@ -42,7 +42,7 @@ const AnalyzeView = ({ onClose }: Props) => {
     } catch (error: any) {
       setError({
         title: error.message,
-        description: dashboardToAnalyze.errorMessage,
+        description: category.errorMessage,
       });
     } finally {
       setIsLoading(false);

@@ -41,11 +41,6 @@ const ALL_STEPS = {
   ],
 };
 
-type Props = {
-  onClose: () => void;
-  handleSubmit: (id: string, payload: any) => void;
-};
-
 const NewSkeleton = () => {
   const dashboadDetails = useAppState((state) => state.dashboardDetails);
   const saveDashboard = useAppState((state: any) => state.saveDashboard);
@@ -91,6 +86,7 @@ const NewSkeleton = () => {
       steps={steps}
       onClose={goBack}
       handleSubmit={onCreateSkeleton}
+      category={category}
     />
   );
 };

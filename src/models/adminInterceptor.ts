@@ -171,13 +171,6 @@ class AdminInterceptor {
     });
   }
 
-  reset() {
-    if (!this.#fetchInterceptor) return;
-
-    this.#currentDashboard = null;
-    this.#fetchInterceptor.reset();
-  }
-
   getCurrentDashboard() {
     return new Promise((resolve) => {
       const intervalId = setInterval(() => {

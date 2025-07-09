@@ -8,6 +8,7 @@ type Props = {
   title: string;
   description: string;
   steps: Step[];
+  category: string;
   onClose?: () => void;
   handleSubmit?: (id: string, payload: any) => void;
 };

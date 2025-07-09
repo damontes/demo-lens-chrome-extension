@@ -390,14 +390,6 @@ class ExploreInterceptor {
     this.#listenLastDrillWidget();
   }
 
-  reset() {
-    if (!this.#fetchInterceptor || !this.#xhrInterceptor) return;
-
-    this.#currentDashboard = null;
-    this.#fetchInterceptor.reset();
-    this.#xhrInterceptor.reset();
-  }
-
   getCurrentDashboard() {
     return new Promise((resolve) => {
       const intervalId = setInterval(() => {
