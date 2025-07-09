@@ -76,10 +76,10 @@ const Skeletons = () => {
         <>
           <LG style={{ fontWeight: 'bold', textAlign: 'center' }}>Welcome to Demo Lens</LG>
           <Description style={{ textAlign: 'center' }}>
-            Create your first dashboard, then add it to a configuration.
+            Create your first skeleton, then add it to a scenario.
           </Description>
           <Button style={{ width: '100%', marginTop: '16px' }} onClick={() => navigate('/skeletons/categories')}>
-            Create your first dashboard
+            Create your first skeleton
           </Button>
         </>
       ) : (

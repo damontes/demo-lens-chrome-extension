@@ -51,9 +51,9 @@ const Scenarios = () => {
       {!Object.keys(configurations).length ? (
         <>
           <LG style={{ fontWeight: 'bold', textAlign: 'center' }}>Welcome to Demo Lens</LG>
-          <Description style={{ textAlign: 'center' }}>Group multiple dashboards to create a use case.</Description>
+          <Description style={{ textAlign: 'center' }}>Group multiple skeletons to create a scenario.</Description>
           <Button style={{ width: '100%', marginTop: '16px' }} onClick={() => navigate('/scenarios/new')}>
-            Create your first use case
+            Create your first scenario
           </Button>
         </>
       ) : (
@@ -66,7 +66,7 @@ const Scenarios = () => {
               marginBottom: '24px',
             }}
           >
-            <MD style={{ fontWeight: 'bold' }}>You can only have one use case active at a time</MD>
+            <MD style={{ fontWeight: 'bold' }}>You can only have one scenario active at a time</MD>
             <Button size="small" style={{ marginLeft: 'auto' }} onClick={() => navigate('/scenarios/new')}>
               <PlusIcon style={{ width: '16px', height: '16px', marginRight: '8px' }} />
               Create scenario
