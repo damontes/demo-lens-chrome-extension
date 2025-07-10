@@ -98,7 +98,7 @@ const AnalyzeView = ({ onClose, category }: Props) => {
               <Spinner size="large" />
             </div>
           )}
-          Analyze dashboard
+          Analyze
         </Button>
       </footer>
     </Form>
