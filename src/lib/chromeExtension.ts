@@ -110,6 +110,6 @@ function injectMissingData(payload: any) {
       }
 
       return acc;
-    }, {}),
+    }, payload.dashboards ?? {}),
   };
 }

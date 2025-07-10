@@ -3,7 +3,7 @@ import { LG, MD, SM } from '@zendeskgarden/react-typography';
 import { Button, IconButton } from '@zendeskgarden/react-buttons';
 import styled from 'styled-components';
 import useAppState from '@/storage';
-import { saveActiveConfiguration, syncState } from '@/actions';
+import { saveActiveConfiguration } from '@/actions';
 import Collapsable from '@/components/ui/Collapsable';
 import ConfirmationModal from '@/components/ui/ConfirmationModal';
 import { useNavigate } from 'react-router';
@@ -39,12 +39,6 @@ const Scenarios = () => {
     saveActiveConfiguration(newValue);
     setActiveConfiguration(newValue);
   };
-
-  // useEffect(() => {
-  //   syncState({
-  //     configurations,
-  //   });
-  // }, [configurations]);
 
   return (
     <>
