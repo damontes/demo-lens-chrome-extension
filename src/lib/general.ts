@@ -42,6 +42,15 @@ export const generateMaskedValues = (config: any, count: number) => {
   }
 };
 
+export const formatArraytoList = (array: string[]) => {
+  const formatter = new Intl.ListFormat('en', {
+    style: 'long',
+    type: 'conjunction',
+  });
+
+  return formatter.format(array);
+};
+
 function smoothPeak(min: number, max: number, count: number) {
   const mid = Math.floor(count / 2);
   const values = [];

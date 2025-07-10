@@ -5,51 +5,10 @@ import FetchInterceptor from './fetchInterceptor';
 export const SUPPORT_SKELETON = {
   adminAiCenterMetrics: {
     period: 30,
-    aiUsageMetrics: {
-      ticketsCountWithAIRules: {
-        currentValue: 103,
-        historicalValue: 2,
-      },
-      ticketsCountWithAutoAssist: {
-        currentValue: 22,
-        historicalValue: 7,
-      },
-      ticketsCountWithAISuggestions: {
-        currentValue: 24,
-        historicalValue: 12,
-      },
-      agentsCountUsingAISuggestions: {
-        currentValue: 5,
-        historicalValue: 3,
-      },
-    },
+    aiUsageMetrics: null,
   },
   adminAiCenterSuggestions: {
-    suggestions: [
-      {
-        id: '',
-        type: '',
-        tags: [],
-        status: 'new',
-        data: {
-          action_value: '',
-          actions: [
-            {
-              field: '',
-              value: '',
-            },
-          ],
-          analysed_period: 15,
-          impacted_metric: 'First reply time',
-          intents: [],
-          metric_expected_improvement: 5820,
-          num_tickets: 898,
-          percent_tickets: 0.11,
-          precision: 0.64,
-        },
-        createdAt: '2025-03-14 13:47:57',
-      },
-    ],
+    suggestions: null,
     updatedAt: '2025-03-26 19:43:08',
     sampleSize: 12760,
   },
