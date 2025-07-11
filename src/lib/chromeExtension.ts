@@ -1,11 +1,11 @@
-import { ACTIONS, DEFAULT_CONFIG, NOTIFICATION_TYPES } from '@/actions/dictionary';
+import { ACTIONS, DEFAULT_CONFIG } from '@/actions/dictionary';
 import ExploreInterceptor from '@/models/exploreInterceptor';
 import browser from 'webextension-polyfill';
 
 const APP_STATE_KEY = 'state';
 
 export const getAppState = async () => {
-  const result = await browser.storage.local.get(APP_STATE_KEY);
+  const result = await browser.storage?.local.get(APP_STATE_KEY);
   const stringPayload = result[APP_STATE_KEY] ?? '{}';
   const payload = JSON.parse(stringPayload);
   return injectMissingData(payload);
@@ -14,7 +14,7 @@ export const getAppState = async () => {
 export const setAppState = async (value: any) => {
   const state = await getAppState();
   const payload = JSON.stringify({ ...(state ?? {}), ...value }, null, 0);
-  const result = await browser.storage.local.set({ [APP_STATE_KEY]: payload });
+  const result = await browser.storage?.local.set({ [APP_STATE_KEY]: payload });
   return result;
 };
 

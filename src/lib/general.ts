@@ -51,6 +51,14 @@ export const formatArraytoList = (array: string[]) => {
   return formatter.format(array);
 };
 
+export const toSnakeCase = (str: string) => {
+  return str
+    .trim()
+    .replace(/\s+/g, '_') // Replace spaces with underscores
+    .replace(/([A-Z])/g, '_$1') // Add underscore before uppercase letters
+    .toLowerCase(); // Convert to lowercase
+};
+
 function smoothPeak(min: number, max: number, count: number) {
   const mid = Math.floor(count / 2);
   const values = [];

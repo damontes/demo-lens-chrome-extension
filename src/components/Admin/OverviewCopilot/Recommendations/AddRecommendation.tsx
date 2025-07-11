@@ -1,18 +1,14 @@
 import styled, { useTheme } from 'styled-components';
 import { MD } from '@zendeskgarden/react-typography';
 import RecommendationForm from './RecommendationForm';
-import { Alert } from '@zendeskgarden/react-notifications';
 import PlusIcon from '@zendeskgarden/svg-icons/src/16/plus-stroke.svg?react';
 
 type Props = {
-  groups: any[];
-  intents: any[];
-  assignees: any[];
   onSubmit: (recommendation: any) => void;
   onCancel: () => void;
 };
 
-const AddRecomendation = ({ groups, intents, assignees, onSubmit, onCancel }: Props) => {
+const AddRecomendation = ({ onSubmit, onCancel }: Props) => {
   const theme = useTheme();
 
   return (
@@ -21,20 +17,7 @@ const AddRecomendation = ({ groups, intents, assignees, onSubmit, onCancel }: Pr
         <PlusIcon style={{ width: 16, height: '16' }} />
         <MD style={{ fontWeight: 'semibold' }}>Add Recommendation</MD>
       </header>
-      {!intents.length ? (
-        <Alert type="warning">
-          <Alert.Title>No intents found</Alert.Title>
-          We didn't find any intents in your account, make sure you have eneabled <b>"AI Copilot"</b> (Inteligent
-          triage) in your Zendesk account.
-        </Alert>
-      ) : null}
-      <RecommendationForm
-        groups={groups}
-        intents={intents}
-        assignees={assignees}
-        onCancel={onCancel}
-        onSubmit={onSubmit}
-      />
+      <RecommendationForm onCancel={onCancel} onSubmit={onSubmit} />
     </Article>
   );
 };

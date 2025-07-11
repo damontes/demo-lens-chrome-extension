@@ -5,23 +5,17 @@ import { Button } from '@zendeskgarden/react-buttons';
 import EditRecommendation from './EditRecommendation';
 
 type Props = {
-  groups: any[];
-  intents: any[];
-  assignees: any[];
   recommendation: any;
   onRemove: (id: string) => void;
   onEdit: (recommendation: any) => void;
 };
 
-const RecommendationItem = ({ recommendation, onEdit, onRemove, groups, intents, assignees }: Props) => {
+const RecommendationItem = ({ recommendation, onEdit, onRemove }: Props) => {
   const [isEditMode, setIsEditMode] = useState(false);
 
   if (isEditMode) {
     return (
       <EditRecommendation
-        groups={groups}
-        intents={intents}
-        assignees={assignees}
         recommendation={recommendation}
         onCancel={() => setIsEditMode(false)}
         onSubmit={(values) => {

@@ -202,9 +202,6 @@ const OverviewCopilotForm = ({
             return (
               <RecommendationItem
                 key={item.id}
-                groups={currentDashboard.groups}
-                intents={currentDashboard.intents}
-                assignees={currentDashboard.assignees}
                 onEdit={handleEditRecommendation}
                 onRemove={handleRemoveRecommendation}
                 recommendation={item}
@@ -212,13 +209,7 @@ const OverviewCopilotForm = ({
             );
           })}
           {showAddRecommendation ? (
-            <AddRecomendation
-              groups={currentDashboard.groups}
-              intents={currentDashboard.intents}
-              assignees={currentDashboard.assignees}
-              onSubmit={handleAddRecommendation}
-              onCancel={() => setShowAddRecommendation(false)}
-            />
+            <AddRecomendation onSubmit={handleAddRecommendation} onCancel={() => setShowAddRecommendation(false)} />
           ) : (
             <Button
               type="button"

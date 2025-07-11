@@ -17,6 +17,7 @@ import EditSkeleton from '@/modules/Skeletons/Pages/EditSkeleton';
 import Scenarios from '@/modules/Scenarios/Pages/Scenarios';
 import NewScenario from '@/modules/Scenarios/Pages/NewScenario';
 import EditScenario from '@/modules/Scenarios/Pages/EditScenario';
+import { syncState } from '@/actions';
 
 const Popup = () => {
   const { colorScheme } = useColorScheme();
@@ -78,7 +79,7 @@ const Popup = () => {
   );
 };
 
-const withColorSchemeProvider = (Component: any) => {
+const withProviders = (Component: any) => {
   return () => {
     return (
       <ColorSchemeProvider initialColorScheme="light">
@@ -88,7 +89,24 @@ const withColorSchemeProvider = (Component: any) => {
   };
 };
 
-export default withColorSchemeProvider(Popup);
+useAppState.subscribe((newState, previousState) => {
+  if (JSON.stringify(newState.dashboards) !== JSON.stringify(previousState.dashboards)) {
+    syncState({
+      dashboards: newState.dashboards,
+      currentDashboard: null,
+    });
+  } else if (JSON.stringify(newState.configurations) !== JSON.stringify(previousState.configurations)) {
+    syncState({
+      configurations: newState.configurations,
+    });
+  } else if (newState.intents.length !== previousState.intents.length) {
+    syncState({
+      intents: newState.intents,
+    });
+  }
+});
+
+export default withProviders(Popup);
 
 const Header = styled.header`
   display: flex;

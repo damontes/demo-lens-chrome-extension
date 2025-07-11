@@ -5,7 +5,24 @@ import FetchInterceptor from './fetchInterceptor';
 export const SUPPORT_SKELETON = {
   adminAiCenterMetrics: {
     period: 30,
-    aiUsageMetrics: null,
+    aiUsageMetrics: {
+      ticketsCountWithAIRules: {
+        currentValue: 719,
+        historicalValue: 582,
+      },
+      ticketsCountWithAutoAssist: {
+        currentValue: 14,
+        historicalValue: 35,
+      },
+      ticketsCountWithAISuggestions: {
+        currentValue: 58,
+        historicalValue: 48,
+      },
+      agentsCountUsingAISuggestions: {
+        currentValue: 22,
+        historicalValue: 6,
+      },
+    },
   },
   adminAiCenterSuggestions: {
     suggestions: null,
@@ -36,19 +53,19 @@ class AdminInterceptor {
   intercept(configurationDashboards?: any[], dashboards?: any) {
     this.#fetchInterceptor = new FetchInterceptor();
 
-    const handleParseDashboard = (response: any) => {
-      const { actions } = response.definitions;
-      this.#currentDashboard = {
-        ...this.#parseDashboard(actions),
-        ...this.#currentDashboard,
-      };
-    };
+    // const handleParseDashboard = (response: any) => {
+    //   const { actions } = response.definitions;
+    //   this.#currentDashboard = {
+    //     ...this.#parseDashboard(actions),
+    //     ...this.#currentDashboard,
+    //   };
+    // };
 
     const handleSetupTasks = (response: any) => {
       const { setupTasks } = response.data.adminAiCenterSetupTasks;
 
       this.#currentDashboard = {
-        ...this.#currentDashboard,
+        ...this.#parseDashboard(),
         setupTasks: setupTasks.map(({ __typename, ...task }: any) => task),
       };
     };
@@ -57,9 +74,9 @@ class AdminInterceptor {
       const clone = response.clone();
       const json = await clone.json();
 
-      if (AdminInterceptor.isDefinitionsQuery(url)) {
-        handleParseDashboard(json);
-      }
+      // if (AdminInterceptor.isDefinitionsQuery(url)) {
+      //   handleParseDashboard(json);
+      // }
 
       const type = AdminInterceptor.getTypeQuery(url, requestBody);
 
@@ -133,8 +150,8 @@ class AdminInterceptor {
   getCurrentDashboard() {
     return new Promise((resolve) => {
       const intervalId = setInterval(() => {
-        const { groups = [], intents, setupTasks } = this.#currentDashboard;
-        const isComplete = groups.length && intents && setupTasks.length;
+        const { setupTasks } = this.#currentDashboard;
+        const isComplete = setupTasks?.length;
         if (isComplete) {
           clearInterval(intervalId);
           resolve(this.#currentDashboard);
@@ -143,20 +160,13 @@ class AdminInterceptor {
     });
   }
 
-  #parseDashboard(dashboard: any) {
-    const intents = dashboard.find((action: any) => action.title === 'Intent')?.values;
-    const assignees = dashboard.find((action: any) => action.subject === 'assignee_id')?.values;
-    const groups = dashboard.find((action: any) => action.subject === 'group_id')?.values;
-
+  #parseDashboard() {
     const { pathname, hostname } = new URL(this.#originUrl);
     const subdomain = hostname.split('.').at(0);
 
     return {
       id: `${subdomain}:${pathname}`,
       type: AdminInterceptor.getDashboardType(),
-      groups,
-      assignees,
-      intents: intents?.map((item: any) => ({ ...item, title: item.title.split('::').at(-1) })) ?? [],
     };
   }
 

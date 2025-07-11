@@ -4,10 +4,9 @@ import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Button } from '@zendeskgarden/react-buttons';
 import { Spinner } from '@zendeskgarden/react-loaders';
-import useAppState from '@/storage';
 import { Alert } from '@zendeskgarden/react-notifications';
 import { useStepWizardStore } from '../../../components/ui/StepWizard/StepWizardProvider';
-import { getCurrentTabDetails } from '@/lib/chromeExtension';
+import { getCurrentTabDetails, setAppState } from '@/lib/chromeExtension';
 import { startAnalyzis } from '@/actions';
 
 const DEFAULT_INITIAL_VALUES = {
@@ -44,6 +43,7 @@ const AnalyzeView = ({ onClose, category }: Props) => {
         title: error.message,
         description: category.errorMessage,
       });
+      setAppState({ startAnalyzis: false });
     } finally {
       setIsLoading(false);
     }

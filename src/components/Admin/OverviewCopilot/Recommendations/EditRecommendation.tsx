@@ -4,15 +4,12 @@ import RecommendationForm from './RecommendationForm';
 import PencilIcon from '@zendeskgarden/svg-icons/src/16/pencil-stroke.svg?react';
 
 type Props = {
-  groups: any[];
-  intents: any[];
-  assignees: any[];
   onSubmit: (recommendation: any) => void;
   onCancel: () => void;
   recommendation: any;
 };
 
-const EditRecommendation = ({ groups, intents, assignees, onSubmit, onCancel, recommendation }: Props) => {
+const EditRecommendation = ({ onSubmit, onCancel, recommendation }: Props) => {
   const theme = useTheme();
 
   return (
@@ -21,14 +18,7 @@ const EditRecommendation = ({ groups, intents, assignees, onSubmit, onCancel, re
         <PencilIcon style={{ width: 16, height: '16' }} />
         <MD style={{ fontWeight: 'semibold' }}>Add Recommendation</MD>
       </header>
-      <RecommendationForm
-        groups={groups}
-        intents={intents}
-        assignees={assignees}
-        onCancel={onCancel}
-        onSubmit={onSubmit}
-        initialValues={recommendation}
-      />
+      <RecommendationForm onCancel={onCancel} onSubmit={onSubmit} initialValues={recommendation} />
     </Article>
   );
 };

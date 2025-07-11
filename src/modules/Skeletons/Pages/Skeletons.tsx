@@ -104,7 +104,7 @@ const Skeletons = () => {
                   <ItemHeader>
                     <Accordion.Label>{type}</Accordion.Label>
                   </ItemHeader>
-                  <Accordion.Panel style={{ padding: 0 }}>
+                  <Accordion.Panel>
                     <List>
                       {dashboards.map(([id, item]: any) => (
                         <ListItem key={id} isActive={currentDashboardId === id}>
@@ -193,7 +193,6 @@ const ListItem = styled.li<{ isActive: boolean }>`
 
 const ItemHeader = styled(Accordion.Header)`
   button {
-    padding: 0;
     font-size: 1rem;
     text-transform: capitalize;
   }

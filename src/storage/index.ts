@@ -1,7 +1,4 @@
-// @ts-nocheck
-
 import { syncState } from '@/actions';
-import { act } from 'react';
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
@@ -17,6 +14,7 @@ type AppState = {
   addConfiguration: (id: string, configuration: any) => void;
   removeConfiguration: (id: string) => void;
   setActiveConfiguration: (id: string) => void;
+  intents: Record<string, any>[];
 };
 
 const useAppState = create<AppState>()(
@@ -27,6 +25,7 @@ const useAppState = create<AppState>()(
     activeConfiguration: '',
     version: 0,
     isEnabled: false,
+    intents: [],
     setInitialState: (state) => {
       set(state);
     },
@@ -52,20 +51,12 @@ const useAppState = create<AppState>()(
         state.activeConfiguration = id;
       });
     },
+    addIntent: (intent: any) => {
+      set((state) => {
+        state.intents.push(intent);
+      });
+    },
   })),
 );
-
-useAppState.subscribe((newState, previousState) => {
-  if (JSON.stringify(newState.dashboards) !== JSON.stringify(previousState.dashboards)) {
-    syncState({
-      dashboards: newState.dashboards,
-      currentDashboard: null,
-    });
-  } else if (JSON.stringify(newState.configurations) !== JSON.stringify(previousState.configurations)) {
-    syncState({
-      configurations: newState.configurations,
-    });
-  }
-});
 
 export default useAppState;
