@@ -94,7 +94,7 @@ const Skeletons = () => {
           >
             <Button size="small" style={{ marginLeft: 'auto' }} onClick={() => navigate('/skeletons/categories')}>
               <PlusIcon style={{ marginRight: '8px' }} />
-              Create Scenario
+              Create skeleton
             </Button>
           </div>
           <Accordion level={4}>
