@@ -1,11 +1,10 @@
 import { ACTIONS, DEFAULT_CONFIG } from '@/actions/dictionary';
 import ExploreInterceptor from '@/models/exploreInterceptor';
-import browser from 'webextension-polyfill';
 
 const APP_STATE_KEY = 'state';
 
 export const getAppState = async () => {
-  const result = await browser.storage?.local.get(APP_STATE_KEY);
+  const result = await chrome.storage?.local.get(APP_STATE_KEY);
   const stringPayload = result[APP_STATE_KEY] ?? '{}';
   const payload = JSON.parse(stringPayload);
   return injectMissingData(payload);
@@ -14,12 +13,12 @@ export const getAppState = async () => {
 export const setAppState = async (value: any) => {
   const state = await getAppState();
   const payload = JSON.stringify({ ...(state ?? {}), ...value }, null, 0);
-  const result = await browser.storage?.local.set({ [APP_STATE_KEY]: payload });
+  const result = await chrome.storage?.local.set({ [APP_STATE_KEY]: payload });
   return result;
 };
 
 export const openChromeExtension = () => {
-  browser.runtime.sendMessage({
+  chrome.runtime.sendMessage({
     type: ACTIONS.openChromeExtension,
   });
 };
@@ -41,22 +40,22 @@ export const initilizeApp = async (document: Document) => {
   // Inject script
   const script = document.createElement('script');
   script.id = '__MY_INJECTED_SCRIPT__';
-  script.src = browser.runtime.getURL('src/inject.js');
+  script.src = chrome.runtime.getURL('src/inject.js');
   document.head.appendChild(script);
 };
 
 export const getCurrentTabDetails = async () => {
-  const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
   const currentTab = tabs[0];
   const regex = /\/precanned\/([^\/?#]+)/;
 
-  const results = await browser.scripting.executeScript({
+  const results = await chrome.scripting.executeScript({
     target: { tabId: Number(currentTab.id) },
     func: () => document.title,
   });
 
   const url = currentTab.url ?? '';
-  const dashboardName = results[0].result.split('|').at(0);
+  const dashboardName = results[0].result?.split('|').at(0);
   const match = url.match(regex);
 
   const id = match ? match[1] : '';
@@ -65,12 +64,12 @@ export const getCurrentTabDetails = async () => {
 };
 
 export const getCurrentVersion = async () => {
-  const manifest = await browser.runtime.getManifest();
+  const manifest = await chrome.runtime.getManifest();
   return manifest.version;
 };
 
 export const setTabIcon = async (path: string) => {
-  await browser.action.setIcon({
+  await chrome.action.setIcon({
     path: {
       '16': path,
     },
@@ -78,7 +77,7 @@ export const setTabIcon = async (path: string) => {
 };
 
 export const changeTabIcon = async (iconPath: string) => {
-  browser.runtime.sendMessage({
+  chrome.runtime.sendMessage({
     type: ACTIONS.changeIcon,
     payload: { iconPath },
   });

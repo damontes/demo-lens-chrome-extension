@@ -1,12 +1,13 @@
 html,
 body {
-  width: 576px;
+  min-width: 576px;
+  height: 100%;
   padding: 0;
   margin: 0;
-  max-height: 596px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  background-color: #f8f9f9;
 }
 
 @keyframes pulse {

@@ -1,11 +1,10 @@
-import browser from 'webextension-polyfill';
 import { getAppState, setAppState } from '../lib/chromeExtension';
 import { ACTIONS } from './dictionary';
 
 export const reloadDashboard = async () => {
   const tab = await getCurrentTab();
   if (!tab.id) return;
-  await browser.tabs.reload(tab.id);
+  await chrome.tabs.reload(tab.id);
 };
 
 export const startAnalyzis = async () => {
@@ -27,7 +26,7 @@ export const saveActiveConfiguration = async (activeConfiguration: string) => {
 };
 
 export const syncState = async (payload: any) => {
-  return browser.runtime.sendMessage({
+  return chrome.runtime.sendMessage({
     type: ACTIONS.syncState,
     payload,
   });
@@ -55,6 +54,6 @@ function waitForDashboard() {
 }
 
 async function getCurrentTab() {
-  const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
   return tabs[0];
 }

@@ -1,8 +1,7 @@
 {
-  "{{chrome}}.name": "Zendesk DemoLens (z3n demo accounts only)",
-  "{{chrome}}.version": "0.0.10",
-  "{{chrome}}.manifest_version": 3,
-  "{{firefox}}.manifest_version": 2,
+  "name": "Zendesk DemoLens (z3n demo accounts only)",
+  "version": "0.0.11",
+  "manifest_version": 3,
   "icons": {
     "16": "icon/16.png",
     "32": "icon/32.png",
@@ -10,15 +9,14 @@
     "96": "icon/96.png",
     "128": "icon/128.png"
   },
-  "{{chrome}}.action": {
-    "default_popup": "src/popup.html"
+  "action": {
+    "default_title": "DemoLens"
   },
-  "{{firefox}}.browser_action": {
-    "default_popup": "src/popup.html"
+  "side_panel": {
+    "default_path": "src/popup.html"
   },
   "background": {
-    "{{chrome}}.service_worker": "src/background.ts",
-    "{{firefox}}.scripts": ["src/background.ts"]
+    "service_worker": "src/background.ts"
   },
   "content_scripts": [
     {
@@ -32,12 +30,12 @@
       "run_at": "document_start"
     }
   ],
-  "{{chrome}}.web_accessible_resources": [
+  "web_accessible_resources": [
     {
       "resources": ["src/inject.js"],
       "matches": ["<all_urls>"]
     }
   ],
-  "{{chrome}}.permissions": ["scripting", "storage"],
-  "{{chrome}}.host_permissions": ["<all_urls>"]
+  "permissions": ["scripting", "storage", "sidePanel"],
+  "host_permissions": ["<all_urls>"]
 }

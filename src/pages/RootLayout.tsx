@@ -62,7 +62,6 @@ const NavigationLinkContainer = styled.div`
 
 const Content = styled.div`
   padding: ${({ theme }) => theme.space.md} ${({ theme }) => theme.space.md};
-  background-color: ${({ theme }) => theme.palette.grey[100]};
 `;
 
 export default RootLayout;

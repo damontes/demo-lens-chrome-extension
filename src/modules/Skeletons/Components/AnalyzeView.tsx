@@ -51,7 +51,7 @@ const AnalyzeView = ({ onClose, category }: Props) => {
 
   useEffect(() => {
     const initialData = async () => {
-      const { url, dashboardName } = await getCurrentTabDetails();
+      const { url, dashboardName = '' } = await getCurrentTabDetails();
       setValues((prev) => ({
         ...prev,
         url,
