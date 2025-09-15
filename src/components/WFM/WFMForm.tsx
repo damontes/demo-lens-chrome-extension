@@ -63,7 +63,7 @@ const WFMForm = ({ footer, onSubmit, initialValues = DEFAULT_INITIAL_VALUES }: P
   };
 
   const handleTemplateSelect = (template: WFMTemplate | any) => {
-    setValue('templateId', template.id);
+    setValue('templateId', template?.id);
   };
 
   const onSubmitWithValidation = (values: any) => {

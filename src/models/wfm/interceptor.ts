@@ -13,6 +13,7 @@ import {
   inflateTeamsPayload,
   inflateOrganizationsPayload,
   generateWidgetData,
+  generateFteStaffingFromForecast,
 } from './inflatePayload';
 import { WFM_TEMPLATES } from './templates';
 import {
@@ -40,6 +41,7 @@ class WFMInterceptor {
   #instanceDataPromises: Map<string, Function[]> = new Map(); // Arrays of resolvers for data collection
   #instanceDataCollected: Map<string, any> = new Map(); // Store the collected data
   #dashboardInitialized: boolean = false; // Track if dashboard initialization is complete
+  #volumeForecastCache: any = null; // Cache for volume forecast data
 
   constructor() {
     this.#xhrInterceptor = null;
@@ -205,6 +207,8 @@ class WFMInterceptor {
           };
         });
 
+        this.#volumeForecastCache = temporalResponse;
+
         return this.#handleResponse(temporalResponse);
       }
 
@@ -238,6 +242,20 @@ class WFMInterceptor {
             errors: [],
           };
         });
+
+        return this.#handleResponse(temporalResponse);
+      }
+
+      if (interceptUrls.fteStaffing.test(url)) {
+        // If using instance data, wait for workstreams to be collected
+        if (this.#useInstanceData && !this.#dashboardInitialized) {
+          await this.#waitForInstanceData('workstreams');
+        }
+
+        const forecastConfig = this.#currentDashboard.configuration.forecast;
+        const staffingParams = forecastConfig.staffingParameters;
+
+        const temporalResponse = generateFteStaffingFromForecast(this.#volumeForecastCache, staffingParams);
 
         return this.#handleResponse(temporalResponse);
       }
@@ -567,7 +585,6 @@ class WFMInterceptor {
       return dashboards; // Return original if no workstreams available
     }
 
-    console.log('AVAIALBLE WORKSTREAMS', dashboards, this.#currentDashboard?.configuration?.schedule?.workstreams);
     return dashboards.map((dashboard) => ({
       ...dashboard,
       widgets:
@@ -723,6 +740,7 @@ class WFMInterceptor {
       agents: /^https:\/\/([a-zA-Z0-9-]+\.)?zendesk\.com\/wfm\/l5\/api\/v2\/agents/,
       forecast: /^https:\/\/([a-zA-Z0-9-]+\.)?zendesk\.com\/wfm\/l5\/api\/forecasts(\?|$)/,
       fte: /^https:\/\/([a-zA-Z0-9-]+\.)?zendesk\.com\/wfm\/l5\/api\/forecasts\/fte(\?|$)/,
+      fteStaffing: /^https:\/\/([a-zA-Z0-9-]+\.)?zendesk\.com\/wfm\/l5\/api\/fte(\?|$)/,
       shiftsTotals: /^https:\/\/([a-zA-Z0-9-]+\.)?zendesk\.com\/wfm\/l5\/api\/shifts\/totals/,
       activities: /^https:\/\/([a-zA-Z0-9-]+\.)?zendesk\.com\/wfm\/l5\/api\/activities/,
       forecastActual: /^https:\/\/([a-zA-Z0-9-]+\.)?zendesk\.com\/wfm\/l5\/api\/reports-forecast-actual/,

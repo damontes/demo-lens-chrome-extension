@@ -2357,3 +2357,51 @@ export const generateWidgetData = (widgetId: string, widget: any, metric: any, d
       };
   }
 };
+
+export const generateFteStaffingFromForecast = (volumeForecastCache: any[], staffingParameters: any): any[] => {
+  return volumeForecastCache.map((workstream: any) => {
+    // Get all volume counts to understand the range
+    const volumeCounts = workstream.forecast.map((data: any) => data.count);
+    const minVolume = Math.min(...volumeCounts);
+    const maxVolume = Math.max(...volumeCounts);
+    const avgVolume = volumeCounts.reduce((sum: number, count: number) => sum + count, 0) / volumeCounts.length;
+
+    // Define staffing range based on configuration
+    const minStaffing = staffingParameters.minimumStaffing || 2;
+    const maxStaffing = staffingParameters.maximumStaffing || 25;
+    const baseStaffing = Math.max(minStaffing, Math.min(maxStaffing, Math.round(avgVolume * 0.15))); // Base staffing as 15% of avg volume
+
+    const forecast = workstream.forecast.map((data: any) => {
+      const volumeForecast = data.count;
+
+      // Calculate staffing as a proportion of the volume relative to the range
+      let requiredFTE;
+
+      if (maxVolume === minVolume) {
+        // If no variation in volume, use base staffing
+        requiredFTE = baseStaffing;
+      } else {
+        // Scale staffing proportionally to volume peaks and valleys
+        const volumeRatio = (volumeForecast - minVolume) / (maxVolume - minVolume); // 0 to 1
+        const staffingRange = maxStaffing - minStaffing;
+        requiredFTE = minStaffing + volumeRatio * staffingRange;
+      }
+
+      // Round to reasonable precision
+      requiredFTE = Math.round(requiredFTE * 10) / 10;
+
+      return {
+        timestamp: data.timestamp,
+        count: requiredFTE,
+        type: 'forecasted' as const,
+      };
+    });
+
+    return {
+      status: 'done',
+      workstreamId: workstream.workstreamId,
+      forecast,
+      errors: [],
+    };
+  });
+};

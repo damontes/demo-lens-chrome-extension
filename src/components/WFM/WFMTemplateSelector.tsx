@@ -175,15 +175,66 @@ INDUSTRY DATA EXAMPLES: Here are the typical organizational structures for diffe
 
 ${JSON.stringify(VERTICAL_DATA, null, 2)}
 
+CONFIGURATION OPTIONS:
+
+REPORTS CONFIGURATION - Use these exact values:
+- performanceLevel: Must be one of: "low", "average", "high", "excellent"
+  * "low" = 0.7 multiplier (crisis/difficult periods)
+  * "average" = 1.0 multiplier (normal operations)  
+  * "high" = 1.2 multiplier (good performance periods)
+  * "excellent" = 1.4 multiplier (exceptional performance)
+
+- adherenceTarget: Number between 0.8 and 0.98 (affects adherence metrics)
+  * 0.8-0.85 = relaxed adherence (crisis periods)
+  * 0.85-0.9 = normal adherence 
+  * 0.9-0.95 = high adherence
+  * 0.95-0.98 = strict adherence (compliance-heavy industries)
+
+- efficiencyLevel: Must be one of: "low", "average", "high"
+  * "low" = longer handle times, slower responses (complex issues, training periods)
+  * "average" = standard efficiency levels
+  * "high" = optimized handle times, fast responses
+
+- qualityTarget: Number between 0.7 and 0.95 (affects resolution rates and bounce rates)
+  * 0.7-0.8 = acceptable quality (high volume periods)
+  * 0.8-0.85 = good quality
+  * 0.85-0.9 = high quality
+  * 0.9-0.95 = excellent quality (compliance/financial services)
+
+- workloadIntensity: Must be one of: "light", "moderate", "heavy", "peak"
+  * "light" = low volume periods
+  * "moderate" = normal business volume
+  * "heavy" = busy periods, seasonal increases
+  * "peak" = extreme volume (emergencies, major events)
+
+- productiveTimePercentage: Number between 0.6 and 0.9 (affects time distribution)
+  * 0.6-0.7 = lower productivity (training, complex issues)
+  * 0.7-0.8 = normal productivity
+  * 0.8-0.85 = high productivity 
+  * 0.85-0.9 = optimal productivity
+
+DASHBOARD CONFIGURATION - Use these exact values:
+- performanceLevel: Must be one of: "low", "average", "high", "excellent"
+  * Same as reports performanceLevel above
+
+- volumeIntensity: Must be one of: "light", "moderate", "heavy", "peak"
+  * Same as reports workloadIntensity above
+
+- responseSpeed: Must be one of: "urgent", "fast", "normal", "extended"
+  * "urgent" = immediate response needed (emergencies, critical issues)
+  * "fast" = quick response expected (competitive markets, customer service)
+  * "normal" = standard response times
+  * "extended" = longer response times acceptable (complex technical issues)
+
 NOTES:
 - DO NOT include 'schedule' configuration - this is generated automatically
-- Focus on agentActivity, forecastVsActual, and forecast configurations
+- Focus on agentActivity, forecastVsActual, forecast, reports, and dashboards configurations
 - Adjust values based on industry-specific requirements
 - Include realistic working hours, activity patterns, volume forecasts, and SLA targets
 - Set appropriate forecast algorithms and staffing parameters
 - Include relevant volumeAdjustments for seasonal patterns or business cycles
 - If the user request suggests specific organizational needs (locations, teams, organizations), reference the industry examples above but keep them minimal or omit if not specifically requested
-- Focus primarily on the core configuration (agentActivity, forecastVsActual, forecast) rather than organizational structure
+- Focus primarily on the core configuration rather than organizational structure
 
 Do not include the 'id', 'industry', or any other metadata fields as these will be added automatically.`,
             },
@@ -249,11 +300,7 @@ Return only the JSON object following the exact structure provided in the system
             tasks: [],
             workstreams: [],
           },
-          agentActivity: templateData.configuration?.agentActivity || {},
-          forecastVsActual: templateData.configuration?.forecastVsActual || {},
-          forecast: templateData.configuration?.forecast || {},
-          reports: {},
-          dashboards: {},
+          ...templateData.configuration,
         },
       };
 
@@ -296,9 +343,8 @@ Return only the JSON object following the exact structure provided in the system
         onTemplateSelect(null);
       }
 
-      // Reload user templates
-      const updatedTemplates = getTemplatesByType('wfm');
-      setUserTemplates(updatedTemplates);
+      // Reload user templates to update the UI
+      loadUserTemplates();
 
       // Close confirmation modal
       setDeleteConfirmationOpen(false);
