@@ -27,7 +27,7 @@ export default defineConfig({
     svgr(),
     webExtension({
       manifest: generateManifest,
-      additionalInputs: ['src/inject.js', 'src/demo-copilot-inject.tsx'],
+      additionalInputs: ['src/inject.js'],
     }),
   ],
 });

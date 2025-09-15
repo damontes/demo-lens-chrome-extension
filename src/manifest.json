@@ -37,7 +37,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["src/inject.js", "src/demo-copilot-inject.js"],
+      "resources": ["src/inject.js"],
       "matches": ["<all_urls>"]
     }
   ],
