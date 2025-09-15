@@ -39,7 +39,7 @@ const Categories = () => {
     if (!subcategories) {
       const url = new URL(dashboadDetails.url);
       const host = url.host;
-
+      console.log('Subcategories', subcategories);
       if (!host.startsWith('z3n')) {
         addToast(
           ({ close }) => (

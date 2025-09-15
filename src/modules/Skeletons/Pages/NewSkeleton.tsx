@@ -1,8 +1,9 @@
 import { useMemo } from 'react';
 import useAppState from '@/storage';
 import ControllerInterpceptor from '@/models/controllerInterceptor';
-import ExploreInterceptor from '@/models/exploreInterceptor';
-import AdminInterceptor from '@/models/adminInterceptor';
+import ExploreInterceptor from '@/models/explore/interceptor';
+import AdminInterceptor from '@/models/admin/interceptor';
+import WFMInterceptor from '@/models/wfm/interceptor';
 import { MD } from '@zendeskgarden/react-typography';
 import { Button } from '@zendeskgarden/react-buttons';
 import ReloadIcon from '@zendeskgarden/svg-icons/src/16/reload-stroke.svg?react';
@@ -13,6 +14,8 @@ import AnalyzeView from '@/modules/Skeletons/Components/AnalyzeView';
 import StepWizard from '@/components/ui/StepWizard';
 import AddExploreSkeleton from '@/components/Explore/AddSkeleton';
 import AddOverviewCopilotSkeleton from '@/components/Admin/OverviewCopilot/AddSkeleton';
+import AddWFMSkeleton from '@/components/WFM/AddSkeleton';
+import CreateView from '../Components/CreateView';
 
 const ALL_STEPS = {
   [ExploreInterceptor.getDashboardType()]: [
@@ -39,6 +42,28 @@ const ALL_STEPS = {
       content: (props: any) => <AddOverviewCopilotSkeleton {...props} />,
     },
   ],
+  [WFMInterceptor.getDashboardType()]: [
+    {
+      id: 'step-0',
+      title: 'Create',
+      content: (props: any) => (
+        <CreateView
+          {...props}
+          parseDashboardDetails={(rawDashboardDetails) => {
+            const { url: rawUrl, dashboardName: rawDashboardName = '' } = rawDashboardDetails;
+            const dashboardName = rawDashboardName.split('-').at(-1);
+            const url = new URL(rawUrl);
+            return { url: `https://${url.hostname}/${url.pathname.split('/').slice(1, 3).join('/')}`, dashboardName };
+          }}
+        />
+      ),
+    },
+    {
+      id: 'step-1',
+      title: 'Details',
+      content: (props: any) => <AddWFMSkeleton {...props} />,
+    },
+  ],
 };
 
 const NewSkeleton = () => {
@@ -56,6 +81,7 @@ const NewSkeleton = () => {
   };
 
   const onCreateSkeleton = async (id: string, newSkeleton: any) => {
+    console.log('Creating skeleton', id, newSkeleton);
     saveDashboard(id, newSkeleton);
     navigate('/skeletons');
   };

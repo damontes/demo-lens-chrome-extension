@@ -1,4 +1,4 @@
-import ExploreInterceptor from '@/models/exploreInterceptor';
+import ExploreInterceptor from '@/models/explore/interceptor';
 import BarChatIcon from '@zendeskgarden/svg-icons/src/16/bar-chart-stroke.svg?react';
 import GearIcon from '@zendeskgarden/svg-icons/src/16/gear-stroke.svg?react';
 import SparkleIcon from '@zendeskgarden/svg-icons/src/16/sparkle-stroke.svg?react';
@@ -6,7 +6,8 @@ import PhoneIcon from '@zendeskgarden/svg-icons/src/16/phone-stroke.svg?react';
 import CalendarIcon from '@zendeskgarden/svg-icons/src/16/calendar-stroke.svg?react';
 import BotSparkleIcon from '@zendeskgarden/svg-icons/src/16/bot-sparkle-stroke.svg?react';
 import HeadsetIcon from '@zendeskgarden/svg-icons/src/16/headset-stroke.svg?react';
-import AdminInterceptor from '@/models/adminInterceptor';
+import AdminInterceptor from '@/models/admin/interceptor';
+import WFMInterceptor from '@/models/wfm/interceptor';
 
 export const CATEGORY_STATUS = {
   active: 'ACTIVE',
@@ -22,12 +23,14 @@ export const CATEGORIES: any = {
     icon: BarChatIcon,
     type: ExploreInterceptor.getDashboardType(),
     errorMessage: 'Make sure you are in explore dashboard.',
+    needAnalyze: true,
   },
   ADMIN: {
     name: 'Admin',
     description: 'Manage your Zendesk applications and settings.',
     icon: GearIcon,
     status: CATEGORY_STATUS.active,
+    needAnalyze: false,
     subcategories: {
       OVERVIEW_COPILOT: {
         name: 'Overview Copilot',
@@ -53,9 +56,12 @@ export const CATEGORIES: any = {
   },
   WFM: {
     name: 'WFM',
-    description: 'Chat with your customers and support team.',
+    description: 'Workforce management and scheduling tools.',
     icon: CalendarIcon,
-    status: CATEGORY_STATUS.comingSoon,
+    status: CATEGORY_STATUS.active,
+    errorMessage: 'Make sure you are in the WFM view.',
+    type: WFMInterceptor.getDashboardType(),
+    needAnalyze: false,
   },
   SUPPORT: {
     name: 'Support',

@@ -1,6 +1,6 @@
-import { inflateOverviewCopilotPayload } from '@/lib/adminInflatePayload';
-import ControllerInterceptor from './controllerInterceptor';
-import FetchInterceptor from './fetchInterceptor';
+import { inflateOverviewCopilotPayload } from './inflatePayload';
+import ControllerInterceptor from '../controllerInterceptor';
+import FetchInterceptor from '../fetchInterceptor';
 
 export const SUPPORT_SKELETON = {
   adminAiCenterMetrics: {
@@ -93,7 +93,7 @@ class AdminInterceptor {
         const activeDashboard = ControllerInterceptor.findActiveDashboard(
           configurationDashboards,
           dashboards,
-          currentDashboard,
+          ({ dashboardId }) => dashboardId === currentDashboard.id,
         );
 
         if (!activeDashboard) {
@@ -147,7 +147,7 @@ class AdminInterceptor {
     });
   }
 
-  getCurrentDashboard() {
+  getCurrentDashboard(): Promise<any> {
     return new Promise((resolve) => {
       const intervalId = setInterval(() => {
         const { setupTasks } = this.#currentDashboard;

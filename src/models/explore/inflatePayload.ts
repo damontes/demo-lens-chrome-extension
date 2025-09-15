@@ -1,4 +1,4 @@
-import { generateMaskedValues, randInt } from './general';
+import { generateMaskedValues, randInt } from '@/lib/general';
 import { faker } from '@faker-js/faker';
 
 const DEFAULT_HIERARCHY_COLUMN = {

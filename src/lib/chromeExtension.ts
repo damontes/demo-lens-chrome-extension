@@ -1,5 +1,5 @@
 import { ACTIONS, DEFAULT_CONFIG } from '@/actions/dictionary';
-import ExploreInterceptor from '@/models/exploreInterceptor';
+import ExploreInterceptor from '@/models/explore/interceptor';
 
 const APP_STATE_KEY = 'state';
 
@@ -42,6 +42,12 @@ export const initilizeApp = async (document: Document) => {
   script.id = '__MY_INJECTED_SCRIPT__';
   script.src = chrome.runtime.getURL('src/inject.js');
   document.head.appendChild(script);
+
+  // Inject demo copilot script
+  const demoScript = document.createElement('script');
+  demoScript.id = '__MY_DEMO_SCRIPT__';
+  demoScript.src = chrome.runtime.getURL('src/demo-copilot-inject.js');
+  document.head.appendChild(demoScript);
 };
 
 export const getCurrentTabDetails = async () => {

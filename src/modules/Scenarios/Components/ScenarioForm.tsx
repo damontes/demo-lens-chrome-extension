@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import useAppState from '@/storage';
 import { Notification, useToast } from '@zendeskgarden/react-notifications';
 import { Accordion } from '@zendeskgarden/react-accordions';
-import AdminInterceptor from '@/models/adminInterceptor';
+import AdminInterceptor from '@/models/admin/interceptor';
 import { Tag } from '@zendeskgarden/react-tags';
 
 const DEFAULT_INITIAL_VALUES: { name: string; dashboards: string[] } = {

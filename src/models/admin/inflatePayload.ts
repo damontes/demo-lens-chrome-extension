@@ -1,6 +1,6 @@
 import { RECOMMENDATION_ACTION_TYPES } from '@/components/Admin/OverviewCopilot/Recommendations/RecommendationForm';
 import { faker } from '@faker-js/faker';
-import { formatArraytoList } from './general';
+import { formatArraytoList } from '../../lib/general';
 
 const DEFAULT_RECOMMENDATION_TITLE = [
   'Route specific tickets to (requester_type): (requester)',

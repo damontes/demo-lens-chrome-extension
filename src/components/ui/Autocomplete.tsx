@@ -7,7 +7,7 @@ type Props = {
   onSelect: (option: any) => void;
   options: any[];
   onAddItem?: (value: string) => void;
-  onRemoveItem?: (value: string[]) => void;
+  onRemoveItem?: (value: string) => void;
   isMultiselectable?: boolean;
   error?: boolean;
   errorMessage?: string;
@@ -27,6 +27,13 @@ const Autocomplete = ({
   const [inputValue, setInputValue] = useState(!isMultiselectable ? selectedOption?.title : '');
   const [isExpanded, setIsExpanded] = useState(false);
 
+  const getOption = (selectionValue: string | string[]) => {
+    const option = Array.isArray(selectionValue)
+      ? selectionValue.map((value: string) => options.find((option) => option.value === value))
+      : options.find((option) => option.value === selectionValue);
+    return option;
+  };
+
   const handleChange = (event: any) => {
     const { type, selectionValue, inputValue: currentInputValue, isExpanded } = event;
     if (type === 'input:change') {
@@ -34,19 +41,25 @@ const Autocomplete = ({
       return;
     }
 
-    if (type === 'input:keyDown:Enter' && onAddItem) {
-      onAddItem(inputValue);
+    if (type === 'input:keyDown:Enter' && inputValue) {
+      onAddItem?.(inputValue);
       setInputValue('');
     }
 
+    if (type === 'input:keyDown:Enter' && selectionValue) {
+      const option = getOption(selectionValue);
+      onSelect(option);
+    }
+
     if (type === 'fn:setSelectionValue' && selectionValue && isMultiselectable) {
-      onRemoveItem?.(selectionValue);
+      if (!Array.isArray(selectionValue)) onRemoveItem?.(selectionValue);
     }
 
     if (type === 'option:click') {
       const option = isMultiselectable
         ? selectionValue.map((value: string) => options.find((option) => option.value === value))
         : options.find((option) => option.value === selectionValue);
+
       onSelect(option);
     }
 

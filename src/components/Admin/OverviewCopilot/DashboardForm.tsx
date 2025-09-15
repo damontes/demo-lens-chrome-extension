@@ -1,4 +1,4 @@
-import { SUPPORT_SKELETON } from '@/models/adminInterceptor';
+import { SUPPORT_SKELETON } from '@/models/admin/interceptor';
 import { Field, Input, Toggle } from '@zendeskgarden/react-forms';
 import { LG, MD, SM } from '@zendeskgarden/react-typography';
 import styled, { useTheme } from 'styled-components';

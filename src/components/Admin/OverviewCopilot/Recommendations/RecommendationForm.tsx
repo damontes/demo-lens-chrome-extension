@@ -55,13 +55,14 @@ const RecommendationForm = ({ onCancel, onSubmit, initialValues = DEFAULT_INITIA
   };
 
   const onAddNewIntent = (value: string) => {
+    console.log('ON ADD ITEM', value);
     const newIntent = { value: toSnakeCase(value), title: value };
     addIntent(newIntent);
     onSelectIntent([...values.intent, newIntent]);
   };
 
-  const onRemoveIntent = (value: string[]) => {
-    const newIntents = values.intent.filter((item: any) => value.includes(item.value));
+  const onRemoveIntent = (value: string) => {
+    const newIntents = values.intent.filter((item: any) => value !== item.value);
     setValues((prev: any) => ({ ...prev, intent: newIntents }));
   };
 

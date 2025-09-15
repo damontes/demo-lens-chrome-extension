@@ -28,14 +28,19 @@
       "matches": ["https://*.zendesk.com/admin/*"],
       "js": ["src/content_admin.js"],
       "run_at": "document_start"
+    },
+    {
+      "matches": ["https://*.zendesk.com/wfm/v2/*"],
+      "js": ["src/content_wfm.js"],
+      "run_at": "document_start"
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["src/inject.js"],
+      "resources": ["src/inject.js", "src/demo-copilot-inject.js"],
       "matches": ["<all_urls>"]
     }
   ],
-  "permissions": ["scripting", "storage", "sidePanel"],
+  "permissions": ["scripting", "storage", "unlimitedStorage", "sidePanel"],
   "host_permissions": ["<all_urls>"]
 }

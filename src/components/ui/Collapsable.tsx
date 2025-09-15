@@ -14,7 +14,7 @@ const Collapsable = ({ headerContent, children, isActive }: any) => {
   }, []);
 
   return (
-    <Details ref={containerRef} isActive={isActive}>
+    <Details ref={containerRef} $isActive={isActive}>
       <summary>
         {headerContent}
         <ChevronDownIcon
@@ -30,14 +30,14 @@ const Collapsable = ({ headerContent, children, isActive }: any) => {
   );
 };
 
-const Details = styled.details<{ isActive: boolean }>`
+const Details = styled.details<{ $isActive: boolean }>`
   margin: 0;
   padding: 0;
   border: none;
   display: flex;
   flex-direction: column;
   border-radius: ${({ theme }) => theme.borderRadii.md};
-  border: 1px solid ${({ theme, isActive }) => (isActive ? theme.palette.green[600] : theme.palette.grey[200])};
+  border: 1px solid ${({ theme, $isActive }) => ($isActive ? theme.palette.green[600] : theme.palette.grey[200])};
   background-color: white;
 
   summary {

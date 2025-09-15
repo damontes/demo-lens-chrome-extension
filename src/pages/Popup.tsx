@@ -103,6 +103,11 @@ useAppState.subscribe((newState, previousState) => {
     syncState({
       intents: newState.intents,
     });
+  } else if (JSON.stringify(newState.templates) !== JSON.stringify(previousState.templates)) {
+    console.log('SYNC STATE', newState);
+    syncState({
+      templates: newState.templates,
+    });
   }
 });
 

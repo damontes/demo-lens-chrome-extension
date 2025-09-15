@@ -8,7 +8,7 @@ import ControllerInterceptor from './models/controllerInterceptor';
 
   console.log('GET STATE FROM INJECT.JS', state);
 
-  const { startAnalyzis, activeConfiguration = '', configurations = {}, dashboards = {} } = state;
+  const { startAnalyzis, activeConfiguration = '', configurations = {}, dashboards = {}, templates = {} } = state;
 
   const url = window.location.href;
 
@@ -19,10 +19,10 @@ import ControllerInterceptor from './models/controllerInterceptor';
   const configurationDashboards = configurations[activeConfiguration]?.dashboards ?? [];
 
   if (startAnalyzis || configurationDashboards.length) {
-    interceptor.intercept(configurationDashboards, dashboards);
+    interceptor.intercept(configurationDashboards, dashboards, templates);
 
     if (startAnalyzis) {
-      const dashboard = await interceptor.getCurrentDashboard();
+      const dashboard = await interceptor?.getCurrentDashboard();
 
       window.parent.dispatchEvent(
         new CustomEvent(ACTIONS.savedCurrentDashboard, {

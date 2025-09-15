@@ -7,7 +7,7 @@ import { Spinner } from '@zendeskgarden/react-loaders';
 import { Alert } from '@zendeskgarden/react-notifications';
 import { useStepWizardStore } from '../../../components/ui/StepWizard/StepWizardProvider';
 import { getCurrentTabDetails, setAppState } from '@/lib/chromeExtension';
-import { startAnalyzis } from '@/actions';
+import ControllerInterceptor from '@/models/controllerInterceptor';
 
 const DEFAULT_INITIAL_VALUES = {
   name: '',
@@ -17,10 +17,11 @@ const DEFAULT_INITIAL_VALUES = {
 
 type Props = {
   onClose: () => void;
+  parseDashboardDetails: (rawDashboardDetails: any) => any;
   category: any;
 };
 
-const AnalyzeView = ({ onClose, category }: Props) => {
+const CreateView = ({ onClose, category, parseDashboardDetails }: Props) => {
   const [values, setValues] = useState(DEFAULT_INITIAL_VALUES);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<any>(null);
@@ -34,8 +35,7 @@ const AnalyzeView = ({ onClose, category }: Props) => {
     setError(null);
 
     try {
-      const dashboard = await startAnalyzis();
-      const currentDashboard = { ...(dashboard ?? {}), name: values.name, sourceName: values.sourceName };
+      const currentDashboard = { type: category.type, name: values.name, sourceName: values.sourceName };
       setValue('currentDashboard', currentDashboard);
       next();
     } catch (error: any) {
@@ -51,12 +51,14 @@ const AnalyzeView = ({ onClose, category }: Props) => {
 
   useEffect(() => {
     const initialData = async () => {
-      const { url, dashboardName = '' } = await getCurrentTabDetails();
+      const rawDashboardDetails = await getCurrentTabDetails();
+      const { url, dashboardName = '' } = parseDashboardDetails?.(rawDashboardDetails) ?? rawDashboardDetails;
+      const name = dashboardName.trim();
       setValues((prev) => ({
         ...prev,
         url,
-        sourceName: dashboardName,
-        name: dashboardName,
+        sourceName: name,
+        name,
       }));
     };
 
@@ -98,7 +100,7 @@ const AnalyzeView = ({ onClose, category }: Props) => {
               <Spinner size="large" />
             </div>
           )}
-          Analyze
+          Next
         </Button>
       </footer>
     </Form>
@@ -137,4 +139,4 @@ const Description = styled(SM)`
   text-wrap: nowrap;
 `;
 
-export default AnalyzeView;
+export default CreateView;

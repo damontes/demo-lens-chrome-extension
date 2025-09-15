@@ -12,3 +12,8 @@ export const addOneDay = (input: string) => {
 
   return output;
 };
+
+export const getDateFromString = (input: string) => {
+  const [year, month, day] = input.split('-').map(Number);
+  return new Date(year, month - 1, day); // month is 0-indexed in JavaScript
+};

@@ -5,10 +5,10 @@ import {
   inflatePayload,
   lighInflatePayload,
   parseRowMember,
-} from '../lib/exploreInflatePayload';
-import ControllerInterpceptor from './controllerInterceptor';
-import FetchInterceptor from './fetchInterceptor';
-import XHRInterceptor from './xhrInterceptor';
+} from './inflatePayload';
+import ControllerInterpceptor from '../controllerInterceptor';
+import FetchInterceptor from '../fetchInterceptor';
+import XHRInterceptor from '../xhrInterceptor';
 import { XMLParser } from 'fast-xml-parser';
 import { ACTIONS, DEFAULT_CONFIG } from '@/actions/dictionary';
 
@@ -303,13 +303,14 @@ class ExploreInterceptor {
       }
 
       if (ExploreInterceptor.isExploreQuery(url)) {
+        console.log('IS EXPLORE QUERY', url, json, requestBody);
         const queryId = json.content.queryId || json.queryId;
         const tabId = requestBody?.content?.tabId;
 
         const activeDashboard = ControllerInterpceptor.findActiveDashboard(
           configurationDashboards,
           this.#temporalDashboards,
-          this.#currentDashboard,
+          ({ dashboardId }) => dashboardId === this.#currentDashboard.id,
         );
 
         try {
@@ -335,7 +336,7 @@ class ExploreInterceptor {
         const activeDashboard = ControllerInterpceptor.findActiveDashboard(
           configurationDashboards,
           this.#temporalDashboards,
-          this.#currentDashboard,
+          ({ dashboardId }) => dashboardId === this.#currentDashboard.id,
         );
 
         try {

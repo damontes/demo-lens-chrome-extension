@@ -5,9 +5,9 @@ import { Button, IconButton } from '@zendeskgarden/react-buttons';
 import { useToast, Notification } from '@zendeskgarden/react-notifications';
 import useAppState from '@/storage';
 import { Accordion } from '@zendeskgarden/react-accordions';
-import AdminInterceptor from '@/models/adminInterceptor';
+import AdminInterceptor from '@/models/admin/interceptor';
 import { Tag } from '@zendeskgarden/react-tags';
-import ExploreInterceptor from '@/models/exploreInterceptor';
+import ExploreInterceptor from '@/models/explore/interceptor';
 import { useNavigate } from 'react-router';
 import ConfirmationModal from '@/components/ui/ConfirmationModal';
 import TextEditable from '@/components/ui/TextEditable';
@@ -107,7 +107,7 @@ const Skeletons = () => {
                   <Accordion.Panel>
                     <List>
                       {dashboards.map(([id, item]: any) => (
-                        <ListItem key={id} isActive={currentDashboardId === id}>
+                        <ListItem key={id} $isActive={currentDashboardId === id}>
                           <div style={{ maxWidth: '80%', marginBottom: '8px', width: '100%' }}>
                             <TextEditable
                               value={item.name}
@@ -170,13 +170,13 @@ const List = styled.ul`
   padding: 0;
 `;
 
-const ListItem = styled.li<{ isActive: boolean }>`
+const ListItem = styled.li<{ $isActive: boolean }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 16px;
   padding: ${({ theme }) => theme.space.sm};
-  border: 1px solid ${({ theme, isActive }) => (isActive ? theme.palette.green[600] : theme.palette.grey[200])};
+  border: 1px solid ${({ theme, $isActive }) => ($isActive ? theme.palette.green[600] : theme.palette.grey[200])};
   border-radius: ${({ theme }) => theme.borderRadii.md};
   background-color: white;
 
