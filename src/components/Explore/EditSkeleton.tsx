@@ -135,7 +135,7 @@ const EditExploreSkeleton = ({ dashboardId, handleSubmit }: Props) => {
           </TabPanel>
         );
       })}
-      <Drawer isOpen={Boolean(selectedQuery)} onClose={handleClose}>
+      <Drawer style={{ minWidth: '60%' }} isOpen={Boolean(selectedQuery)} onClose={handleClose}>
         <Drawer.Header tag="h2">{selectedQuery?.title}</Drawer.Header>
         <DrawerBody>
           {selectedInteractionListIndex !== null ? (

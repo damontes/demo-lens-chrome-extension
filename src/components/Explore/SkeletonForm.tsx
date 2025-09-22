@@ -1,6 +1,6 @@
 import { MD, SM } from '@zendeskgarden/react-typography';
 import styled from 'styled-components';
-import { Field, Input, InputGroup } from '@zendeskgarden/react-forms';
+import { Field, Input, InputGroup, Toggle } from '@zendeskgarden/react-forms';
 import { Combobox, Option, Field as FieldCombox } from '@zendeskgarden/react-dropdowns';
 import { FlatLineIcon, LineDecreaseIcon, LineIncreaseIcon, PulseGraphIcon, RandomIcon } from '@/icons';
 import Collapsable from '../ui/Collapsable';
@@ -48,23 +48,80 @@ const PRESET_OPTIONS = {
 
 const SkeletonForm = ({ initialValues, onSubmit }: Props) => {
   const { payload = {}, config = {} } = initialValues ?? {};
-  const [values, setValues] = useState({ rawRows: payload.rows ?? [], rawColumns: payload.columns ?? [] });
-  const { rawRows, rawColumns } = values;
+  const [values, setValues] = useState({
+    rawRows: payload.rows ?? [],
+    rawColumns: payload.columns ?? [],
+    rawCellData: payload.cellData ?? [],
+  });
+  const { rawRows, rawColumns, rawCellData } = values;
+  const [useFixedValues, setUseFixedValues] = useState(config.useFixedValues ?? false);
 
   const parseCellDisplayName = (cellDataDisplayName: string) => {
     return cellDataDisplayName.split(',').slice(0, -1).join(',');
   };
 
+  // Get cellData for a specific row, create if doesn't exist
+  const getCellDataForRow = (rowIdx: number) => {
+    if (rawCellData[rowIdx]) {
+      return rawCellData[rowIdx];
+    }
+    // Create default cellData for this row if it doesn't exist
+    const colCount = isTableWidget ? rawColumns.length : Math.max(columns.length, 1);
+    return Array.from({ length: colCount }, () => ({ value: 0 }));
+  };
+
+  const isTableWidget = useMemo(() => {
+    // Check if all columns start with "column all" - this indicates a table widget
+    return (
+      rawColumns.length > 0 &&
+      rawColumns.every((column: any) => column.cellDataDisplayName.toLowerCase().startsWith('column all'))
+    );
+  }, [rawColumns]);
+
   const columns = useMemo(() => {
+    if (isTableWidget) {
+      // For table widgets, each column is separate (different metrics)
+      return rawColumns.map((column: any, index: number) => [
+        column.cellDataDisplayName.split(', ').slice(1).join(', '), // Remove "column all, " prefix
+        [column],
+      ]);
+    }
+
+    // For regular widgets, group by cellDataDisplayName prefix
     const columnsByCellDisplayName = Object.groupBy(rawColumns, (item: any) =>
       parseCellDisplayName(item.cellDataDisplayName),
     );
 
     return Object.entries(columnsByCellDisplayName);
-  }, [rawColumns]);
+  }, [rawColumns, isTableWidget]);
+
+  const isSingleColumnWidget = useMemo(() => {
+    return (
+      rawColumns.some((column: any) => column.cellDataDisplayName.toLowerCase().includes('column all')) &&
+      columns.length === 1
+    );
+  }, [rawColumns, columns]);
+
+  const isSingleRowWidget = useMemo(() => {
+    return (
+      rawRows.some((row: any) => row.members.at(0)?.name.toLowerCase().includes('row all')) && rawRows.length === 1
+    );
+  }, [rawRows]);
 
   const onDeleteRow = (idx: number) => {
+    // Prevent deleting the last row
+    if (rawRows.length <= 1) {
+      return;
+    }
+
     const newRawRows = rawRows.filter((_: any, rowIdx: number) => rowIdx !== idx);
+
+    // Additional safety check
+    if (newRawRows.length === 0) {
+      console.warn('Attempted to delete all rows, operation cancelled');
+      return;
+    }
+
     setValues((prev) => ({ ...prev, rawRows: newRawRows }));
   };
 
@@ -109,12 +166,30 @@ const SkeletonForm = ({ initialValues, onSubmit }: Props) => {
   };
 
   const onDeleteColumn = (idx: number) => {
+    // Prevent deleting the last column
+    if (columns.length <= 1) {
+      return;
+    }
+
     const [_, deletedRawColumns] = columns[idx];
+    if (!deletedRawColumns || deletedRawColumns.length === 0) {
+      return;
+    }
+
+    const deletedCellDisplayNames = new Set(
+      deletedRawColumns.map((deletedColumn: any) => deletedColumn.cellDataDisplayName),
+    );
+
     const newRawColumns = rawColumns.filter((column: any) => {
-      return !deletedRawColumns?.some((deletedColumn: any) => {
-        return column.cellDataDisplayName === deletedColumn.cellDataDisplayName;
-      });
+      return !deletedCellDisplayNames.has(column.cellDataDisplayName);
     });
+
+    // Additional safety check to ensure we don't end up with empty columns
+    if (newRawColumns.length === 0) {
+      console.warn('Attempted to delete all columns, operation cancelled');
+      return;
+    }
+
     setValues((prev) => ({ ...prev, rawColumns: newRawColumns }));
   };
 
@@ -152,7 +227,7 @@ const SkeletonForm = ({ initialValues, onSubmit }: Props) => {
   };
 
   const onChangeConfig = (configValues: any) => {
-    const { preset, range_0, range_1 } = Object.entries(configValues).reduce(
+    const { preset, range_0, range_1, useFixedValues } = Object.entries(configValues).reduce(
       (acc, [key, value]: any) => ({
         ...acc,
         [key.split('-').at(-1)]: value,
@@ -160,7 +235,31 @@ const SkeletonForm = ({ initialValues, onSubmit }: Props) => {
       {} as any,
     );
 
-    return { preset, range: [Number(range_0), Number(range_1)] };
+    return {
+      preset,
+      range: [Number(range_0), Number(range_1)],
+      useFixedValues: useFixedValues === 'on',
+    };
+  };
+
+  const onChangeCellDataValues = (cellDataValues: any) => {
+    const newCellData: any[][] = [];
+
+    // Build cellData based on current rows and columns structure
+    rawRows.forEach((_: any, rowIdx: number) => {
+      newCellData[rowIdx] = [];
+
+      columns.forEach((_: any, colIdx: number) => {
+        const key = `cell-${rowIdx}-${colIdx}`;
+        const value = cellDataValues[key];
+
+        newCellData[rowIdx][colIdx] = {
+          value: value ? parseFloat(value) || 0 : 0,
+        };
+      });
+    });
+
+    return newCellData;
   };
 
   const handleSubmit = async (e: any) => {
@@ -176,15 +275,22 @@ const SkeletonForm = ({ initialValues, onSubmit }: Props) => {
       .filter(([key]) => key.startsWith('row'))
       .reduce((prev: any, [key, value]) => ({ ...prev, [key]: value }), {});
 
+    const cellDataValues = Object.entries(values)
+      .filter(([key]) => key.startsWith('cell-'))
+      .reduce((prev: any, [key, value]) => ({ ...prev, [key]: value }), {});
+
     const configValues = Object.entries(values)
       .filter(([key]) => key.startsWith('config-'))
       .reduce((prev: any, [key, value]) => ({ ...prev, [key]: value }), {});
 
+    console.log('ON SUBMIT cellDataValues', cellDataValues);
     const rows = onChangeRowValues(rowValues);
     const columns = onChangeColumnValues(columnValues);
+    const cellData = useFixedValues ? onChangeCellDataValues(cellDataValues) : rawCellData;
     const config = onChangeConfig(configValues);
 
-    await onSubmit({ payload: { rows, columns }, config });
+    console.log('Cell DAta', cellData);
+    await onSubmit({ payload: { rows, columns, cellData }, config });
   };
 
   return (
@@ -208,6 +314,7 @@ const SkeletonForm = ({ initialValues, onSubmit }: Props) => {
                 step="any"
                 defaultValue={config.range?.[0]}
                 placeholder="Min"
+                disabled={useFixedValues}
               />
               <Input
                 name="config-range_1"
@@ -215,14 +322,16 @@ const SkeletonForm = ({ initialValues, onSubmit }: Props) => {
                 step="any"
                 defaultValue={config.range?.[1]}
                 placeholder="Max"
+                disabled={useFixedValues}
               />
             </InputGroup>
           </Field>
           <FieldCombox>
             <Field.Label>Preset</Field.Label>
             <Combobox
-              inputProps={{ name: `config-preset` }}
+              inputProps={{ name: `config-preset`, disabled: useFixedValues }}
               isEditable={false}
+              isDisabled={useFixedValues}
               renderValue={({ inputValue }) => {
                 if (!inputValue) {
                   return null;
@@ -243,9 +352,24 @@ const SkeletonForm = ({ initialValues, onSubmit }: Props) => {
               ))}
             </Combobox>
           </FieldCombox>
+          <ToggleContainer>
+            <ToggleContent>
+              <Field.Label>Use Fixed Values</Field.Label>
+              <Description>Enable to set specific values instead of generated ones</Description>
+            </ToggleContent>
+            <Field>
+              <Toggle
+                name="config-useFixedValues"
+                checked={useFixedValues}
+                onChange={(e) => setUseFixedValues(e.target.checked)}
+              >
+                <Field.Label hidden>Use Fixed Values</Field.Label>
+              </Toggle>
+            </Field>
+          </ToggleContainer>
         </SectionContent>
       </Section>
-      {columns.length > 1 && (
+      {!isTableWidget && (columns.length > 1 || (columns.length === 1 && !isSingleColumnWidget)) ? (
         <Section>
           <SectionHeader>
             <SectionTitle>Chart labels</SectionTitle>
@@ -261,12 +385,12 @@ const SkeletonForm = ({ initialValues, onSubmit }: Props) => {
                   headerContent={
                     <HeaderCollapsable>
                       <MD style={{ fontWeight: 'bold' }}>Column {columnIdx + 1}</MD>
-                      {columnIdx === columns.length - 1 && (
+                      {columns.length > 1 && (
                         <IconButton
                           isDanger
                           onClick={() => onDeleteColumn(columnIdx)}
                           size="small"
-                          aria-label="Delete row"
+                          aria-label="Delete column"
                         >
                           <TrashIcon />
                         </IconButton>
@@ -285,14 +409,19 @@ const SkeletonForm = ({ initialValues, onSubmit }: Props) => {
                 </Collapsable>
               );
             })}
-            <Button type="button" onClick={onAddColumn}>
-              <PlusIcon />
-              Add Column
-            </Button>
+            {!isSingleColumnWidget && (
+              <Button type="button" onClick={onAddColumn}>
+                <PlusIcon />
+                Add Column
+              </Button>
+            )}
           </ul>
         </Section>
-      )}
-      {rawRows.length > 1 && (
+      ) : null}
+      {rawRows.length > 1 ||
+      (rawRows.length === 1 && !isSingleRowWidget) ||
+      (useFixedValues && rawRows.length >= 1) ||
+      isTableWidget ? (
         <Section>
           <SectionHeader>
             <SectionTitle>Rows</SectionTitle>
@@ -306,7 +435,7 @@ const SkeletonForm = ({ initialValues, onSubmit }: Props) => {
                 headerContent={
                   <HeaderCollapsable>
                     <MD style={{ fontWeight: 'bold' }}>Row {rowIdx + 1}</MD>
-                    {rowIdx === rawRows.length - 1 && (
+                    {rawRows.length > 1 && (
                       <IconButton isDanger onClick={() => onDeleteRow(rowIdx)} size="small" aria-label="Delete row">
                         <TrashIcon />
                       </IconButton>
@@ -318,26 +447,74 @@ const SkeletonForm = ({ initialValues, onSubmit }: Props) => {
                   style={{
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '8px',
+                    gap: '12px',
                     padding: '0px 8px 16px 8px',
                   }}
                 >
-                  {row.members.map((member: any, memberIdx: number) => (
-                    <Field key={memberIdx} style={{ flex: 1 }}>
-                      <Field.Hint>{member.levelDisplayName}</Field.Hint>
-                      <Input defaultValue={member.name} name={`row-${rowIdx}#member-${memberIdx}`} />
-                    </Field>
-                  ))}
+                  {/* Row Members (Labels) - Only show if more than one row or not using fixed values */}
+                  {(rawRows.length > 1 || !useFixedValues) && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <MD style={{ fontSize: '14px', fontWeight: 'bold', margin: 0 }}>Row Labels</MD>
+                      {row.members.map((member: any, memberIdx: number) => (
+                        <Field key={memberIdx} style={{ flex: 1 }}>
+                          <Field.Hint>{member.levelDisplayName}</Field.Hint>
+                          <Input defaultValue={member.name} name={`row-${rowIdx}#member-${memberIdx}`} />
+                        </Field>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Cell Data Values */}
+                  {useFixedValues && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <MD style={{ fontSize: '14px', fontWeight: 'bold', margin: 0 }}>Data Values</MD>
+                      <div
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(2, 1fr)',
+                          gap: '8px',
+                        }}
+                      >
+                        {getCellDataForRow(rowIdx).map((cell: any, colIdx: number) => {
+                          let columnLabel = `Col ${colIdx + 1}`;
+
+                          if (isTableWidget) {
+                            // For table widgets, show the actual metric name
+                            const column = rawColumns[colIdx];
+                            if (column) {
+                              const metricName = column.cellDataDisplayName.split(', ').slice(1).join(', ');
+                              columnLabel = metricName || `Col ${colIdx + 1}`;
+                            }
+                          }
+
+                          return (
+                            <Field key={`${rowIdx}-${colIdx}`}>
+                              <Field.Label>{columnLabel}</Field.Label>
+                              <Input
+                                type="number"
+                                step="any"
+                                name={`cell-${rowIdx}-${colIdx}`}
+                                defaultValue={cell.value}
+                                placeholder="0"
+                              />
+                            </Field>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </Collapsable>
             ))}
-            <Button type="button" onClick={onAddRow}>
-              <PlusIcon />
-              Add Row
-            </Button>
+            {!isSingleRowWidget && (
+              <Button type="button" onClick={onAddRow}>
+                <PlusIcon />
+                Add Row
+              </Button>
+            )}
           </ul>
         </Section>
-      )}
+      ) : null}
     </form>
   );
 };
@@ -379,6 +556,20 @@ const HeaderCollapsable = styled.div`
   align-items: center;
   justify-content: space-between;
   padding-right: 8px;
+`;
+
+const ToggleContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+`;
+
+const ToggleContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 `;
 
 export default SkeletonForm;

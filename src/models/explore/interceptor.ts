@@ -303,7 +303,6 @@ class ExploreInterceptor {
       }
 
       if (ExploreInterceptor.isExploreQuery(url)) {
-        console.log('IS EXPLORE QUERY', url, json, requestBody);
         const queryId = json.content.queryId || json.queryId;
         const tabId = requestBody?.content?.tabId;
 

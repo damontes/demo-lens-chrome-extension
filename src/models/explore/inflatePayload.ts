@@ -44,7 +44,7 @@ export const inflatePayload = (
   lightInfaltePayload?: any,
   config?: any,
 ) => {
-  const { columns: lightColumns, rows: lightRows } = lightInfaltePayload ?? {};
+  const { columns: lightColumns, rows: lightRows, cellData: lightCellData } = lightInfaltePayload ?? {};
   const isDrillIn = querySchema?.isDrillIn;
 
   const meta = parseQuerySchema(querySchema, visualizationType);
@@ -70,7 +70,11 @@ export const inflatePayload = (
       return column;
     });
 
-  result.cellData = buildCellData(meta, result.columns, config, lightRows?.length);
+  // Use saved cellData if useFixedValues is enabled, otherwise generate new data
+  result.cellData =
+    config?.useFixedValues && lightCellData
+      ? lightCellData
+      : buildCellData(meta, result.columns, config, lightRows?.length);
   result.rows = buildRows(meta, result.cellData.length).map((row, rowIdx) => ({
     ...row,
     members: row.members.map((member: any) => ({
@@ -370,13 +374,13 @@ function parseQuerySchema(querySchema: any, vizType: string) {
   let timeInfo: { unit: string; points: number } | undefined;
   let categoryInfo: { points: number } | undefined;
 
-  if (isKpiLike(vizType)) {
+  if (colHierarchies[0]?.['@_dimensionType'] === 'time') {
+    axis = 'time';
+    timeInfo = { unit: 'day', points: DEFAULT_TIME_POINTS };
+  } else if (isKpiLike(vizType)) {
     axis = 'category'; // 1 col
   } else if (getIsGrid(vizType, rowHierarchies.length, measures.length)) {
     axis = 'category'; // grid -> N col, lo dejamos como antes
-  } else if (colHierarchies[0]?.['@_dimensionType'] === 'time') {
-    axis = 'time';
-    timeInfo = { unit: 'day', points: DEFAULT_TIME_POINTS };
   } else {
     axis = 'category';
     categoryInfo = {
