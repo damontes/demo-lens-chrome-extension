@@ -277,11 +277,10 @@ const SkeletonForm = ({ initialValues, onSubmit }: Props) => {
   const onChangeCellDataValues = (cellDataValues: any) => {
     const newCellData: any[][] = [];
 
-    // Build cellData based on current rows and columns structure
     rawRows.forEach((_: any, rowIdx: number) => {
       newCellData[rowIdx] = [];
 
-      columns.forEach((_: any, colIdx: number) => {
+      rawColumns.forEach((_: any, colIdx: number) => {
         const key = `cell-${rowIdx}-${colIdx}`;
         const value = cellDataValues[key];
 
@@ -315,13 +314,11 @@ const SkeletonForm = ({ initialValues, onSubmit }: Props) => {
       .filter(([key]) => key.startsWith('config-'))
       .reduce((prev: any, [key, value]) => ({ ...prev, [key]: value }), {});
 
-    console.log('ON SUBMIT cellDataValues', cellDataValues);
     const rows = onChangeRowValues(rowValues);
     const columns = onChangeColumnValues(columnValues);
     const cellData = useFixedValues ? onChangeCellDataValues(cellDataValues) : rawCellData;
     const config = onChangeConfig(configValues);
 
-    console.log('Cell DAta', cellData);
     await onSubmit({ payload: { rows, columns, cellData }, config });
   };
 
@@ -500,39 +497,108 @@ const SkeletonForm = ({ initialValues, onSubmit }: Props) => {
                   {useFixedValues && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       <MD style={{ fontSize: '14px', fontWeight: 'bold', margin: 0 }}>Data Values</MD>
-                      <div
-                        style={{
-                          display: 'grid',
-                          gridTemplateColumns: 'repeat(2, 1fr)',
-                          gap: '8px',
-                        }}
-                      >
-                        {getCellDataForRow(rowIdx).map((cell: any, colIdx: number) => {
-                          let columnLabel = `Col ${colIdx + 1}`;
+                      {(() => {
+                        // Special case: Single row with grouped columns (like column charts with multiple metrics per group)
+                        const isGroupedColumnChart =
+                          isSingleRowWidget && rawColumns.length > columns.length && rawColumns.length > 1;
 
-                          if (isTableWidget) {
-                            // For table widgets, show the actual metric name
-                            const column = rawColumns[colIdx];
-                            if (column) {
-                              const metricName = column.cellDataDisplayName.split(', ').slice(1).join(', ');
-                              columnLabel = metricName || `Col ${colIdx + 1}`;
-                            }
-                          }
+                        if (isGroupedColumnChart) {
+                          return columns.map(([cellDisplayName, innerColumns]: any, groupIdx: number) => {
+                            const inputs: JSX.Element[] = [];
 
+                            // Use the actual columns from innerColumns array (already properly grouped)
+                            innerColumns.forEach((column: any, metricIdx: number) => {
+                              // Find the original index of this column in rawColumns
+                              const originalColIdx = rawColumns.findIndex(
+                                (rawCol: any) => rawCol.cellDataDisplayName === column.cellDataDisplayName,
+                              );
+
+                              if (originalColIdx !== -1) {
+                                const fullDisplayName = column.cellDataDisplayName.split(', ').slice(-1)[0];
+                                const metricName =
+                                  fullDisplayName.split(' - ').slice(-1)[0] || `Metric ${metricIdx + 1}`;
+
+                                const existingValue = rawCellData[0]?.[originalColIdx]?.value || 0;
+
+                                inputs.push(
+                                  <Field key={`0-${originalColIdx}`}>
+                                    <Field.Label>{metricName}</Field.Label>
+                                    <Input
+                                      type="number"
+                                      step="any"
+                                      name={`cell-0-${originalColIdx}`}
+                                      defaultValue={existingValue}
+                                      placeholder="0"
+                                    />
+                                  </Field>,
+                                );
+                              }
+                            });
+
+                            return (
+                              <div key={cellDisplayName} style={{ marginBottom: '12px' }}>
+                                <MD
+                                  style={{
+                                    fontSize: '12px',
+                                    fontWeight: 'bold',
+                                    margin: '0 0 8px 0',
+                                    color: '#68737D',
+                                  }}
+                                >
+                                  Col {groupIdx + 1}
+                                </MD>
+                                <div
+                                  style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(2, 1fr)',
+                                    gap: '8px',
+                                    paddingLeft: '8px',
+                                  }}
+                                >
+                                  {inputs}
+                                </div>
+                              </div>
+                            );
+                          });
+                        } else {
+                          // Standard behavior for non-grouped charts
                           return (
-                            <Field key={`${rowIdx}-${colIdx}`}>
-                              <Field.Label>{columnLabel}</Field.Label>
-                              <Input
-                                type="number"
-                                step="any"
-                                name={`cell-${rowIdx}-${colIdx}`}
-                                defaultValue={cell.value}
-                                placeholder="0"
-                              />
-                            </Field>
+                            <div
+                              style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(2, 1fr)',
+                                gap: '8px',
+                              }}
+                            >
+                              {getCellDataForRow(rowIdx).map((cell: any, colIdx: number) => {
+                                let columnLabel = `Col ${colIdx + 1}`;
+
+                                if (isTableWidget) {
+                                  // For table widgets, show the actual metric name
+                                  const column = rawColumns[colIdx];
+                                  if (column) {
+                                    const metricName = column.cellDataDisplayName.split(', ').slice(1).join(', ');
+                                    columnLabel = metricName || `Col ${colIdx + 1}`;
+                                  }
+                                }
+
+                                return (
+                                  <Field key={`${rowIdx}-${colIdx}`}>
+                                    <Field.Label>{columnLabel}</Field.Label>
+                                    <Input
+                                      type="number"
+                                      step="any"
+                                      name={`cell-${rowIdx}-${colIdx}`}
+                                      defaultValue={cell.value}
+                                      placeholder="0"
+                                    />
+                                  </Field>
+                                );
+                              })}
+                            </div>
                           );
-                        })}
-                      </div>
+                        }
+                      })()}
                     </div>
                   )}
                 </div>
