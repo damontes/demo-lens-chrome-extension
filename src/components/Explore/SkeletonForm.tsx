@@ -162,7 +162,28 @@ const SkeletonForm = ({ initialValues, onSubmit }: Props) => {
       };
     });
 
-    setValues((prev) => ({ ...prev, rawColumns: [...prev.rawColumns, ...newColumns] }));
+    // Update cellData to add a new column with default values for each row
+    const newRawCellData = rawCellData.map((rowData: any[]) => {
+      if (!rowData || !Array.isArray(rowData)) {
+        // If row doesn't exist, create it with the right number of columns including the new one
+        const colCount = columns.length + 1; // +1 for the new column being added
+        return Array.from({ length: colCount }, () => ({ value: 0 }));
+      }
+      // Add a new cell with default value to existing row
+      return [...rowData, { value: 0 }];
+    });
+
+    // If rawCellData is empty but we have rows, initialize it
+    const finalRawCellData =
+      rawCellData.length === 0 && rawRows.length > 0
+        ? rawRows.map(() => Array.from({ length: columns.length + 1 }, () => ({ value: 0 })))
+        : newRawCellData;
+
+    setValues((prev) => ({
+      ...prev,
+      rawColumns: [...prev.rawColumns, ...newColumns],
+      rawCellData: finalRawCellData,
+    }));
   };
 
   const onDeleteColumn = (idx: number) => {
@@ -190,7 +211,18 @@ const SkeletonForm = ({ initialValues, onSubmit }: Props) => {
       return;
     }
 
-    setValues((prev) => ({ ...prev, rawColumns: newRawColumns }));
+    // Update cellData to remove the deleted column
+    const newRawCellData = rawCellData.map((rowData: any[]) => {
+      if (!rowData || !Array.isArray(rowData)) return rowData;
+      // Remove the column at the specified index
+      return rowData.filter((_: any, colIdx: number) => colIdx !== idx);
+    });
+
+    setValues((prev) => ({
+      ...prev,
+      rawColumns: newRawColumns,
+      rawCellData: newRawCellData,
+    }));
   };
 
   const onChangeColumnValues = (columnValues: any) => {
