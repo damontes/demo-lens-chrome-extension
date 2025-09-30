@@ -1,5 +1,6 @@
 import { ACTIONS, DEFAULT_CONFIG } from '@/actions/dictionary';
 import ExploreInterceptor from '@/models/explore/interceptor';
+import AdminInterceptor from '@/models/admin/interceptor';
 
 const APP_STATE_KEY = 'state';
 
@@ -84,9 +85,12 @@ export const changeTabIcon = async (iconPath: string) => {
 };
 
 function injectMissingData(payload: any) {
+  const templates = payload.templates ?? {};
+
   return {
     ...payload,
     dashboards: Object.entries(payload.dashboards ?? {}).reduce((acc, [key, item]: any) => {
+      // Handle Explore dashboards
       if (item.type === ExploreInterceptor.getDashboardType()) {
         return {
           ...acc,
@@ -108,7 +112,61 @@ function injectMissingData(payload: any) {
         };
       }
 
-      return acc;
+      // Handle Admin dashboards - create temporary template if none exists
+      if (item.type === AdminInterceptor.getDashboardType()) {
+        // Check if this admin dashboard has a templateId
+        if (!item.templateId) {
+          // Create a temporary template from existing dashboard data
+          const tempTemplateId = `temp_${key.replace(/[^a-zA-Z0-9]/g, '_')}`;
+
+          // Create temporary template configuration matching OverviewCopilotConfiguration
+          const tempTemplate = {
+            id: tempTemplateId,
+            type: item.type,
+            createdAt: Date.now(),
+            name: `${item.name} (Migrated)`,
+            description: 'Automatically migrated from existing dashboard configuration',
+            industry: ['general'],
+            isTemporary: true,
+            configuration: {
+              overviewCopilot: {
+                setupTasks: item.setupTasks,
+                metrics: item.metrics,
+                recommendations: item.recommendations,
+              },
+            },
+          };
+
+          // Add to templates if not already there
+          const existingTemplate = templates[tempTemplateId];
+          if (!existingTemplate) {
+            templates[tempTemplateId] = tempTemplate;
+          }
+
+          // Return dashboard with templateId reference
+          return {
+            ...acc,
+            [key]: {
+              name: item.name,
+              sourceName: item.sourceName,
+              type: item.type,
+              templateId: tempTemplateId,
+            },
+          };
+        }
+
+        // If templateId already exists, keep as is
+        return {
+          ...acc,
+          [key]: item,
+        };
+      }
+
+      return {
+        ...acc,
+        [key]: item,
+      };
     }, payload.dashboards ?? {}),
+    templates,
   };
 }

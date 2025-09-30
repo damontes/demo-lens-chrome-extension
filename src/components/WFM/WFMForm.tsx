@@ -1,13 +1,14 @@
 import { Field, Select, Toggle } from '@zendeskgarden/react-forms';
-import { MD, SM, LG } from '@zendeskgarden/react-typography';
+import { MD } from '@zendeskgarden/react-typography';
 import styled from 'styled-components';
 import { useForm, FormProvider } from 'react-hook-form';
 import { useState, useEffect } from 'react';
-import PhoneIcon from '@zendeskgarden/svg-icons/src/16/phone-stroke.svg?react';
+import BuildingIcon from '@zendeskgarden/svg-icons/src/16/building-stroke.svg?react';
 import { VERTICALS } from '@/constants';
 import useAppState from '@/storage';
 import WFMTemplateSelector from './WFMTemplateSelector';
-import { WFM_TEMPLATES, WFMTemplate } from '@/models/wfm/templates';
+import { WFMTemplate } from '@/models/wfm/templates';
+import { useTemplate } from '@/hooks/useTemplate';
 
 type Props = {
   footer: JSX.Element;
@@ -27,36 +28,16 @@ const WFMForm = ({ footer, onSubmit, initialValues = DEFAULT_INITIAL_VALUES }: P
   });
 
   const { handleSubmit, watch, setValue } = methods;
-  const [currentIndustry, setCurrentIndustry] = useState(initialValues.industry || 'finance');
   const { getTemplatesByType } = useAppState();
 
   const watchedValues = watch();
+  const selectedTemplate = useTemplate('wfm', watchedValues.templateId);
 
-  // Effect to derive industry from selected template
-  useEffect(() => {
-    if (watchedValues.templateId) {
-      // Try to find the template and get its industry
-      let template = null;
-
-      // Check user templates first
-      const userTemplates = getTemplatesByType('wfm');
-      template = userTemplates.find((t: any) => t.id === watchedValues.templateId);
-
-      // If not found, check predefined templates
-      if (!template) {
-        template = WFM_TEMPLATES.find((t: any) => t.id === watchedValues.templateId);
-      }
-
-      if (template && template.industry && template.industry.length > 0) {
-        const templateIndustry = Array.isArray(template.industry) ? template.industry[0] : template.industry;
-        setCurrentIndustry(templateIndustry);
-        setValue('industry', templateIndustry);
-      }
-    }
-  }, [watchedValues.templateId, getTemplatesByType, setValue]);
+  // Derive industry from selected template, but use form industry for AI-generated templates
+  // AI-generated templates (with createdAt) should respect the form's industry selection
+  const currentIndustry = selectedTemplate?.industry?.[0] || watchedValues.industry || 'finance';
 
   const handleIndustryChange = (industry: string) => {
-    setCurrentIndustry(industry);
     setValue('industry', industry);
     // Reset template selection when industry changes
     setValue('templateId', '');
@@ -64,6 +45,12 @@ const WFMForm = ({ footer, onSubmit, initialValues = DEFAULT_INITIAL_VALUES }: P
 
   const handleTemplateSelect = (template: WFMTemplate | any) => {
     setValue('templateId', template?.id);
+
+    // Set industry from template only if it's not an AI-generated template
+    // AI-generated templates should preserve the user's industry selection
+    if (template?.industry?.[0] && !(template as any).createdAt) {
+      setValue('industry', template.industry[0]);
+    }
   };
 
   const onSubmitWithValidation = (values: any) => {
@@ -111,7 +98,7 @@ const WFMForm = ({ footer, onSubmit, initialValues = DEFAULT_INITIAL_VALUES }: P
 
             <Section>
               <SectionHeader>
-                <PhoneIcon />
+                <BuildingIcon />
                 <SectionTitle>Industry Selection</SectionTitle>
               </SectionHeader>
               <Field>

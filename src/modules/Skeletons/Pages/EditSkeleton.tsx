@@ -5,13 +5,13 @@ import useAppState from '@/storage';
 import { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import EditExploreSkeleton from '@/components/Explore/EditSkeleton';
-import EditOverviewCopilotDashboard from '@/components/Admin/OverviewCopilot/EditSkeleton';
+import EditAdminSkeleton from '@/components/Admin/EditSkeleton';
 import EditWFMSkeleton from '@/components/WFM/EditSkeleton';
 import { reloadDashboard } from '@/actions';
 
 const EDIT_FORM = {
   [ExploreInterceptor.getDashboardType()]: EditExploreSkeleton,
-  [AdminInterceptor.getDashboardType()]: EditOverviewCopilotDashboard,
+  [AdminInterceptor.getDashboardType()]: EditAdminSkeleton,
   [WFMInterceptor.getDashboardType()]: EditWFMSkeleton,
 };
 

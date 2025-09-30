@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import useAppState from '@/storage';
-import ControllerInterpceptor from '@/models/controllerInterceptor';
 import ExploreInterceptor from '@/models/explore/interceptor';
 import AdminInterceptor from '@/models/admin/interceptor';
 import WFMInterceptor from '@/models/wfm/interceptor';
@@ -13,9 +12,19 @@ import { getCategory } from '@/modules/Categories/Utils/handlers';
 import AnalyzeView from '@/modules/Skeletons/Components/AnalyzeView';
 import StepWizard from '@/components/ui/StepWizard';
 import AddExploreSkeleton from '@/components/Explore/AddSkeleton';
-import AddOverviewCopilotSkeleton from '@/components/Admin/OverviewCopilot/AddSkeleton';
+import AddAdminSkeleton from '@/components/Admin/AddSkeleton';
 import AddWFMSkeleton from '@/components/WFM/AddSkeleton';
 import CreateView from '../Components/CreateView';
+
+const parseDashboardDetails = (rawDashboardDetails: any, pathSliceEnd: number = 2) => {
+  const { url: rawUrl, dashboardName: rawDashboardName = '' } = rawDashboardDetails;
+  const dashboardName = rawDashboardName.split('-').at(-1);
+  const url = new URL(rawUrl);
+  return {
+    url: `https://${url.hostname}/${url.pathname.split('/').slice(1, pathSliceEnd).join('/')}`,
+    dashboardName,
+  };
+};
 
 const ALL_STEPS = {
   [ExploreInterceptor.getDashboardType()]: [
@@ -34,12 +43,17 @@ const ALL_STEPS = {
     {
       id: 'step-0',
       title: 'Analyze',
-      content: (props: any) => <AnalyzeView {...props} />,
+      content: (props: any) => (
+        <CreateView
+          {...props}
+          parseDashboardDetails={(rawDashboardDetails: any) => parseDashboardDetails(rawDashboardDetails, 2)}
+        />
+      ),
     },
     {
       id: 'step-1',
       title: 'Create',
-      content: (props: any) => <AddOverviewCopilotSkeleton {...props} />,
+      content: (props: any) => <AddAdminSkeleton {...props} />,
     },
   ],
   [WFMInterceptor.getDashboardType()]: [
@@ -49,12 +63,7 @@ const ALL_STEPS = {
       content: (props: any) => (
         <CreateView
           {...props}
-          parseDashboardDetails={(rawDashboardDetails) => {
-            const { url: rawUrl, dashboardName: rawDashboardName = '' } = rawDashboardDetails;
-            const dashboardName = rawDashboardName.split('-').at(-1);
-            const url = new URL(rawUrl);
-            return { url: `https://${url.hostname}/${url.pathname.split('/').slice(1, 3).join('/')}`, dashboardName };
-          }}
+          parseDashboardDetails={(rawDashboardDetails: any) => parseDashboardDetails(rawDashboardDetails, 3)}
         />
       ),
     },
@@ -67,21 +76,20 @@ const ALL_STEPS = {
 };
 
 const NewSkeleton = () => {
-  const dashboadDetails = useAppState((state) => state.dashboardDetails);
+  // const dashboadDetails = useAppState((state) => state.dashboardDetails);
   const saveDashboard = useAppState((state: any) => state.saveDashboard);
   const [seachParams] = useSearchParams();
   const navigate = useNavigate();
 
   const category = getCategory(seachParams.get('categoryPath')?.split('.') ?? []);
 
-  const type = ControllerInterpceptor.getInterceptorType(dashboadDetails.url);
+  const type = category.type; // ControllerInterpceptor.getInterceptorType(dashboadDetails.url);
 
   const goBack = () => {
     navigate(-1);
   };
 
   const onCreateSkeleton = async (id: string, newSkeleton: any) => {
-    console.log('Creating skeleton', id, newSkeleton);
     saveDashboard(id, newSkeleton);
     navigate('/skeletons');
   };

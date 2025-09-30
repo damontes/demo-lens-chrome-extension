@@ -7,7 +7,6 @@ import { Spinner } from '@zendeskgarden/react-loaders';
 import { Alert } from '@zendeskgarden/react-notifications';
 import { useStepWizardStore } from '../../../components/ui/StepWizard/StepWizardProvider';
 import { getCurrentTabDetails, setAppState } from '@/lib/chromeExtension';
-import ControllerInterceptor from '@/models/controllerInterceptor';
 
 const DEFAULT_INITIAL_VALUES = {
   name: '',

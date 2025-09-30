@@ -21,6 +21,7 @@ type AppState = {
   version: number;
   setInitialState: (state: AppState) => void;
   saveDashboard: (id: string, dashboard: any) => void;
+  setDashboardDetails: (details: any) => void;
   removeDashboard: (id: string) => void;
   addConfiguration: (id: string, configuration: any) => void;
   removeConfiguration: (id: string) => void;
@@ -45,6 +46,11 @@ const useAppState = create<AppState>()(
     intents: [],
     setInitialState: (state) => {
       set(state);
+    },
+    setDashboardDetails: (details) => {
+      set((state) => {
+        state.dashboardDetails = details;
+      });
     },
     saveDashboard: (id, dashboard) => {
       set((state) => {

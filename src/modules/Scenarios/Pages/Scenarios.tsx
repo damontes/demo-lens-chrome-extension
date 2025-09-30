@@ -96,7 +96,7 @@ const Scenarios = () => {
                         <LG style={{ fontWeight: '700' }}>{item.name}</LG>
                         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                           <Tag>{item.dashboards.length} dashboards</Tag>
-                          {isActive && <Tag isActive={isActive}>Active</Tag>}
+                          {isActive && <Tag $isActive={isActive}>Active</Tag>}
                         </div>
                       </div>
                       <div
@@ -183,15 +183,15 @@ const Description = styled(MD)`
   color: ${({ theme }) => theme.palette.grey[600]};
 `;
 
-const Tag = styled.span<{ isActive?: boolean }>`
+const Tag = styled.span<{ $isActive?: boolean }>`
   display: inline-flex;
   align-items: center;
   font-weight: ${({ theme }) => theme.fontWeights.semibold};
   border-radius: ${({ theme }) => theme.borderRadii.md};
   padding: 2px 6px;
-  border: 1px solid ${({ theme, isActive }) => (isActive ? theme.palette.green[600] : theme.palette.grey[200])};
-  background-color: ${({ theme, isActive }) => (isActive ? theme.palette.green[100] : theme.palette.grey[100])};
-  color: ${({ theme, isActive }) => (isActive ? theme.palette.green[600] : theme.palette.black)};
+  border: 1px solid ${({ theme, $isActive }) => ($isActive ? theme.palette.green[600] : theme.palette.grey[200])};
+  background-color: ${({ theme, $isActive }) => ($isActive ? theme.palette.green[100] : theme.palette.grey[100])};
+  color: ${({ theme, $isActive }) => ($isActive ? theme.palette.green[600] : theme.palette.black)};
 `;
 
 export default Scenarios;

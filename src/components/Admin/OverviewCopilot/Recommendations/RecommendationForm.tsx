@@ -1,9 +1,8 @@
 import Autocomplete from '@/components/ui/Autocomplete';
-import { formatSecondsToHourMinutes, getRandomId, randInt, toSnakeCase } from '@/lib/general';
+import { getRandomId, randInt, toSnakeCase } from '@/lib/general';
 import useAppState from '@/storage';
 import { Button } from '@zendeskgarden/react-buttons';
 import { Field, Input, Select } from '@zendeskgarden/react-forms';
-import { SM } from '@zendeskgarden/react-typography';
 import { useMemo, useState } from 'react';
 import styled from 'styled-components';
 
@@ -55,7 +54,6 @@ const RecommendationForm = ({ onCancel, onSubmit, initialValues = DEFAULT_INITIA
   };
 
   const onAddNewIntent = (value: string) => {
-    console.log('ON ADD ITEM', value);
     const newIntent = { value: toSnakeCase(value), title: value };
     addIntent(newIntent);
     onSelectIntent([...values.intent, newIntent]);
@@ -117,31 +115,17 @@ const RecommendationForm = ({ onCancel, onSubmit, initialValues = DEFAULT_INITIA
         onAddItem={(value) => onAddNewIntent(value)}
         onRemoveItem={(value) => onRemoveIntent(value)}
       />
-      <div style={{ maxWidth: '90%' }}>
-        <SM style={{ fontWeight: 'bold' }}>
-          Improve resolution time by{' '}
-          {formatSecondsToHourMinutes(values.metricExpectedImprovement ?? initialMetrics.metricExpectedImprovement)}
-        </SM>
-        <Subtitle>
-          Route to the group <b>{values.action?.title ?? '<Select action tO>'}</b> tickets with intent(s):{' '}
-          <b>{values.intent?.map((item: any) => item.title).join(', ') ?? '<Select Intent(s)>'}</b>
-        </Subtitle>
-      </div>
       <Footer>
         <Button type="button" size="medium" onClick={onCancel}>
           Cancel
         </Button>
         <Button type="button" isPrimary size="medium" onClick={handleSubmit}>
-          Add
+          Save
         </Button>
       </Footer>
     </>
   );
 };
-
-const Subtitle = styled(SM)`
-  color: ${({ theme }) => theme.palette.grey[600]};
-`;
 
 const Footer = styled.footer`
   display: flex;

@@ -1,43 +1,18 @@
-import { inflateOverviewCopilotPayload } from './inflatePayload';
+import {
+  inflateOverviewCopilotPayload,
+  inflateIntentSuggestionsPayload,
+  inflateAutomationPotentialPayload,
+} from './inflatePayload';
 import ControllerInterceptor from '../controllerInterceptor';
 import FetchInterceptor from '../fetchInterceptor';
-
-export const SUPPORT_SKELETON = {
-  adminAiCenterMetrics: {
-    period: 30,
-    aiUsageMetrics: {
-      ticketsCountWithAIRules: {
-        currentValue: 719,
-        historicalValue: 582,
-      },
-      ticketsCountWithAutoAssist: {
-        currentValue: 14,
-        historicalValue: 35,
-      },
-      ticketsCountWithAISuggestions: {
-        currentValue: 58,
-        historicalValue: 48,
-      },
-      agentsCountUsingAISuggestions: {
-        currentValue: 22,
-        historicalValue: 6,
-      },
-    },
-  },
-  adminAiCenterSuggestions: {
-    suggestions: null,
-    updatedAt: '2025-03-26 19:43:08',
-    sampleSize: 12760,
-  },
-  adminAiCenterSetupTasks: {
-    setupTasks: null,
-  },
-};
+import { ADMIN_TEMPLATES } from './templates';
 
 const TYPE_QUERY = {
   AdminAiCenterSuggestions: 'ADMIN_CENTER_SUGGESTIONS',
   AdminAiCenterMetrics: 'ADMIN_CENTER_METRICS',
   AdminAiCenterSetupTasks: 'ADMIN_CENTER_SETUP_TASKS',
+  IntentSuggestionQuery: 'INTENT_SUGGESTION_QUERY',
+  AiAgentsInsights: 'AI_AGENTS_INSIGHTS',
 };
 
 class AdminInterceptor {
@@ -50,7 +25,7 @@ class AdminInterceptor {
     this.#originUrl = originUrl;
   }
 
-  intercept(configurationDashboards?: any[], dashboards?: any) {
+  intercept(configurationDashboards?: any[], dashboards?: any, templates?: any) {
     this.#fetchInterceptor = new FetchInterceptor();
 
     // const handleParseDashboard = (response: any) => {
@@ -84,81 +59,134 @@ class AdminInterceptor {
         handleSetupTasks(json);
       }
 
+      if (type === TYPE_QUERY.IntentSuggestionQuery) {
+        const template = this.#getActiveTemplate(configurationDashboards, dashboards, templates);
+
+        if (!template?.configuration?.intentSuggestions) {
+          return response;
+        }
+
+        const intentSuggestionsData = inflateIntentSuggestionsPayload(template.configuration.intentSuggestions);
+
+        return this.#createGraphQLResponse(response, json, {
+          intentSuggestions: intentSuggestionsData,
+        });
+      }
+
+      if (type === TYPE_QUERY.AiAgentsInsights) {
+        const template = this.#getActiveTemplate(configurationDashboards, dashboards, templates);
+
+        if (!template?.configuration?.automationPotential) {
+          return response;
+        }
+
+        const automationPotentialData = inflateAutomationPotentialPayload(template.configuration.automationPotential);
+
+        return this.#createGraphQLResponse(response, json, {
+          aiAgentsInsights: automationPotentialData,
+        });
+      }
+
       if (
         type === TYPE_QUERY.AdminAiCenterMetrics ||
         type === TYPE_QUERY.AdminAiCenterSuggestions ||
         type === TYPE_QUERY.AdminAiCenterSetupTasks
       ) {
-        const currentDashboard = await this.getCurrentDashboard();
-        const activeDashboard = ControllerInterceptor.findActiveDashboard(
-          configurationDashboards,
-          dashboards,
-          ({ dashboardId }) => dashboardId === currentDashboard.id,
-        );
+        const template = this.#getActiveTemplate(configurationDashboards, dashboards, templates);
 
-        if (!activeDashboard) {
+        if (!template) {
           return response;
         }
 
-        const payload = inflateOverviewCopilotPayload(SUPPORT_SKELETON, activeDashboard);
+        const overviewCopilotConfiguration = template.configuration.overviewCopilot;
 
-        let newJson = { ...json };
+        const { metrics, setupTasks, suggestions } = inflateOverviewCopilotPayload(overviewCopilotConfiguration);
+
+        let responseData: any = {};
 
         if (type === TYPE_QUERY.AdminAiCenterMetrics) {
-          newJson = {
-            ...newJson,
-            data: {
-              adminAiCenterMetrics: payload.adminAiCenterMetrics,
+          responseData = {
+            adminAiCenterMetrics: {
+              period: 20,
+              aiUsageMetrics: metrics,
             },
           };
         } else if (type === TYPE_QUERY.AdminAiCenterSuggestions) {
-          newJson = {
-            ...newJson,
-            data: {
-              adminAiCenterSuggestions: payload.adminAiCenterSuggestions,
+          responseData = {
+            adminAiCenterSuggestions: {
+              suggestions,
+              updatedAt: '2025-03-26 19:43:08',
+              sampleSize: 12760,
             },
           };
         } else if (type === TYPE_QUERY.AdminAiCenterSetupTasks) {
-          const { setupTasks } = json.data.adminAiCenterSetupTasks;
-          newJson = {
-            ...newJson,
-            data: {
-              adminAiCenterSetupTasks: {
-                setupTasks: setupTasks.map((item: any) => {
-                  const taskDismissed = payload.adminAiCenterSetupTasks[item.id];
-                  return { ...item, dismissed: taskDismissed ?? item.dismissed };
-                }),
-              },
+          responseData = {
+            adminAiCenterSetupTasks: {
+              setupTasks,
             },
           };
         }
 
-        return new Response(JSON.stringify(newJson), {
-          status: response.status,
-          statusText: response.statusText,
-          headers: {
-            ...Object.fromEntries(response.headers.entries()),
-            'content-type': 'application/json',
-          },
-        });
+        return this.#createGraphQLResponse(response, json, responseData);
       }
 
       return response;
     });
   }
 
-  getCurrentDashboard(): Promise<any> {
-    return new Promise((resolve) => {
-      const intervalId = setInterval(() => {
-        const { setupTasks } = this.#currentDashboard;
-        const isComplete = setupTasks?.length;
-        if (isComplete) {
-          clearInterval(intervalId);
-          resolve(this.#currentDashboard);
-        }
-      }, 200);
+  #getActiveTemplate(configurationDashboards?: any[], dashboards?: any, templates?: any): any | null {
+    if (!configurationDashboards || !dashboards || !templates) {
+      return null;
+    }
+
+    const activeDashboard = ControllerInterceptor.findActiveDashboard(
+      configurationDashboards,
+      dashboards,
+      ({ type }) => type === AdminInterceptor.getDashboardType(),
+    );
+
+    if (!activeDashboard) {
+      return null;
+    }
+
+    let template = templates[activeDashboard.templateId];
+
+    if (!template) {
+      const predefinedTemplates = ADMIN_TEMPLATES;
+      template = predefinedTemplates.find((t: any) => t.id === activeDashboard.templateId);
+    }
+
+    return template;
+  }
+
+  #createGraphQLResponse(originalResponse: Response, originalJson: any, data: any): Response {
+    const newJson = {
+      ...originalJson,
+      data,
+    };
+
+    return new Response(JSON.stringify(newJson), {
+      status: originalResponse.status,
+      statusText: originalResponse.statusText,
+      headers: {
+        ...Object.fromEntries(originalResponse.headers.entries()),
+        'content-type': 'application/json',
+      },
     });
   }
+
+  // getCurrentDashboard(): Promise<any> {
+  //   return new Promise((resolve) => {
+  //     const intervalId = setInterval(() => {
+  //       const { setupTasks } = this.#currentDashboard;
+  //       const isComplete = setupTasks?.length;
+  //       if (isComplete) {
+  //         clearInterval(intervalId);
+  //         resolve(this.#currentDashboard);
+  //       }
+  //     }, 200);
+  //   });
+  // }
 
   #parseDashboard() {
     const { pathname, hostname } = new URL(this.#originUrl);

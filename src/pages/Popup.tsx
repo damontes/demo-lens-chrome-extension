@@ -2,7 +2,7 @@ import { MD, SM } from '@zendeskgarden/react-typography';
 import { DEFAULT_THEME, ThemeProvider, ColorSchemeProvider, useColorScheme } from '@zendeskgarden/react-theming';
 import styled from 'styled-components';
 import { useEffect, useState } from 'react';
-import { getAppState, getCurrentTabDetails, getCurrentVersion, setAppState } from '../lib/chromeExtension';
+import { getAppState, getCurrentVersion, setAppState } from '../lib/chromeExtension';
 import { Spinner } from '@zendeskgarden/react-loaders';
 import useAppState from '../storage';
 import { ToastProvider } from '@zendeskgarden/react-notifications';
@@ -18,6 +18,7 @@ import Scenarios from '@/modules/Scenarios/Pages/Scenarios';
 import NewScenario from '@/modules/Scenarios/Pages/NewScenario';
 import EditScenario from '@/modules/Scenarios/Pages/EditScenario';
 import { syncState } from '@/actions';
+import defaultIntents from '../../default-intents.json';
 
 const Popup = () => {
   const { colorScheme } = useColorScheme();
@@ -30,10 +31,14 @@ const Popup = () => {
   const getInitialState = async () => {
     setLoading(true);
     const state = await getAppState();
-    const dashboardDetails = await getCurrentTabDetails();
     const version = await getCurrentVersion();
-    setInitalState({ ...state, dashboardDetails, version });
-    setAppState({ currentDashboard: null, initialRoute: null });
+    const intents = [...defaultIntents, ...(state.intents ?? [])];
+    setInitalState({ ...state, intents, version });
+    setAppState({
+      currentDashboard: null,
+      initialRoute: null,
+      templates: state.templates, // Compativility with previos admin dashboar, we can ereasee this at some point
+    });
     setLoading(false);
   };
 
@@ -89,25 +94,53 @@ const withProviders = (Component: any) => {
   };
 };
 
-useAppState.subscribe((newState, previousState) => {
-  if (JSON.stringify(newState.dashboards) !== JSON.stringify(previousState.dashboards)) {
-    syncState({
-      dashboards: newState.dashboards,
-      currentDashboard: null,
-    });
-  } else if (JSON.stringify(newState.configurations) !== JSON.stringify(previousState.configurations)) {
-    syncState({
-      configurations: newState.configurations,
-    });
-  } else if (newState.intents.length !== previousState.intents.length) {
-    syncState({
-      intents: newState.intents,
-    });
-  } else if (JSON.stringify(newState.templates) !== JSON.stringify(previousState.templates)) {
-    console.log('SYNC STATE', newState);
-    syncState({
-      templates: newState.templates,
-    });
+// Helper function to check if a value is in its initial/empty state
+const isInitialState = (value: any): boolean => {
+  if (Array.isArray(value)) {
+    return value.length === 0;
+  }
+
+  if (typeof value === 'object' && value !== null && Object.keys(value).length === 0) {
+    return true;
+  }
+
+  return !value;
+};
+
+// Queue system to handle sync operations sequentially
+let syncQueue: Promise<any> = Promise.resolve();
+
+const queueSync = async (payload: any): Promise<any> => {
+  syncQueue = syncQueue.then(async () => {
+    try {
+      await syncState(payload);
+    } catch (error) {
+      console.error('Sync failed:', error);
+      throw error;
+    }
+  });
+  return syncQueue;
+};
+
+useAppState.subscribe((newState: any, previousState: any) => {
+  const syncPayload: any = {};
+
+  const propertiesToSync = ['dashboards', 'configurations', 'intents', 'templates'];
+
+  propertiesToSync.forEach((property) => {
+    const newValue = newState[property];
+    const previousValue = previousState[property];
+
+    const isPreviousStateInitial = isInitialState(previousValue);
+    const hasChanged = JSON.stringify(newValue) !== JSON.stringify(previousValue);
+
+    if (hasChanged && !isPreviousStateInitial) {
+      syncPayload[property] = newValue;
+    }
+  });
+
+  if (Object.keys(syncPayload).length > 0) {
+    queueSync(syncPayload);
   }
 });
 
