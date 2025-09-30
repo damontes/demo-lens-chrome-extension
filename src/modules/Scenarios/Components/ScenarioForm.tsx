@@ -5,8 +5,7 @@ import styled from 'styled-components';
 import useAppState from '@/storage';
 import { Notification, useToast } from '@zendeskgarden/react-notifications';
 import { Accordion } from '@zendeskgarden/react-accordions';
-import AdminInterceptor from '@/models/admin/interceptor';
-import { Tag } from '@zendeskgarden/react-tags';
+import ExploreInterceptor from '@/models/explore/interceptor';
 
 const DEFAULT_INITIAL_VALUES: { name: string; dashboards: string[] } = {
   name: '',
@@ -44,11 +43,6 @@ const ScenarioForm = ({ onClose, handleSubmit, initialValues = DEFAULT_INITIAL_V
 
   const onAddDashboard = (id: string, dashboardId: string) => {
     const selectedDashboards = values.dashboards;
-
-    const dashboardIds = Object.entries(dashboards)
-      .filter(([id]) => selectedDashboards.includes(id))
-      .map(([_, item]: any) => item.dashboardId);
-
     const alreadyExist = selectedDashboards.includes(id);
 
     if (alreadyExist) {
@@ -59,14 +53,42 @@ const ScenarioForm = ({ onClose, handleSubmit, initialValues = DEFAULT_INITIAL_V
       return;
     }
 
-    const isDuplicated = dashboardIds.includes(dashboardId);
+    const currentDashboard = dashboards[id];
 
-    if (isDuplicated) {
+    const selectedDashboardDetails = selectedDashboards.map((selectedId: string) => ({
+      id: selectedId,
+      ...dashboards[selectedId],
+    }));
+
+    if (currentDashboard.type !== ExploreInterceptor.getDashboardType()) {
+      const hasSameType = selectedDashboardDetails.some((selected: any) => selected.type === currentDashboard.type);
+
+      if (hasSameType) {
+        addToast(
+          ({ close }) => (
+            <Notification type="warning" style={{ maxWidth: '80%' }}>
+              <Notification.Title>Warning</Notification.Title>
+              Only one dashboard of type "{currentDashboard.type}" can be selected. Please unselect the other one first.
+              <Notification.Close aria-label="Close" onClick={close} />
+            </Notification>
+          ),
+          { placement: 'top-end' },
+        );
+        return;
+      }
+    }
+
+    const hasSameDashboardId = selectedDashboardDetails.some(
+      (selected: any) =>
+        selected.type === ExploreInterceptor.getDashboardType() && selected.dashboardId === dashboardId,
+    );
+
+    if (hasSameDashboardId) {
       addToast(
         ({ close }) => (
           <Notification type="warning" style={{ maxWidth: '80%' }}>
             <Notification.Title>Warning</Notification.Title>
-            Two dashboards of the same type cannot be selected, please unselect the other one.
+            An explore dashboard with the same dashboard ID is already selected. Please unselect it first.
             <Notification.Close aria-label="Close" onClick={close} />
           </Notification>
         ),
@@ -75,6 +97,7 @@ const ScenarioForm = ({ onClose, handleSubmit, initialValues = DEFAULT_INITIAL_V
       return;
     }
 
+    // If all validations pass, add the dashboard
     setValues((prev: any) => ({
       ...prev,
       dashboards: [...prev.dashboards, id],
@@ -93,11 +116,11 @@ const ScenarioForm = ({ onClose, handleSubmit, initialValues = DEFAULT_INITIAL_V
         />
       </Field>
       <Fieldset>
-        <Fieldset.Legend>Select dashboards</Fieldset.Legend>
+        <Fieldset.Legend>Select skeletons</Fieldset.Legend>
         <Accordion level={4}>
           {Object.entries(dashbordsByType).map(([type, dashboards]: any) => {
             return (
-              <Accordion.Section>
+              <Accordion.Section key={type}>
                 <Accordion.Header>
                   <Accordion.Label>{type}</Accordion.Label>
                 </Accordion.Header>
@@ -111,11 +134,11 @@ const ScenarioForm = ({ onClose, handleSubmit, initialValues = DEFAULT_INITIAL_V
                         >
                           <Field.Label>
                             {item.name}
-                            {type === AdminInterceptor.getDashboardType() ? (
+                            {/* {type === AdminInterceptor.getDashboardType() ? (
                               <Tag hue="yellow" isPill size="small">
                                 Instance: {item.dashboardId.split(':').at(0)}
                               </Tag>
-                            ) : null}
+                            ) : null} */}
                           </Field.Label>
                         </Checkbox>
                       </Field>

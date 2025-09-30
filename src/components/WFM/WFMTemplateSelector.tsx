@@ -48,6 +48,9 @@ const TemplateCard = styled.div<{ $isSelected: boolean }>`
   cursor: pointer;
   background-color: ${(props) => (props.$isSelected ? props.theme.palette.green[100] : 'white')};
   transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  min-height: 120px;
 
   &:hover {
     background-color: ${(props) => (props.$isSelected ? props.theme.palette.green[100] : '#f9fafb')};
@@ -61,24 +64,6 @@ const PromptCard = styled.div<{ $isSelected: boolean }>`
   background-color: ${(props) => (props.$isSelected ? '#f0f8ff' : 'white')};
   cursor: pointer;
   transition: all 0.2s ease;
-`;
-
-const AIBadge = styled.span`
-  background-color: ${(props) => props.theme.palette.green[600]};
-  color: white;
-  font-size: 10px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  margin-right: 8px;
-`;
-
-const DefaultBadge = styled.span`
-  background-color: ${(props) => props.theme.palette.blue[600]};
-  color: white;
-  font-size: 10px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  margin-right: 8px;
 `;
 
 const DeleteButton = styled.button`
@@ -124,7 +109,11 @@ const WFMTemplateSelector: React.FC<WFMTemplateSelectorProps> = ({
   const loadUserTemplates = async () => {
     try {
       const templates = getTemplatesByType('wfm');
-      setUserTemplates(templates);
+      // Filter user templates by current industry
+      const filteredTemplates = templates.filter(
+        (template: any) => template.industry && template.industry.includes(selectedIndustry),
+      );
+      setUserTemplates(filteredTemplates);
     } catch (error) {
       console.error('Failed to load user templates:', error);
     }
@@ -383,17 +372,20 @@ Return only the JSON object following the exact structure provided in the system
                 $isSelected={selectedTemplate === template.id}
                 onClick={() => handleTemplateSelect(template)}
               >
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-                  <DefaultBadge>Default</DefaultBadge>
+                <div style={{ marginBottom: '8px' }}>
                   <SM isBold style={{ margin: 0 }}>
                     {template.name}
                   </SM>
                 </div>
-                <p style={{ fontSize: '12px', color: '#68737d', margin: 0, lineHeight: '1.4' }}>
+                <p style={{ fontSize: '12px', color: '#68737d', margin: '0 0 8px 0', lineHeight: '1.4' }}>
                   {template.description}
                 </p>
-                <div style={{ marginTop: '8px', fontSize: '11px', color: '#8a94a0' }}>
-                  Industry: {template.industry.join(', ')}
+                <div
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto' }}
+                >
+                  <Tag hue="#3A3A3A" size="small">
+                    Default
+                  </Tag>
                 </div>
               </TemplateCard>
             ))}
@@ -413,21 +405,28 @@ Return only the JSON object following the exact structure provided in the system
                     marginBottom: '8px',
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <AIBadge>AI</AIBadge>
-                    <SM isBold style={{ margin: 0 }}>
-                      {template.name}
-                    </SM>
-                  </div>
+                  <SM isBold style={{ margin: 0 }}>
+                    {template.name}
+                  </SM>
                   <DeleteButton onClick={(e) => handleDeleteTemplate(template, e)} title="Delete template">
                     <TrashIcon style={{ width: '14px', height: '14px' }} />
                   </DeleteButton>
                 </div>
-                <p style={{ fontSize: '12px', color: '#68737d', margin: 0, lineHeight: '1.4' }}>
+                <p style={{ fontSize: '12px', color: '#68737d', margin: '0 0 8px 0', lineHeight: '1.4' }}>
                   {template.description}
                 </p>
-                <div style={{ marginTop: '8px', fontSize: '11px', color: '#8a94a0' }}>
-                  Created: {new Date(template.createdAt).toLocaleDateString()}
+                <div
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto' }}
+                >
+                  {template.id.startsWith('ai-') ? (
+                    <Tag hue="green" size="small">
+                      AI
+                    </Tag>
+                  ) : (
+                    <Tag hue="blue" size="small">
+                      Custom
+                    </Tag>
+                  )}
                 </div>
               </TemplateCard>
             ))}
@@ -483,7 +482,9 @@ Return only the JSON object following the exact structure provided in the system
                     onClick={() => handlePromptSelect(prompt)}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-                      <AIBadge>AI</AIBadge>
+                      <Tag hue="green" size="small" style={{ marginRight: '8px' }}>
+                        AI
+                      </Tag>
                       <SM isBold style={{ margin: 0 }}>
                         {prompt.title}
                       </SM>

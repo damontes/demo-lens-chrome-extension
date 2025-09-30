@@ -1,0 +1,2318 @@
+[
+  {
+    "value": "intent__account",
+    "title": "Account"
+  },
+  {
+    "value": "intent__account__activation",
+    "title": "Account activation"
+  },
+  {
+    "value": "intent__account__activation__request_new_code",
+    "title": "New account activation code"
+  },
+  {
+    "value": "intent__account__activation__request_new_link",
+    "title": "Request new account welcome link"
+  },
+  {
+    "value": "intent__account__activation__waiting",
+    "title": "Account verification"
+  },
+  {
+    "value": "intent__account__data_restrictions",
+    "title": "Account data restrictions"
+  },
+  {
+    "value": "intent__account__data_restrictions__data_portability",
+    "title": "Request data portability"
+  },
+  {
+    "value": "intent__account__data_restrictions__delete_account",
+    "title": "Close or delete account"
+  },
+  {
+    "value": "intent__account__data_restrictions__delete_data",
+    "title": "Delete data"
+  },
+  {
+    "value": "intent__account__data_restrictions__list_own_data",
+    "title": "Request to list user data"
+  },
+  {
+    "value": "intent__account__data_restrictions__request_data_protection_details",
+    "title": "Data protection policy"
+  },
+  {
+    "value": "intent__account__data_restrictions__restrict_processing",
+    "title": "Restrict data processing"
+  },
+  {
+    "value": "intent__account__documentation",
+    "title": "Account documentation"
+  },
+  {
+    "value": "intent__account__documentation__sending_docs",
+    "title": "Sending document(s)"
+  },
+  {
+    "value": "intent__account__documentation__sending_medical_prescription",
+    "title": "Sending prescription"
+  },
+  {
+    "value": "intent__account__documentation__sending_proof_of_address",
+    "title": "Sending proof of address"
+  },
+  {
+    "value": "intent__account__documentation__sending_proof_of_personal_identification",
+    "title": "Sending proof of personal identification"
+  },
+  {
+    "value": "intent__account__fake",
+    "title": "Fake accounts"
+  },
+  {
+    "value": "intent__account__fake__report_scam",
+    "title": "Report scam account"
+  },
+  {
+    "value": "intent__account__flagged",
+    "title": "Account flagged"
+  },
+  {
+    "value": "intent__account__flagged__duplicated_account",
+    "title": "Duplicated account"
+  },
+  {
+    "value": "intent__account__info",
+    "title": "Account information"
+  },
+  {
+    "value": "intent__account__info__merge_different_accounts",
+    "title": "Merge accounts"
+  },
+  {
+    "value": "intent__account__info__what_is_the_account_number",
+    "title": "What is the account number"
+  },
+  {
+    "value": "intent__account__info__what_is_the_client_reference_number",
+    "title": "What is the client reference number"
+  },
+  {
+    "value": "intent__account__invitation",
+    "title": "Account invitation"
+  },
+  {
+    "value": "intent__account__invitation__request_new_invitation_link",
+    "title": "Request new invitation link"
+  },
+  {
+    "value": "intent__account__invitation__user_invitation",
+    "title": "User invitation"
+  },
+  {
+    "value": "intent__account__manager",
+    "title": "Manager"
+  },
+  {
+    "value": "intent__account__manager__change_manager",
+    "title": "Change account manager"
+  },
+  {
+    "value": "intent__account__manager__who_is_my_manager",
+    "title": "Who is account manager"
+  },
+  {
+    "value": "intent__account__new",
+    "title": "New account"
+  },
+  {
+    "value": "intent__account__new__create_additional_account_custom",
+    "title": "Create Additional Account"
+  },
+  {
+    "value": "intent__account__new__creating",
+    "title": "Create new account"
+  },
+  {
+    "value": "intent__account__new__signup_issue",
+    "title": "Signup issue"
+  },
+  {
+    "value": "intent__account__new__where_can_i_create_account",
+    "title": "Can an account be created in this country"
+  },
+  {
+    "value": "intent__account__recovery",
+    "title": "Account recovery"
+  },
+  {
+    "value": "intent__account__recovery__access_account_of_deceased",
+    "title": "Access account of deceased person"
+  },
+  {
+    "value": "intent__account__recovery__reactivate",
+    "title": "Reactivate account"
+  },
+  {
+    "value": "intent__account__recovery__recover",
+    "title": "Recover account"
+  },
+  {
+    "value": "intent__account__recovery__request_block",
+    "title": "Block Fuga account"
+  },
+  {
+    "value": "intent__account__recovery__request_unblock",
+    "title": "Unblock account"
+  },
+  {
+    "value": "intent__account__recovery__reset",
+    "title": "Reset account"
+  },
+  {
+    "value": "intent__account__recovery__setup_access_if_deceased",
+    "title": "Set up access if deceased"
+  },
+  {
+    "value": "intent__account__recovery__suspect_was_hacked",
+    "title": "Suspected hack"
+  },
+  {
+    "value": "intent__account__recovery__unban",
+    "title": "Unban account"
+  },
+  {
+    "value": "intent__account__recovery__was_hacked",
+    "title": "Account was hacked"
+  },
+  {
+    "value": "intent__account__recovery__why_banned",
+    "title": "Account banned question"
+  },
+  {
+    "value": "intent__account__recovery__why_closed",
+    "title": "Reason for account closure"
+  },
+  {
+    "value": "intent__account__recovery__why_locked",
+    "title": "Blocked account reason"
+  },
+  {
+    "value": "intent__account__status",
+    "title": "Account status"
+  },
+  {
+    "value": "intent__account__status__what_is_status",
+    "title": "Account status"
+  },
+  {
+    "value": "intent__account__update",
+    "title": "Account update"
+  },
+  {
+    "value": "intent__account__update__address_billing",
+    "title": "Change billing address"
+  },
+  {
+    "value": "intent__account__update__address_for_post",
+    "title": "Update Shipping Address"
+  },
+  {
+    "value": "intent__account__update__country",
+    "title": "Change country"
+  },
+  {
+    "value": "intent__account__update__date_of_birth",
+    "title": "Change date of birth"
+  },
+  {
+    "value": "intent__account__update__email",
+    "title": "Change email address"
+  },
+  {
+    "value": "intent__account__update__id_document",
+    "title": "Change ID document"
+  },
+  {
+    "value": "intent__account__update__name",
+    "title": "Change name"
+  },
+  {
+    "value": "intent__account__update__phone",
+    "title": "Change phone number"
+  },
+  {
+    "value": "intent__account__update__social_security_number",
+    "title": "Change social security number"
+  },
+  {
+    "value": "intent__account__update__tax_number",
+    "title": "Change tax number"
+  },
+  {
+    "value": "intent__account__verification",
+    "title": "Account verification"
+  },
+  {
+    "value": "intent__account__verification__unable_to_verify",
+    "title": "Unable to verify account"
+  },
+  {
+    "value": "intent__billing",
+    "title": "Billing"
+  },
+  {
+    "value": "intent__billing__agreement",
+    "title": "Billing agreement"
+  },
+  {
+    "value": "intent__billing__agreement__cancellation_confirmation",
+    "title": "Billing agreement cancellation"
+  },
+  {
+    "value": "intent__billing__balance",
+    "title": "Balance"
+  },
+  {
+    "value": "intent__billing__balance__info_amount",
+    "title": "Request account balance"
+  },
+  {
+    "value": "intent__billing__balance__info_negative_balance",
+    "title": "Why is balance negative"
+  },
+  {
+    "value": "intent__billing__balance__request_statement",
+    "title": "Request account statement"
+  },
+  {
+    "value": "intent__billing__balance__wrong_account_balance",
+    "title": "Incorrect account balance"
+  },
+  {
+    "value": "intent__billing__checkout",
+    "title": "Billing checkout"
+  },
+  {
+    "value": "intent__billing__checkout__cant_add_to_shopping_cart",
+    "title": "Unable to add item to shopping cart"
+  },
+  {
+    "value": "intent__billing__checkout__issue",
+    "title": "Payment or checkout issue"
+  },
+  {
+    "value": "intent__billing__checkout__payment_not_recognized",
+    "title": "Payment not recognized"
+  },
+  {
+    "value": "intent__billing__credit_info",
+    "title": "Credit information"
+  },
+  {
+    "value": "intent__billing__credit_info__expiration_date",
+    "title": "Credit expiration date"
+  },
+  {
+    "value": "intent__billing__credit_note",
+    "title": "Credit note"
+  },
+  {
+    "value": "intent__billing__credit_note__request",
+    "title": "Credit note request"
+  },
+  {
+    "value": "intent__billing__discount",
+    "title": "Discount"
+  },
+  {
+    "value": "intent__billing__discount__apply_credits",
+    "title": "Apply credits to purchase"
+  },
+  {
+    "value": "intent__billing__discount__apply_promo_code_discount_or_gift_card",
+    "title": "Apply promo code, discount or gift card"
+  },
+  {
+    "value": "intent__billing__discount__cant_apply_promo_code_discount_or_gift_card",
+    "title": "Unable to apply promo code, discount, gift card"
+  },
+  {
+    "value": "intent__billing__discount__didnt_get_gift_card_or_credit",
+    "title": "Didn't receive gift card or credit"
+  },
+  {
+    "value": "intent__billing__discount__expiration_date",
+    "title": "Discount expiration date"
+  },
+  {
+    "value": "intent__billing__discount__extend_credit_time",
+    "title": "Extend credit time"
+  },
+  {
+    "value": "intent__billing__discount__how_to_qualify_for_reward",
+    "title": "Reward, gift card or credit qualifications"
+  },
+  {
+    "value": "intent__billing__discount__request",
+    "title": "Request discount or price match"
+  },
+  {
+    "value": "intent__billing__discount__request_new_promo_code",
+    "title": "Request new promo code"
+  },
+  {
+    "value": "intent__billing__discount__request_non_profit",
+    "title": "Discount for non-profit"
+  },
+  {
+    "value": "intent__billing__discount__what_is_the_referral_credit",
+    "title": "Referral compensation amount"
+  },
+  {
+    "value": "intent__billing__documentation",
+    "title": "Billing documentation"
+  },
+  {
+    "value": "intent__billing__documentation__sending_account_ownership_proof",
+    "title": "Sending proof of bank account ownership"
+  },
+  {
+    "value": "intent__billing__documentation__sending_proof_of_payment",
+    "title": "Sending proof of payment"
+  },
+  {
+    "value": "intent__billing__documentation__statement_report",
+    "title": "Sending transaction history or running balance report"
+  },
+  {
+    "value": "intent__billing__expenses",
+    "title": "Expenses"
+  },
+  {
+    "value": "intent__billing__expenses__sending_receipt",
+    "title": "Sending proof of expenses"
+  },
+  {
+    "value": "intent__billing__invoice",
+    "title": "Invoice"
+  },
+  {
+    "value": "intent__billing__invoice__rejected",
+    "title": "Invoice rejected"
+  },
+  {
+    "value": "intent__billing__invoice__request",
+    "title": "Request invoice or receipt"
+  },
+  {
+    "value": "intent__billing__invoice__submission",
+    "title": "Sending or submitting invoice"
+  },
+  {
+    "value": "intent__billing__invoice__update_data",
+    "title": "Change invoice or receipt data"
+  },
+  {
+    "value": "intent__billing__loyalty_card",
+    "title": "Loyalty card"
+  },
+  {
+    "value": "intent__billing__loyalty_card__associate_purchase",
+    "title": "Gold Mine Plan Purchase"
+  },
+  {
+    "value": "intent__billing__loyalty_card__cant_associate_with_account",
+    "title": "Unable to link loyalty card with account"
+  },
+  {
+    "value": "intent__billing__loyalty_card__cant_use_loyalty_points",
+    "title": "Unable to use loyalty points"
+  },
+  {
+    "value": "intent__billing__loyalty_card__can_i_transfer_to_another_account",
+    "title": "Transfer loyalty points to another account"
+  },
+  {
+    "value": "intent__billing__loyalty_card__claiming_missing_points",
+    "title": "Claiming missing loyalty points"
+  },
+  {
+    "value": "intent__billing__loyalty_card__do_points_have_a_due_date",
+    "title": "Loyalty points due date"
+  },
+  {
+    "value": "intent__billing__loyalty_card__how_to_exchange_points_for_credit",
+    "title": "How to exchange points for credit"
+  },
+  {
+    "value": "intent__billing__loyalty_card__points_redemption_policy",
+    "title": "Loyalty points redemption policy"
+  },
+  {
+    "value": "intent__billing__loyalty_card__what_is_the_card_number",
+    "title": "What is the loyalty card number"
+  },
+  {
+    "value": "intent__billing__loyalty_card__where_to_check_loyalty_points",
+    "title": "Where to check loyalty points"
+  },
+  {
+    "value": "intent__billing__loyalty_card__why_lost_points",
+    "title": "Lost loyalty points question"
+  },
+  {
+    "value": "intent__billing__multiple_users",
+    "title": "Multiple users"
+  },
+  {
+    "value": "intent__billing__multiple_users__under_same_account",
+    "title": "Multiple users under same account or subscription"
+  },
+  {
+    "value": "intent__billing__payment_change",
+    "title": "Payment change"
+  },
+  {
+    "value": "intent__billing__payment_change__authorize_direct_debit",
+    "title": "Direct debit authorization"
+  },
+  {
+    "value": "intent__billing__payment_change__cancel_direct_debit",
+    "title": "Cancel direct debit"
+  },
+  {
+    "value": "intent__billing__payment_change__cancel_payment",
+    "title": "Cancel payment"
+  },
+  {
+    "value": "intent__billing__payment_change__currency",
+    "title": "Change my account currency"
+  },
+  {
+    "value": "intent__billing__payment_change__date",
+    "title": "Change payment date"
+  },
+  {
+    "value": "intent__billing__payment_change__iban",
+    "title": "Change IBAN"
+  },
+  {
+    "value": "intent__billing__payment_change__method",
+    "title": "Change payment info or method"
+  },
+  {
+    "value": "intent__billing__payment_change__reference_not_working",
+    "title": "Payment reference not working"
+  },
+  {
+    "value": "intent__billing__payment_change__request_new_reference",
+    "title": "Request new payment reference"
+  },
+  {
+    "value": "intent__billing__payment_info",
+    "title": "Payment information"
+  },
+  {
+    "value": "intent__billing__payment_info__chargeback",
+    "title": "Chargeback"
+  },
+  {
+    "value": "intent__billing__payment_info__direct_debit_failed",
+    "title": "Direct debit failed"
+  },
+  {
+    "value": "intent__billing__payment_info__how_can_i_pay",
+    "title": "Accepted payment methods"
+  },
+  {
+    "value": "intent__billing__payment_info__how_much_was_paid",
+    "title": "Verify payment amount"
+  },
+  {
+    "value": "intent__billing__payment_info__installments",
+    "title": "Payment installments inquiry"
+  },
+  {
+    "value": "intent__billing__payment_info__pending_payment",
+    "title": "Pending payment"
+  },
+  {
+    "value": "intent__billing__payment_info__request_confirmation",
+    "title": "Request for payment confirmation"
+  },
+  {
+    "value": "intent__billing__payment_info__request_payment_link",
+    "title": "Request payment link"
+  },
+  {
+    "value": "intent__billing__payment_info__when_is_next_payment",
+    "title": "Next payment date"
+  },
+  {
+    "value": "intent__billing__payment_info__when_is_payment_deadline",
+    "title": "What is the payment deadline"
+  },
+  {
+    "value": "intent__billing__price_clarification",
+    "title": "Price clarification"
+  },
+  {
+    "value": "intent__billing__price_clarification__info_included_in_price",
+    "title": "What is included in price"
+  },
+  {
+    "value": "intent__billing__price_clarification__request_review_price",
+    "title": "Review price"
+  },
+  {
+    "value": "intent__billing__price_clarification__which_price",
+    "title": "Price is different than expected"
+  },
+  {
+    "value": "intent__billing__price_feedback",
+    "title": "Price feedback"
+  },
+  {
+    "value": "intent__billing__price_feedback__when_or_why_did_price_increase",
+    "title": "When or why did price increase"
+  },
+  {
+    "value": "intent__billing__refund",
+    "title": "Refund"
+  },
+  {
+    "value": "intent__billing__refund__amount_confirmation",
+    "title": "Amount confirmation"
+  },
+  {
+    "value": "intent__billing__refund__cancel_request",
+    "title": "Cancel refund"
+  },
+  {
+    "value": "intent__billing__refund__confirmation",
+    "title": "Refund confirmation"
+  },
+  {
+    "value": "intent__billing__refund__denied",
+    "title": "Refund denied"
+  },
+  {
+    "value": "intent__billing__refund__info_policy",
+    "title": "Refund policy question"
+  },
+  {
+    "value": "intent__billing__refund__initiated",
+    "title": "Refund initiated"
+  },
+  {
+    "value": "intent__billing__refund__request",
+    "title": "Refund request"
+  },
+  {
+    "value": "intent__billing__refund__request_refund_channel",
+    "title": "Refund via specific channel"
+  },
+  {
+    "value": "intent__billing__refund__request_reversal",
+    "title": "Request reversal"
+  },
+  {
+    "value": "intent__billing__refund__waiting",
+    "title": "Waiting for refund"
+  },
+  {
+    "value": "intent__billing__refund__what_is_status",
+    "title": "Refund status"
+  },
+  {
+    "value": "intent__billing__refund__wrong_amount",
+    "title": "Incorrect refund amount"
+  },
+  {
+    "value": "intent__billing__request_pay",
+    "title": "Request to pay"
+  },
+  {
+    "value": "intent__billing__request_pay__debit_missing_payment",
+    "title": "Request to debit missing payment"
+  },
+  {
+    "value": "intent__billing__request_pay__invoice_settlement",
+    "title": "Invoice settlement"
+  },
+  {
+    "value": "intent__billing__request_pay__pago_de_matricula_custom",
+    "title": "Pago de Matrícula"
+  },
+  {
+    "value": "intent__billing__selling",
+    "title": "Selling"
+  },
+  {
+    "value": "intent__billing__selling__get_paid_via",
+    "title": "Receive payment via specific channel"
+  },
+  {
+    "value": "intent__billing__selling__how_payment_process_works",
+    "title": "How does the payment process work"
+  },
+  {
+    "value": "intent__billing__selling__waiting_payment",
+    "title": "Waiting for payment"
+  },
+  {
+    "value": "intent__billing__subscription_cancel",
+    "title": "Subscription cancel"
+  },
+  {
+    "value": "intent__billing__subscription_cancel__request",
+    "title": "Cancel subscription"
+  },
+  {
+    "value": "intent__billing__subscription_cancel__why_cancelled",
+    "title": "Reason for subscription cancellation"
+  },
+  {
+    "value": "intent__billing__subscription_issue",
+    "title": "Subscription issue"
+  },
+  {
+    "value": "intent__billing__subscription_issue__renewal_at_wrong_time",
+    "title": "Subscription still valid but received renewal request"
+  },
+  {
+    "value": "intent__billing__subscription_issue__should_not_have_been_renewed",
+    "title": "Subscription wrongly renewed"
+  },
+  {
+    "value": "intent__billing__subscription_issue__subscription_payment_not_reflected_in_system",
+    "title": "Subscription payment not reflected in system"
+  },
+  {
+    "value": "intent__billing__subscription_status",
+    "title": "Subscription status"
+  },
+  {
+    "value": "intent__billing__subscription_status__what_is",
+    "title": "Subscription status"
+  },
+  {
+    "value": "intent__billing__subscription_status__when_expire",
+    "title": "Subscription expiration date"
+  },
+  {
+    "value": "intent__billing__subscription_status__when_renewal",
+    "title": "Subscription renewal date"
+  },
+  {
+    "value": "intent__billing__subscription_transfer",
+    "title": "Subscription transfer"
+  },
+  {
+    "value": "intent__billing__subscription_transfer__business_to_personal",
+    "title": "Transfer account from business to personal"
+  },
+  {
+    "value": "intent__billing__subscription_transfer__personal_to_business",
+    "title": "Transfer account from personal to business"
+  },
+  {
+    "value": "intent__billing__subscription_transfer__personal_to_family",
+    "title": "Transfer account from personal to family"
+  },
+  {
+    "value": "intent__billing__subscription_transfer__to_another_account",
+    "title": "Transfer subscription to another account"
+  },
+  {
+    "value": "intent__billing__subscription_update",
+    "title": "Subscription update"
+  },
+  {
+    "value": "intent__billing__subscription_update__dont_renew",
+    "title": "Cancel subscription renewal"
+  },
+  {
+    "value": "intent__billing__subscription_update__downgrade",
+    "title": "Downgrade subscription"
+  },
+  {
+    "value": "intent__billing__subscription_update__pause",
+    "title": "Pause subscription"
+  },
+  {
+    "value": "intent__billing__subscription_update__payment_schedule",
+    "title": "Change payment schedule"
+  },
+  {
+    "value": "intent__billing__subscription_update__reactivate",
+    "title": "Reactivate subscription"
+  },
+  {
+    "value": "intent__billing__subscription_update__request_renewal",
+    "title": "Renew subscription"
+  },
+  {
+    "value": "intent__billing__subscription_update__upgrade",
+    "title": "Upgrade subscription"
+  },
+  {
+    "value": "intent__billing__tax_info",
+    "title": "Tax information"
+  },
+  {
+    "value": "intent__billing__tax_info__how_to_get_tax_exemption",
+    "title": "How to get tax exemption"
+  },
+  {
+    "value": "intent__billing__tax_info__request_tax_form",
+    "title": "Request tax form"
+  },
+  {
+    "value": "intent__billing__tax_info__request_to_remove_vat",
+    "title": "Request to remove VAT"
+  },
+  {
+    "value": "intent__billing__tip",
+    "title": "Tip"
+  },
+  {
+    "value": "intent__billing__tip__change_tip_amount",
+    "title": "Change tip amount"
+  },
+  {
+    "value": "intent__billing__trial",
+    "title": "Trial"
+  },
+  {
+    "value": "intent__billing__trial__access",
+    "title": "How to access trial period"
+  },
+  {
+    "value": "intent__billing__trial__extend",
+    "title": "Extend trial period"
+  },
+  {
+    "value": "intent__billing__wrong",
+    "title": "Wrong charge"
+  },
+  {
+    "value": "intent__billing__wrong__billing_amount",
+    "title": "Incorrect billing amount"
+  },
+  {
+    "value": "intent__billing__wrong__charge",
+    "title": "Incorrect amount charged"
+  },
+  {
+    "value": "intent__billing__wrong__why_charged",
+    "title": "Unexpected charge question"
+  },
+  {
+    "value": "intent__finance",
+    "title": "Finance"
+  },
+  {
+    "value": "intent__finance__credit_cancellation",
+    "title": "Credit cancellation"
+  },
+  {
+    "value": "intent__finance__credit_cancellation__cancel_request",
+    "title": "Cancel loan request"
+  },
+  {
+    "value": "intent__finance__credit_new",
+    "title": "Credit new"
+  },
+  {
+    "value": "intent__finance__credit_new__cant_apply_for_loan",
+    "title": "Unable to apply for a loan"
+  },
+  {
+    "value": "intent__finance__credit_new__request_new_loan",
+    "title": "Request new loan"
+  },
+  {
+    "value": "intent__finance__credit_new__what_is_the_status_of_my_loan_request",
+    "title": "Loan request status"
+  },
+  {
+    "value": "intent__finance__credit_offer",
+    "title": "Credit offer"
+  },
+  {
+    "value": "intent__finance__fees_info",
+    "title": "Fees information"
+  },
+  {
+    "value": "intent__finance__fees_info__transaction",
+    "title": "What are the transaction fees"
+  },
+  {
+    "value": "intent__finance__interest",
+    "title": "Interest"
+  },
+  {
+    "value": "intent__finance__transaction_cancel",
+    "title": "Transaction cancel"
+  },
+  {
+    "value": "intent__finance__transaction_cancel__cancel",
+    "title": "Cancel transaction"
+  },
+  {
+    "value": "intent__finance__transaction_status",
+    "title": "Transaction status"
+  },
+  {
+    "value": "intent__finance__transaction_status__funds_not_received",
+    "title": "Funds not received"
+  },
+  {
+    "value": "intent__finance__unauthorized_use",
+    "title": "Unauthorized use"
+  },
+  {
+    "value": "intent__finance__unauthorized_use__card",
+    "title": "Card was used without consent"
+  },
+  {
+    "value": "intent__hardware",
+    "title": "Hardware"
+  },
+  {
+    "value": "intent__hardware__device",
+    "title": "Hardware device"
+  },
+  {
+    "value": "intent__hardware__peripheral_device",
+    "title": "Hardware peripheral device"
+  },
+  {
+    "value": "intent__human_resources",
+    "title": "Human resources"
+  },
+  {
+    "value": "intent__human_resources__employment_status_update",
+    "title": "Employment status update"
+  },
+  {
+    "value": "intent__human_resources__leave_policy_info",
+    "title": "Leave policy information"
+  },
+  {
+    "value": "intent__human_resources__recruitment",
+    "title": "Human resources recruitment"
+  },
+  {
+    "value": "intent__insurance",
+    "title": "Insurance"
+  },
+  {
+    "value": "intent__insurance__claim",
+    "title": "Claim"
+  },
+  {
+    "value": "intent__insurance__policy_cancel",
+    "title": "Policy cancel"
+  },
+  {
+    "value": "intent__insurance__policy_update",
+    "title": "Policy update"
+  },
+  {
+    "value": "intent__misc",
+    "title": "Misc"
+  },
+  {
+    "value": "intent__misc__attachment_missing",
+    "title": "Attachment missing"
+  },
+  {
+    "value": "intent__misc__attachment_missing__missing",
+    "title": "Attachment was missing from previous email"
+  },
+  {
+    "value": "intent__misc__communication",
+    "title": "Communications"
+  },
+  {
+    "value": "intent__misc__communication__rematricula_de_alumno_custom",
+    "title": "Rematrícula de Alumno"
+  },
+  {
+    "value": "intent__misc__communication__send_me_emails",
+    "title": "Send promotional emails"
+  },
+  {
+    "value": "intent__misc__communication__unsubscribe",
+    "title": "Unsubscribe from communications"
+  },
+  {
+    "value": "intent__misc__contact",
+    "title": "Contact"
+  },
+  {
+    "value": "intent__misc__contact__cant_contact",
+    "title": "Unable to contact person or service"
+  },
+  {
+    "value": "intent__misc__contact__request_contact",
+    "title": "Contact request"
+  },
+  {
+    "value": "intent__misc__contact__request_email",
+    "title": "Request email address for contact"
+  },
+  {
+    "value": "intent__misc__contact__request_phone_number",
+    "title": "Request phone number for contact"
+  },
+  {
+    "value": "intent__misc__contact__talk_to_agent_over_phone",
+    "title": "Request phone call with agent"
+  },
+  {
+    "value": "intent__misc__contact__talk_to_agent_urgently",
+    "title": "Urgent agent contact request"
+  },
+  {
+    "value": "intent__misc__contact__transfer_to_agent",
+    "title": "Transfer to agent"
+  },
+  {
+    "value": "intent__misc__contact__want_to_contact_this_person",
+    "title": "Request to contact specific person or role"
+  },
+  {
+    "value": "intent__misc__do_not_send",
+    "title": "Don't send documentation"
+  },
+  {
+    "value": "intent__misc__do_not_send__by_post",
+    "title": "Don't send documentation by postal mail"
+  },
+  {
+    "value": "intent__misc__email_management",
+    "title": "Email management"
+  },
+  {
+    "value": "intent__misc__email_management__updating_groups",
+    "title": "Update email group or distribution list"
+  },
+  {
+    "value": "intent__misc__feedback",
+    "title": "Feedback"
+  },
+  {
+    "value": "intent__misc__feedback__apology",
+    "title": "Apology"
+  },
+  {
+    "value": "intent__misc__feedback__complaint",
+    "title": "Complaint"
+  },
+  {
+    "value": "intent__misc__feedback__customer_satisfaction_survey",
+    "title": "Customer satisfaction survey"
+  },
+  {
+    "value": "intent__misc__feedback__matricular_custom",
+    "title": "Matricular"
+  },
+  {
+    "value": "intent__misc__feedback__negative",
+    "title": "Negative service feedback"
+  },
+  {
+    "value": "intent__misc__feedback__positive",
+    "title": "Positive service feedback"
+  },
+  {
+    "value": "intent__misc__feedback__suggestion",
+    "title": "Suggestion"
+  },
+  {
+    "value": "intent__misc__handle",
+    "title": "Handle"
+  },
+  {
+    "value": "intent__misc__handle__see_attachment",
+    "title": "See attachment"
+  },
+  {
+    "value": "intent__misc__image",
+    "title": "Image"
+  },
+  {
+    "value": "intent__misc__image__product_issue",
+    "title": "Image of product with problem"
+  },
+  {
+    "value": "intent__misc__image__screenshot",
+    "title": "Screenshot of problem"
+  },
+  {
+    "value": "intent__misc__intellectual_property",
+    "title": "Intellectual property"
+  },
+  {
+    "value": "intent__misc__intellectual_property__copyright_infringement",
+    "title": "Copyright infringement"
+  },
+  {
+    "value": "intent__misc__intellectual_property__trademark_infringement",
+    "title": "Trademark infringement"
+  },
+  {
+    "value": "intent__misc__job_application",
+    "title": "Job application"
+  },
+  {
+    "value": "intent__misc__job_application__new",
+    "title": "Job application"
+  },
+  {
+    "value": "intent__misc__not_received",
+    "title": "Unable to receive message"
+  },
+  {
+    "value": "intent__misc__not_received__email_delivery_failed",
+    "title": "Email delivery failed"
+  },
+  {
+    "value": "intent__misc__not_received__invalid_email",
+    "title": "Invalid email address"
+  },
+  {
+    "value": "intent__misc__not_received__not_working_here_anymore",
+    "title": "Recipient not working here anymore"
+  },
+  {
+    "value": "intent__misc__not_received__out_of_office",
+    "title": "Out-of-office reply"
+  },
+  {
+    "value": "intent__misc__previous_message",
+    "title": "Previous message"
+  },
+  {
+    "value": "intent__misc__previous_message__check",
+    "title": "Check previous message"
+  },
+  {
+    "value": "intent__misc__previous_message__ignore",
+    "title": "Ignore previous message"
+  },
+  {
+    "value": "intent__misc__promotional_campaign",
+    "title": "Promotional campaign"
+  },
+  {
+    "value": "intent__misc__promotional_campaign__seeding",
+    "title": "Campaign seeding"
+  },
+  {
+    "value": "intent__misc__query_status",
+    "title": "Query status"
+  },
+  {
+    "value": "intent__misc__query_status__resolved",
+    "title": "Request resolved"
+  },
+  {
+    "value": "intent__misc__received",
+    "title": "Received message"
+  },
+  {
+    "value": "intent__misc__received__chat_transcript",
+    "title": "Chat transcript"
+  },
+  {
+    "value": "intent__misc__received__claim_query_has_been_updated",
+    "title": "Claim query updated"
+  },
+  {
+    "value": "intent__misc__received__confirm_if_legitimate_message",
+    "title": "Confirm if this is a legitimate message"
+  },
+  {
+    "value": "intent__misc__received__contact_acknowledgement",
+    "title": "Contact acknowledgement"
+  },
+  {
+    "value": "intent__misc__received__goodbye",
+    "title": "Goodbye"
+  },
+  {
+    "value": "intent__misc__received__greeting",
+    "title": "Greeting"
+  },
+  {
+    "value": "intent__misc__received__incident_summary",
+    "title": "Incident summary"
+  },
+  {
+    "value": "intent__misc__received__new_fax",
+    "title": "New fax received"
+  },
+  {
+    "value": "intent__misc__received__new_message",
+    "title": "New message received"
+  },
+  {
+    "value": "intent__misc__received__new_voicemail",
+    "title": "New voicemail message"
+  },
+  {
+    "value": "intent__misc__received__quarantine_report",
+    "title": "Quarantine report"
+  },
+  {
+    "value": "intent__misc__received__received_communication_intended_for_someone_else",
+    "title": "Received communication intended for someone else"
+  },
+  {
+    "value": "intent__misc__received__shareable_file_link",
+    "title": "Shareable file link"
+  },
+  {
+    "value": "intent__misc__send",
+    "title": "Send request"
+  },
+  {
+    "value": "intent__misc__send__by_email",
+    "title": "Send documents by email"
+  },
+  {
+    "value": "intent__misc__send__by_post",
+    "title": "Send documents by mail"
+  },
+  {
+    "value": "intent__misc__send__catalogue",
+    "title": "Send catalogue"
+  },
+  {
+    "value": "intent__misc__send__digital_version",
+    "title": "Send a digital version"
+  },
+  {
+    "value": "intent__misc__thanks",
+    "title": "Thanks"
+  },
+  {
+    "value": "intent__misc__thanks__thanks",
+    "title": "Thank you"
+  },
+  {
+    "value": "intent__misc__unsolicited",
+    "title": "Unsolicited"
+  },
+  {
+    "value": "intent__misc__unsolicited__event_invitation",
+    "title": "Event invitation"
+  },
+  {
+    "value": "intent__misc__unsolicited__marketing_or_newsletter",
+    "title": "Marketing campaign or newsletter"
+  },
+  {
+    "value": "intent__misc__unsolicited__partnership",
+    "title": "Partnership proposal"
+  },
+  {
+    "value": "intent__misc__unsolicited__spam",
+    "title": "Spam"
+  },
+  {
+    "value": "intent__misc__video",
+    "title": "Video"
+  },
+  {
+    "value": "intent__misc__video__product_issue",
+    "title": "Video of product with problem"
+  },
+  {
+    "value": "intent__network",
+    "title": "Network"
+  },
+  {
+    "value": "intent__network__connection",
+    "title": "Connectivity"
+  },
+  {
+    "value": "intent__network__connection__slow_internet",
+    "title": "Internet connection is slow"
+  },
+  {
+    "value": "intent__order",
+    "title": "Order"
+  },
+  {
+    "value": "intent__order__availability",
+    "title": "Order availability"
+  },
+  {
+    "value": "intent__order__availability__cant_find_product",
+    "title": "Unable to find product"
+  },
+  {
+    "value": "intent__order__availability__do_you_sell_this_product",
+    "title": "Do you sell this product"
+  },
+  {
+    "value": "intent__order__availability__do_you_sell_this_product_individually",
+    "title": "Do you sell this product individually"
+  },
+  {
+    "value": "intent__order__availability__do_you_sell_through",
+    "title": "Do you sell through"
+  },
+  {
+    "value": "intent__order__availability__stock",
+    "title": "Product stock availability"
+  },
+  {
+    "value": "intent__order__availability__where_do_you_sell_this_product",
+    "title": "Where is this product available"
+  },
+  {
+    "value": "intent__order__availability__where_do_you_sell_your_products",
+    "title": "Where to buy products"
+  },
+  {
+    "value": "intent__order__availability__which_product",
+    "title": "Which product is it"
+  },
+  {
+    "value": "intent__order__cancellation",
+    "title": "Order cancelation"
+  },
+  {
+    "value": "intent__order__cancellation__cancel",
+    "title": "Cancel order"
+  },
+  {
+    "value": "intent__order__cancellation__didnt_place_this_order",
+    "title": "Order wasn't placed"
+  },
+  {
+    "value": "intent__order__cancellation__why_cancelled",
+    "title": "Reason for order cancellation"
+  },
+  {
+    "value": "intent__order__collect",
+    "title": "Order collection"
+  },
+  {
+    "value": "intent__order__collect__pick_up_not_carried_out",
+    "title": "Pick-up not carried out"
+  },
+  {
+    "value": "intent__order__collect__schedule_pick_up",
+    "title": "Request or schedule parcel pick up"
+  },
+  {
+    "value": "intent__order__customs_clearance",
+    "title": "Customs clearance"
+  },
+  {
+    "value": "intent__order__customs_clearance__customs_fees",
+    "title": "What are the customs fees"
+  },
+  {
+    "value": "intent__order__customs_clearance__request_documentation",
+    "title": "Request customs clearance documentation"
+  },
+  {
+    "value": "intent__order__customs_clearance__sending_documentation",
+    "title": "Sending customs clearance documentation"
+  },
+  {
+    "value": "intent__order__delivery_info",
+    "title": "Delivery information"
+  },
+  {
+    "value": "intent__order__delivery_info__own_pickup",
+    "title": "Pick up item in person"
+  },
+  {
+    "value": "intent__order__delivery_info__pay_express",
+    "title": "Pay for faster delivery or express shipping"
+  },
+  {
+    "value": "intent__order__delivery_info__when_can_i_pick_up_the_order",
+    "title": "Time period for order pick up"
+  },
+  {
+    "value": "intent__order__delivery_info__where_do_you_ship_to",
+    "title": "Where do you ship to"
+  },
+  {
+    "value": "intent__order__delivery_info__which_ship_system",
+    "title": "Shipping method and origin question"
+  },
+  {
+    "value": "intent__order__documentation",
+    "title": "Order documentation"
+  },
+  {
+    "value": "intent__order__documentation__request_buyer_details",
+    "title": "Request buyer details"
+  },
+  {
+    "value": "intent__order__documentation__sending_advanced_shipping_notice",
+    "title": "Advanced shipping notice"
+  },
+  {
+    "value": "intent__order__documentation__sending_order_acknowledgment",
+    "title": "Sending order acknowledgement"
+  },
+  {
+    "value": "intent__order__documentation__sending_order_confirmation",
+    "title": "Sending order confirmation"
+  },
+  {
+    "value": "intent__order__documentation__sending_order_form",
+    "title": "Sending order form"
+  },
+  {
+    "value": "intent__order__documentation__sending_purchase_order",
+    "title": "Sending purchase order"
+  },
+  {
+    "value": "intent__order__fulfilment",
+    "title": "Order fulfilment"
+  },
+  {
+    "value": "intent__order__fulfilment__damaged_package",
+    "title": "Damaged package"
+  },
+  {
+    "value": "intent__order__fulfilment__delivered",
+    "title": "Order delivered"
+  },
+  {
+    "value": "intent__order__fulfilment__deliveries_status_report",
+    "title": "Deliveries status report"
+  },
+  {
+    "value": "intent__order__fulfilment__delivery_attempt",
+    "title": "Delivery attempted"
+  },
+  {
+    "value": "intent__order__fulfilment__delivery_rescheduled",
+    "title": "Delivery rescheduled"
+  },
+  {
+    "value": "intent__order__fulfilment__delivery_scheduled",
+    "title": "Delivery scheduled"
+  },
+  {
+    "value": "intent__order__fulfilment__delivery_unsuccessful",
+    "title": "Delivery unsuccessful"
+  },
+  {
+    "value": "intent__order__fulfilment__invitation_addresses_custom",
+    "title": "Submit Guest Address List for Printing"
+  },
+  {
+    "value": "intent__order__fulfilment__missing_documentation",
+    "title": "Transport documentation missing"
+  },
+  {
+    "value": "intent__order__fulfilment__pickup_scheduled",
+    "title": "Pick up scheduled"
+  },
+  {
+    "value": "intent__order__fulfilment__pickup_successful",
+    "title": "Pick up successful"
+  },
+  {
+    "value": "intent__order__fulfilment__pickup_unsuccessful",
+    "title": "Pick up not succeeded"
+  },
+  {
+    "value": "intent__order__fulfilment__shipment_on_hold",
+    "title": "Shipment on hold"
+  },
+  {
+    "value": "intent__order__fulfilment__shipped",
+    "title": "Order shipped"
+  },
+  {
+    "value": "intent__order__new",
+    "title": "Place new order"
+  },
+  {
+    "value": "intent__order__new__cant_place_order",
+    "title": "Unable to place order"
+  },
+  {
+    "value": "intent__order__new__place",
+    "title": "Place new order or how to place order"
+  },
+  {
+    "value": "intent__order__new__quote_request",
+    "title": "Quote request"
+  },
+  {
+    "value": "intent__order__new__shipping_consumables_request",
+    "title": "Request shipping label or airbill"
+  },
+  {
+    "value": "intent__order__notifications",
+    "title": "Order notifications"
+  },
+  {
+    "value": "intent__order__notifications__new_order_placed",
+    "title": "New order placed"
+  },
+  {
+    "value": "intent__order__notifications__note_added_to_order",
+    "title": "Note added to order"
+  },
+  {
+    "value": "intent__order__notifications__order_declined",
+    "title": "Order declined"
+  },
+  {
+    "value": "intent__order__notifications__referred_purchase_has_been_made",
+    "title": "Referred purchase has been made"
+  },
+  {
+    "value": "intent__order__notifications__sku_out_of_stock",
+    "title": "SKU out of stock"
+  },
+  {
+    "value": "intent__order__not_delivered",
+    "title": "Order not delivered"
+  },
+  {
+    "value": "intent__order__not_delivered__late",
+    "title": "Order delivery is late"
+  },
+  {
+    "value": "intent__order__not_delivered__not_delivered",
+    "title": "Order not delivered"
+  },
+  {
+    "value": "intent__order__not_delivered__returned_to_sender",
+    "title": "Order returned to sender"
+  },
+  {
+    "value": "intent__order__product_choice",
+    "title": "Product choice"
+  },
+  {
+    "value": "intent__order__product_choice__product_samples",
+    "title": "Request product samples"
+  },
+  {
+    "value": "intent__order__product_choice__try_before_buy",
+    "title": "Try item before purchase"
+  },
+  {
+    "value": "intent__order__product_choice__which_product",
+    "title": "Which product to buy"
+  },
+  {
+    "value": "intent__order__product_choice__which_size",
+    "title": "Which size to order"
+  },
+  {
+    "value": "intent__order__product_details",
+    "title": "Product details"
+  },
+  {
+    "value": "intent__order__product_details__details",
+    "title": "Request product details"
+  },
+  {
+    "value": "intent__order__product_details__genuine",
+    "title": "Product authenticity question"
+  },
+  {
+    "value": "intent__order__product_details__where_are_manufactured",
+    "title": "Product manufactured location"
+  },
+  {
+    "value": "intent__order__product_documentation",
+    "title": "Product documentation"
+  },
+  {
+    "value": "intent__order__product_documentation__request_instruction_manual",
+    "title": "Request instructions manual"
+  },
+  {
+    "value": "intent__order__product_documentation__sending_product_license",
+    "title": "Sending product license"
+  },
+  {
+    "value": "intent__order__product_issue",
+    "title": "Product issue"
+  },
+  {
+    "value": "intent__order__product_issue__claims_custom",
+    "title": "Claims"
+  },
+  {
+    "value": "intent__order__product_issue__damaged_on_arrival",
+    "title": "Received item has problem or damage"
+  },
+  {
+    "value": "intent__order__product_issue__damaged_packaging",
+    "title": "Damaged package"
+  },
+  {
+    "value": "intent__order__product_issue__how_to_repair",
+    "title": "Product repair information"
+  },
+  {
+    "value": "intent__order__product_issue__is_this_expected",
+    "title": "Product behavior question"
+  },
+  {
+    "value": "intent__order__product_issue__lost_package",
+    "title": "Lost package"
+  },
+  {
+    "value": "intent__order__product_issue__need_replacement",
+    "title": "Replace damaged or defective product"
+  },
+  {
+    "value": "intent__order__product_issue__need_spare_part",
+    "title": "Spare part request"
+  },
+  {
+    "value": "intent__order__product_issue__not_as_expected_after_assembling",
+    "title": "Product not working as expected after assembly"
+  },
+  {
+    "value": "intent__order__product_issue__not_working_as_expected",
+    "title": "Product not working as expected"
+  },
+  {
+    "value": "intent__order__product_issue__product_not_working_as_expected_custom",
+    "title": "Product not working as expected"
+  },
+  {
+    "value": "intent__order__product_issue__repair_status",
+    "title": "Repair status"
+  },
+  {
+    "value": "intent__order__product_issue__request_repair",
+    "title": "Request product repair"
+  },
+  {
+    "value": "intent__order__product_issue__stolen_package",
+    "title": "Stolen package"
+  },
+  {
+    "value": "intent__order__product_usage",
+    "title": "Product usage"
+  },
+  {
+    "value": "intent__order__product_usage__how_to_use",
+    "title": "Product instructions"
+  },
+  {
+    "value": "intent__order__return",
+    "title": "Order return"
+  },
+  {
+    "value": "intent__order__return__cancel",
+    "title": "Cancel return"
+  },
+  {
+    "value": "intent__order__return__extension",
+    "title": "Extend return period"
+  },
+  {
+    "value": "intent__order__return__missing_documentation",
+    "title": "Send return documentation"
+  },
+  {
+    "value": "intent__order__return__no_pick_up",
+    "title": "Return not picked up"
+  },
+  {
+    "value": "intent__order__return__policy",
+    "title": "What is the return policy"
+  },
+  {
+    "value": "intent__order__return__policy_in_store",
+    "title": "Return online purchase in store"
+  },
+  {
+    "value": "intent__order__return__policy_sale",
+    "title": "Return sale item"
+  },
+  {
+    "value": "intent__order__return__request_return_label",
+    "title": "Send return label"
+  },
+  {
+    "value": "intent__order__return__schedule_pick_up",
+    "title": "Schedule return pick up"
+  },
+  {
+    "value": "intent__order__return__status",
+    "title": "Exchange status"
+  },
+  {
+    "value": "intent__order__return__want_exchange",
+    "title": "Exchange items"
+  },
+  {
+    "value": "intent__order__return__want_return",
+    "title": "Returns"
+  },
+  {
+    "value": "intent__order__return_notifications",
+    "title": "Order return notifications"
+  },
+  {
+    "value": "intent__order__return_notifications__return_authorization",
+    "title": "Return authorization"
+  },
+  {
+    "value": "intent__order__return_notifications__return_has_been_received",
+    "title": "Return received"
+  },
+  {
+    "value": "intent__order__shipping_info",
+    "title": "Shipping information"
+  },
+  {
+    "value": "intent__order__shipping_info__what_are_the_shipping_costs",
+    "title": "Question about shipping costs"
+  },
+  {
+    "value": "intent__order__status",
+    "title": "Order status"
+  },
+  {
+    "value": "intent__order__status__cant_find_order",
+    "title": "Unable to find or view order"
+  },
+  {
+    "value": "intent__order__status__how_to_track",
+    "title": "Tracking information"
+  },
+  {
+    "value": "intent__order__status__on_hold",
+    "title": "Order on hold or pending"
+  },
+  {
+    "value": "intent__order__status__shipping_info_not_updated",
+    "title": "Shipping info not updated"
+  },
+  {
+    "value": "intent__order__status__what_is_order_id",
+    "title": "Request order ID"
+  },
+  {
+    "value": "intent__order__status__what_is_status",
+    "title": "Shipping status"
+  },
+  {
+    "value": "intent__order__status__when_arrive",
+    "title": "When will order arrive"
+  },
+  {
+    "value": "intent__order__status__when_is_shipped",
+    "title": "When will order be shipped"
+  },
+  {
+    "value": "intent__order__status__which_ship_address",
+    "title": "What is shipping address"
+  },
+  {
+    "value": "intent__order__update",
+    "title": "Order update"
+  },
+  {
+    "value": "intent__order__update__confirm_still_want_my_order",
+    "title": "Still want or will wait for order"
+  },
+  {
+    "value": "intent__order__update__delivery_conditions",
+    "title": "Deliver with special conditions"
+  },
+  {
+    "value": "intent__order__update__delivery_date",
+    "title": "Change or specify delivery date"
+  },
+  {
+    "value": "intent__order__update__delivery_method",
+    "title": "Change my delivery method"
+  },
+  {
+    "value": "intent__order__update__deliver_all_items_together",
+    "title": "Deliver items together"
+  },
+  {
+    "value": "intent__order__update__dropoff_instructions",
+    "title": "Deliver with drop-off instructions"
+  },
+  {
+    "value": "intent__order__update__items",
+    "title": "Change items or quantity"
+  },
+  {
+    "value": "intent__order__update__request_to_change_order_status",
+    "title": "Update order status"
+  },
+  {
+    "value": "intent__order__update__request_to_send_again",
+    "title": "Send order again"
+  },
+  {
+    "value": "intent__order__update__ship_address",
+    "title": "Change shipping address"
+  },
+  {
+    "value": "intent__order__update__transfer_to_another_account",
+    "title": "Transfer order to another account"
+  },
+  {
+    "value": "intent__order__warranty",
+    "title": "Warranty"
+  },
+  {
+    "value": "intent__order__warranty__claim",
+    "title": "Want to use my warranty"
+  },
+  {
+    "value": "intent__order__warranty__policy",
+    "title": "What is the warranty policy"
+  },
+  {
+    "value": "intent__order__warranty__product_registration",
+    "title": "Product registration"
+  },
+  {
+    "value": "intent__order__warranty_form",
+    "title": "Warranty form"
+  },
+  {
+    "value": "intent__order__warranty_form__submission",
+    "title": "Warranty form submission"
+  },
+  {
+    "value": "intent__order__wrong_delivery",
+    "title": "Wrong delivery"
+  },
+  {
+    "value": "intent__order__wrong_delivery__address",
+    "title": "Delivered to incorrect address"
+  },
+  {
+    "value": "intent__order__wrong_delivery__late",
+    "title": "Order was delivered late"
+  },
+  {
+    "value": "intent__order__wrong_product",
+    "title": "Wrong product"
+  },
+  {
+    "value": "intent__order__wrong_product__missing_item",
+    "title": "Item missing from order"
+  },
+  {
+    "value": "intent__order__wrong_product__wrong_item",
+    "title": "Received wrong item or size"
+  },
+  {
+    "value": "intent__sell",
+    "title": "Sell"
+  },
+  {
+    "value": "intent__sell__info",
+    "title": "Sales information"
+  },
+  {
+    "value": "intent__sell__info__how_to_list_item_for_sale",
+    "title": "How to list item for sale"
+  },
+  {
+    "value": "intent__sell__info__how_to_remove_listing",
+    "title": "Remove listing"
+  },
+  {
+    "value": "intent__sell__info__what_are_the_seller_fees",
+    "title": "Seller fees clarification"
+  },
+  {
+    "value": "intent__sell__issue",
+    "title": "Sales issue"
+  },
+  {
+    "value": "intent__sell__issue__cant_list_for_sale",
+    "title": "Unable to list item for sale"
+  },
+  {
+    "value": "intent__sell__issue__item_not_showing",
+    "title": "Item listing not showing"
+  },
+  {
+    "value": "intent__sell__notifications",
+    "title": "Sales notification"
+  },
+  {
+    "value": "intent__sell__notifications__item_sold",
+    "title": "Item sold"
+  },
+  {
+    "value": "intent__sell__status",
+    "title": "Sales status"
+  },
+  {
+    "value": "intent__sell__status__what_is_status",
+    "title": "What is the sale status"
+  },
+  {
+    "value": "intent__sell__update",
+    "title": "Sales update"
+  },
+  {
+    "value": "intent__sell__update__listing_description",
+    "title": "Edit listing description"
+  },
+  {
+    "value": "intent__sell__update__price",
+    "title": "Change item price"
+  },
+  {
+    "value": "intent__service",
+    "title": "Service"
+  },
+  {
+    "value": "intent__service__appointment",
+    "title": "Appointment"
+  },
+  {
+    "value": "intent__service__appointment__cancellation",
+    "title": "Appointment cancellation"
+  },
+  {
+    "value": "intent__service__appointment__confirmation",
+    "title": "Appointment confirmation"
+  },
+  {
+    "value": "intent__service__appointment__new",
+    "title": "Schedule appointment"
+  },
+  {
+    "value": "intent__service__appointment__reminder",
+    "title": "Appointment reminder"
+  },
+  {
+    "value": "intent__service__info",
+    "title": "Service information"
+  },
+  {
+    "value": "intent__service__info__do_you_provide_this_service",
+    "title": "Available services"
+  },
+  {
+    "value": "intent__service__info__opening_hours",
+    "title": "Question about opening hours"
+  },
+  {
+    "value": "intent__service__info__rematricula_de_alumno_custom",
+    "title": "Rematrícula de Alumno"
+  },
+  {
+    "value": "intent__service__info__soporte_examen_custom",
+    "title": "Soporte Examen"
+  },
+  {
+    "value": "intent__service__update",
+    "title": "Service update"
+  },
+  {
+    "value": "intent__service__update__sponsor",
+    "title": "Change sponsors"
+  },
+  {
+    "value": "intent__software",
+    "title": "Software"
+  },
+  {
+    "value": "intent__software__api",
+    "title": "API"
+  },
+  {
+    "value": "intent__software__api__credentials_request",
+    "title": "API credentials request"
+  },
+  {
+    "value": "intent__software__compatibility",
+    "title": "Software compatibility"
+  },
+  {
+    "value": "intent__software__compatibility__info",
+    "title": "Compatibility question"
+  },
+  {
+    "value": "intent__software__connection",
+    "title": "Software connection"
+  },
+  {
+    "value": "intent__software__connection__how_to_connect_an_integration",
+    "title": "How to connect an integration"
+  },
+  {
+    "value": "intent__software__connection__issue",
+    "title": "Connection issue"
+  },
+  {
+    "value": "intent__software__crash",
+    "title": "Software crash"
+  },
+  {
+    "value": "intent__software__crash__website_crashing",
+    "title": "Website crashing"
+  },
+  {
+    "value": "intent__software__data",
+    "title": "Software data"
+  },
+  {
+    "value": "intent__software__data__cant_delete",
+    "title": "Unable to delete data"
+  },
+  {
+    "value": "intent__software__data__cant_download",
+    "title": "Unable to download data"
+  },
+  {
+    "value": "intent__software__data__cant_find",
+    "title": "Unable to find data"
+  },
+  {
+    "value": "intent__software__data__cant_upload",
+    "title": "Unable to upload data"
+  },
+  {
+    "value": "intent__software__data__shareable_link_not_working",
+    "title": "Shareable link not working"
+  },
+  {
+    "value": "intent__software__feature_feedback",
+    "title": "Feature feedback"
+  },
+  {
+    "value": "intent__software__feature_feedback__negative",
+    "title": "Negative feedback about feature"
+  },
+  {
+    "value": "intent__software__feature_feedback__not_working",
+    "title": "Feature not working"
+  },
+  {
+    "value": "intent__software__feature_feedback__positive",
+    "title": "Positive feedback about feature"
+  },
+  {
+    "value": "intent__software__feature_feedback__request",
+    "title": "New feature request"
+  },
+  {
+    "value": "intent__software__feature_feedback__request_activation",
+    "title": "Feature activation or beta access request"
+  },
+  {
+    "value": "intent__software__feature_feedback__request_deactivation",
+    "title": "Request feature deactivation"
+  },
+  {
+    "value": "intent__software__feature_missing",
+    "title": "Feature missing"
+  },
+  {
+    "value": "intent__software__feature_missing__cant_find",
+    "title": "Unable to find feature"
+  },
+  {
+    "value": "intent__software__info",
+    "title": "Software information"
+  },
+  {
+    "value": "intent__software__info__does_software_do",
+    "title": "Question about functionality"
+  },
+  {
+    "value": "intent__software__info__how_to_use",
+    "title": "Software usage instructions"
+  },
+  {
+    "value": "intent__software__info__skg_software_custom",
+    "title": "SKG Software"
+  },
+  {
+    "value": "intent__software__install",
+    "title": "Install"
+  },
+  {
+    "value": "intent__software__install__cant_install",
+    "title": "Unable to install software"
+  },
+  {
+    "value": "intent__software__install__cant_install_integration",
+    "title": "Unable to install or configure integration"
+  },
+  {
+    "value": "intent__software__install__integration_not_working",
+    "title": "Software integration not working"
+  },
+  {
+    "value": "intent__software__install__setup_issue",
+    "title": "Software setup issue"
+  },
+  {
+    "value": "intent__software__issue_generic",
+    "title": "Generic error"
+  },
+  {
+    "value": "intent__software__issue_generic__error",
+    "title": "Software error"
+  },
+  {
+    "value": "intent__software__login_config",
+    "title": "Login configuration"
+  },
+  {
+    "value": "intent__software__login_config__keeps_logging_out",
+    "title": "Software keeps logging out"
+  },
+  {
+    "value": "intent__software__login_issues",
+    "title": "Login issues"
+  },
+  {
+    "value": "intent__software__login_issues__cant_login",
+    "title": "Cannot login"
+  },
+  {
+    "value": "intent__software__login_issues__can_login_but_not_always",
+    "title": "Occasional login issues"
+  },
+  {
+    "value": "intent__software__login_issues__fingerprint_not_working",
+    "title": "Fingerprint login not working"
+  },
+  {
+    "value": "intent__software__login_issues__id_forgot",
+    "title": "Forgot ID or email address"
+  },
+  {
+    "value": "intent__software__login_issues__id_not_recognized",
+    "title": "ID or email address not recognized"
+  },
+  {
+    "value": "intent__software__login_issues__locked_out_after_too_many_attempts",
+    "title": "Locked out after too many login attempts"
+  },
+  {
+    "value": "intent__software__login_issues__no_login_window",
+    "title": "Login window not visible"
+  },
+  {
+    "value": "intent__software__login_issues__password_cant_reset",
+    "title": "Cannot reset password"
+  },
+  {
+    "value": "intent__software__login_issues__password_change",
+    "title": "Instructions for changing password"
+  },
+  {
+    "value": "intent__software__login_issues__password_forgot",
+    "title": "Forgot password 1"
+  },
+  {
+    "value": "intent__software__login_issues__password_not_accepted",
+    "title": "Password not accepted"
+  },
+  {
+    "value": "intent__software__login_issues__password_request_reset",
+    "title": "Reset password"
+  },
+  {
+    "value": "intent__software__login_issues__sure_password_is_correct",
+    "title": "Correct password not accepted"
+  },
+  {
+    "value": "intent__software__notifications",
+    "title": "Notifications"
+  },
+  {
+    "value": "intent__software__notifications__aws",
+    "title": "AWS notification"
+  },
+  {
+    "value": "intent__software__notifications__failed_login_attempt",
+    "title": "Failed login attempt"
+  },
+  {
+    "value": "intent__software__notifications__login_from_new_device",
+    "title": "Login from new device"
+  },
+  {
+    "value": "intent__software__notifications__verification_code",
+    "title": "Verification code"
+  },
+  {
+    "value": "intent__software__notifications__webhook_is_failing",
+    "title": "Webhook failing notification"
+  },
+  {
+    "value": "intent__software__open",
+    "title": "Launch"
+  },
+  {
+    "value": "intent__software__open__cant_open",
+    "title": "Unable to open or launch software"
+  },
+  {
+    "value": "intent__software__pairing",
+    "title": "Pairing"
+  },
+  {
+    "value": "intent__software__pairing__unable_to_pair",
+    "title": "Unable to pair devices or apps"
+  },
+  {
+    "value": "intent__software__performance",
+    "title": "Performance"
+  },
+  {
+    "value": "intent__software__performance__issue",
+    "title": "Performance issue"
+  },
+  {
+    "value": "intent__software__recording_issue",
+    "title": "Recording issue"
+  },
+  {
+    "value": "intent__software__recording_issue__cant_record_audio",
+    "title": "Unable to record audio"
+  },
+  {
+    "value": "intent__software__recording_issue__cant_record_video",
+    "title": "Unable to record video"
+  },
+  {
+    "value": "intent__software__recording_issue__video_display",
+    "title": "Video playback issue"
+  },
+  {
+    "value": "intent__software__seats",
+    "title": "Seats management"
+  },
+  {
+    "value": "intent__software__seats__new_user",
+    "title": "Add new user"
+  },
+  {
+    "value": "intent__software__sync",
+    "title": "Synchronization"
+  },
+  {
+    "value": "intent__software__sync__how_to",
+    "title": "Device or app syncing"
+  },
+  {
+    "value": "intent__software__sync__issue",
+    "title": "Sync issue"
+  },
+  {
+    "value": "intent__software__transfer",
+    "title": "Transfer data"
+  },
+  {
+    "value": "intent__software__transfer__how_to_import_export",
+    "title": "Import or export data"
+  },
+  {
+    "value": "intent__software__uninstall",
+    "title": "Uninstall"
+  },
+  {
+    "value": "intent__software__uninstall__not_completely_removed",
+    "title": "Uninstall didn't completely remove software"
+  },
+  {
+    "value": "intent__software__update",
+    "title": "Software update"
+  },
+  {
+    "value": "intent__software__update__issue_after_update",
+    "title": "Issue after software update"
+  },
+  {
+    "value": "intent__software__update__request",
+    "title": "Update software"
+  },
+  {
+    "value": "intent__software__verification_code",
+    "title": "Software verification code"
+  },
+  {
+    "value": "intent__software__verification_code__cant_receive",
+    "title": "Unable to access security code"
+  },
+  {
+    "value": "intent__software__verification_code__new_code",
+    "title": "Request new verification code"
+  },
+  {
+    "value": "intent__software__verification_code__not_receiving",
+    "title": "Security code not received"
+  },
+  {
+    "value": "intent__software__vpn",
+    "title": "VPN"
+  },
+  {
+    "value": "intent__travel",
+    "title": "Travel"
+  },
+  {
+    "value": "intent__travel__booking_cancellation",
+    "title": "Booking cancellation"
+  },
+  {
+    "value": "intent__travel__booking_issue",
+    "title": "Booking issue"
+  },
+  {
+    "value": "intent__travel__booking_new",
+    "title": "Booking new"
+  },
+  {
+    "value": "intent__travel__booking_status",
+    "title": "Booking status"
+  },
+  {
+    "value": "intent__travel__booking_update",
+    "title": "Booking update"
+  },
+  {
+    "value": "intent__travel__service_issue",
+    "title": "Service issue"
+  },
+  {
+    "value": "intent__workplace",
+    "title": "Workplace"
+  },
+  {
+    "value": "intent__workplace__maintenance",
+    "title": "Maintenance"
+  }
+]

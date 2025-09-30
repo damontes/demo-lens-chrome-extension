@@ -1,24 +1,24 @@
 import { MD } from '@zendeskgarden/react-typography';
 import styled, { useTheme } from 'styled-components';
-import RecommendationForm from './RecommendationForm';
+import IntentSuggestionForm from './IntentSuggestionForm';
 import PencilIcon from '@zendeskgarden/svg-icons/src/16/pencil-stroke.svg?react';
 
 type Props = {
-  onSubmit: (recommendation: any) => void;
+  onSubmit: (suggestion: any) => void;
   onCancel: () => void;
-  recommendation: any;
+  suggestion: any;
 };
 
-const EditRecommendation = ({ onSubmit, onCancel, recommendation }: Props) => {
+const EditIntentSuggestion = ({ onSubmit, onCancel, suggestion }: Props) => {
   const theme = useTheme();
 
   return (
     <Article>
       <header style={{ display: 'flex', alignItems: 'center', gap: '8px', color: theme.palette.blue[600] }}>
         <PencilIcon style={{ width: 16, height: '16' }} />
-        <MD style={{ fontWeight: 'semibold' }}>Edit Recommendation</MD>
+        <MD style={{ fontWeight: 'semibold' }}>Edit Intent Suggestion</MD>
       </header>
-      <RecommendationForm onCancel={onCancel} onSubmit={onSubmit} initialValues={recommendation} />
+      <IntentSuggestionForm onCancel={onCancel} onSubmit={onSubmit} initialValues={suggestion} />
     </Article>
   );
 };
@@ -33,4 +33,4 @@ const Article = styled.article`
   background-color: ${({ theme }) => theme.palette.blue[200]}99;
 `;
 
-export default EditRecommendation;
+export default EditIntentSuggestion;

@@ -30,17 +30,19 @@ export const CATEGORIES: any = {
     description: 'Manage your Zendesk applications and settings.',
     icon: GearIcon,
     status: CATEGORY_STATUS.active,
+    errorMessage: 'Make sure you are in the admin view.',
+    type: AdminInterceptor.getDashboardType(),
     needAnalyze: false,
-    subcategories: {
-      OVERVIEW_COPILOT: {
-        name: 'Overview Copilot',
-        description: 'Get an overview of your Zendesk applications and performance.',
-        icon: SparkleIcon,
-        status: CATEGORY_STATUS.active,
-        errorMessage: 'Make sure you are in the overview copilot admin view.',
-        type: AdminInterceptor.getDashboardType(),
-      },
-    },
+    // subcategories: {
+    //   OVERVIEW_COPILOT: {
+    //     name: 'Overview Copilot',
+    //     description: 'Get an overview of your Zendesk applications and performance.',
+    //     icon: SparkleIcon,
+    //     status: CATEGORY_STATUS.active,
+    //     errorMessage: 'Make sure you are in the overview copilot admin view.',
+    //     type: AdminInterceptor.getDashboardType(),
+    //   },
+    // },
   },
   TALK: {
     name: 'Talk',

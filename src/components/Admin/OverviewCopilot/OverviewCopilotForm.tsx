@@ -1,43 +1,26 @@
-import { SUPPORT_SKELETON } from '@/models/admin/interceptor';
 import { Field, Input, Toggle } from '@zendeskgarden/react-forms';
-import { LG, MD, SM } from '@zendeskgarden/react-typography';
+import { LG, SM } from '@zendeskgarden/react-typography';
 import styled, { useTheme } from 'styled-components';
 import { useState } from 'react';
 import { Button } from '@zendeskgarden/react-buttons';
 import AddRecomendation from './Recommendations/AddRecommendation';
 import RecommendationItem from './Recommendations/RecommendationItem';
+import AIRecommendationGenerator from './Recommendations/AIRecommendationGenerator';
 import { Table } from '@zendeskgarden/react-tables';
 import ArrowTrendingIcon from '@zendeskgarden/svg-icons/src/16/arrow-trending-stroke.svg?react';
+import SparkleIcon from '@zendeskgarden/svg-icons/src/16/sparkle-stroke.svg?react';
+import { useFormContext } from 'react-hook-form';
 
-type Props = {
-  footer: JSX.Element;
-  onSubmit: (values: any) => void;
-  currentDashboard: any;
-  initialValues?: any;
-};
-
-const DEFAULT_INITIAL_VALUES = {
-  metrics: SUPPORT_SKELETON.adminAiCenterMetrics.aiUsageMetrics,
-  recommendations: [],
-};
-
-const OverviewCopilotForm = ({
-  footer,
-  onSubmit,
-  currentDashboard = {},
-  initialValues = DEFAULT_INITIAL_VALUES,
-}: Props) => {
-  const initialSetupTasks = currentDashboard?.setupTasks.reduce(
-    (prev: any, item: any) => ({
-      ...prev,
-      [item.id]: item.dismissed,
-    }),
-    {},
-  );
-  const [values, setValues] = useState<any>({ setupTasks: initialSetupTasks, ...initialValues });
+const OverviewCopilotForm = () => {
+  const { watch, setValue } = useFormContext();
   const [showAddRecommendation, setShowAddRecommendation] = useState(false);
-
+  const [showAIGenerator, setShowAIGenerator] = useState(false);
   const theme = useTheme();
+
+  const overviewCopilot = watch('overviewCopilot');
+
+  // Get current industry from form context
+  const currentIndustry = watch('industry');
 
   const getSectionsLabelName = (section: string) => {
     switch (section) {
@@ -71,54 +54,43 @@ const OverviewCopilotForm = ({
   };
 
   const handleUpdateMetrics = (section: any) => {
-    setValues((prev: any) => ({
-      ...prev,
-      metrics: {
-        ...prev.metrics,
-        ...section,
-      },
-    }));
+    setValue('overviewCopilot.metrics', {
+      ...overviewCopilot?.metrics,
+      ...section,
+    });
   };
 
   const handleAddRecommendation = (recommendation: any) => {
-    setValues((prev: any) => ({
-      ...prev,
-      recommendations: [...prev.recommendations, recommendation],
-    }));
+    setValue('overviewCopilot.recommendations', [...(overviewCopilot?.recommendations || []), recommendation]);
     setShowAddRecommendation(false);
   };
 
   const handleEditRecommendation = (recommendation: any) => {
-    setValues((prev: any) => ({
-      ...prev,
-      recommendations: prev.recommendations.map((item: any) => (item.id === recommendation.id ? recommendation : item)),
-    }));
+    const updatedRecommendations = (overviewCopilot?.recommendations || []).map((item: any) =>
+      item.id === recommendation.id ? recommendation : item,
+    );
+    setValue('overviewCopilot.recommendations', updatedRecommendations);
   };
 
   const handleRemoveRecommendation = (id: string) => {
-    setValues((prev: any) => ({
-      ...prev,
-      recommendations: prev.recommendations.filter((item: any) => item.id !== id),
-    }));
+    const updatedRecommendations = (overviewCopilot?.recommendations || []).filter((item: any) => item.id !== id);
+    setValue('overviewCopilot.recommendations', updatedRecommendations);
+  };
+
+  const handleAIGenerateRecommendations = (aiRecommendations: any[]) => {
+    const currentRecommendations = overviewCopilot?.recommendations || [];
+    setValue('overviewCopilot.recommendations', [...currentRecommendations, ...aiRecommendations]);
   };
 
   const handleDismissSetupTask = (id: string) => {
-    setValues((prev: any) => ({
-      ...prev,
-      setupTasks: {
-        ...prev.setupTasks,
-        [id]: !prev.setupTasks[id],
-      },
-    }));
-  };
-
-  const handleSubmit = (e: any) => {
-    e.preventDefault();
-    onSubmit(values);
+    const updatedSetupTasks = (overviewCopilot?.setupTasks || []).map((task: any) =>
+      task.id === id ? { ...task, dismissed: !task.dismissed } : task,
+    );
+    setValue('overviewCopilot.setupTasks', updatedSetupTasks);
   };
 
   return (
-    <Form onSubmit={handleSubmit}>
+    <Container>
       <Section>
         <header>
           <Subtitle>Setup tasks</Subtitle>
@@ -127,12 +99,12 @@ const OverviewCopilotForm = ({
           </SM>
         </header>
         <SetupTasksList>
-          {Object.entries(values.setupTasks)?.map(([id, value]: any) => {
+          {overviewCopilot?.setupTasks?.map((task: any) => {
             return (
-              <li key={id}>
+              <li key={task.id}>
                 <Field>
-                  <Toggle checked={value} onChange={() => handleDismissSetupTask(id)}>
-                    <Field.Label>{getSetupTaskLabel(id)}</Field.Label>
+                  <Toggle checked={task.dismissed} onChange={() => handleDismissSetupTask(task.id)}>
+                    <Field.Label>{getSetupTaskLabel(task.id)}</Field.Label>
                   </Toggle>
                 </Field>
               </li>
@@ -152,9 +124,12 @@ const OverviewCopilotForm = ({
             </Table.HeaderRow>
           </Table.Head>
           <Table.Body>
-            {Object.entries(values.metrics).flatMap(([section, item]: any) => {
+            {Object.entries(overviewCopilot?.metrics || {}).flatMap(([section, item]: any) => {
               const isUpTrend = item.currentValue > item.historicalValue;
-              const percentage = ((item.currentValue - item.historicalValue) / item.historicalValue) * 100;
+              const percentage =
+                (Math.abs(item.currentValue - item.historicalValue) /
+                  Math.max(item.currentValue, item.historicalValue)) *
+                100;
               return (
                 <Table.Row key={section}>
                   <Table.Cell>{getSectionsLabelName(section)}</Table.Cell>
@@ -196,9 +171,15 @@ const OverviewCopilotForm = ({
         </Table>
       </Section>
       <Section>
-        <Subtitle>Recomendations</Subtitle>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+          <Subtitle>Recommendations</Subtitle>
+          <Button size="small" onClick={() => setShowAIGenerator(true)} isPrimary>
+            <SparkleIcon style={{ width: '14px', height: '14px', marginRight: '4px' }} />
+            Generate with AI
+          </Button>
+        </div>
         <div style={{ margin: '12px 0px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {values.recommendations.map((item: any) => {
+          {overviewCopilot?.recommendations?.map((item: any) => {
             return (
               <RecommendationItem
                 key={item.id}
@@ -207,7 +188,7 @@ const OverviewCopilotForm = ({
                 recommendation={item}
               />
             );
-          })}
+          }) || []}
           {showAddRecommendation ? (
             <AddRecomendation onSubmit={handleAddRecommendation} onCancel={() => setShowAddRecommendation(false)} />
           ) : (
@@ -220,13 +201,20 @@ const OverviewCopilotForm = ({
             </Button>
           )}
         </div>
+
+        {/* AI Recommendation Generator Modal */}
+        <AIRecommendationGenerator
+          isOpen={showAIGenerator}
+          onClose={() => setShowAIGenerator(false)}
+          onGenerateRecommendations={handleAIGenerateRecommendations}
+          industry={currentIndustry}
+        />
       </Section>
-      {footer}
-    </Form>
+    </Container>
   );
 };
 
-const Form = styled.form`
+const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;

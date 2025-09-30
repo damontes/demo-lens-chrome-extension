@@ -7,7 +7,7 @@ class ControllerInterceptor {
     switch (true) {
       case ControllerInterceptor.isExploreDashboard(url):
         return new ExploreInterceptor();
-      case ControllerInterceptor.isOverviewCopilot(url):
+      case ControllerInterceptor.isAdmin(url):
         return new AdminInterceptor(url);
       case ControllerInterceptor.isWFM(url):
         return new WFMInterceptor();
@@ -20,7 +20,7 @@ class ControllerInterceptor {
     switch (true) {
       case ControllerInterceptor.isExploreDashboard(url):
         return ExploreInterceptor;
-      case ControllerInterceptor.isOverviewCopilot(url):
+      case ControllerInterceptor.isAdmin(url):
         return AdminInterceptor;
       case ControllerInterceptor.isWFM(url):
         return WFMInterceptor;
@@ -33,7 +33,7 @@ class ControllerInterceptor {
     switch (true) {
       case ControllerInterceptor.isExploreDashboard(url):
         return ExploreInterceptor.getDashboardType();
-      case ControllerInterceptor.isOverviewCopilot(url):
+      case ControllerInterceptor.isAdmin(url):
         return AdminInterceptor.getDashboardType();
       case ControllerInterceptor.isWFM(url):
         return WFMInterceptor.getDashboardType();
@@ -57,8 +57,8 @@ class ControllerInterceptor {
     return allowedPatterns.some((pattern) => pattern.test(url));
   }
 
-  static isOverviewCopilot(url: string) {
-    const allowedPatterns = [/^https:\/\/z3n.*\.zendesk\.com\/admin\/ai\/overview\/copilot$/];
+  static isAdmin(url: string) {
+    const allowedPatterns = [/^https:\/\/z3n.*\.zendesk\.com\/admin\/.*$/];
 
     return allowedPatterns.some((pattern) => pattern.test(url));
   }

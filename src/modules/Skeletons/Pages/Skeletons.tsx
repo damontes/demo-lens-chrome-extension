@@ -5,8 +5,6 @@ import { Button, IconButton } from '@zendeskgarden/react-buttons';
 import { useToast, Notification } from '@zendeskgarden/react-notifications';
 import useAppState from '@/storage';
 import { Accordion } from '@zendeskgarden/react-accordions';
-import AdminInterceptor from '@/models/admin/interceptor';
-import { Tag } from '@zendeskgarden/react-tags';
 import ExploreInterceptor from '@/models/explore/interceptor';
 import { useNavigate } from 'react-router';
 import ConfirmationModal from '@/components/ui/ConfirmationModal';
@@ -122,11 +120,11 @@ const Skeletons = () => {
                               >
                                 {id}
                               </SM>
-                              {type === AdminInterceptor.getDashboardType() ? (
+                              {/* {type === AdminInterceptor.getDashboardType() ? (
                                 <Tag hue="yellow" isPill size="small">
                                   Instance: {item.dashboardId.split(':').at(0)}
                                 </Tag>
-                              ) : null}
+                              ) : null} */}
                             </footer>
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '2px', marginLeft: 'auto' }}>

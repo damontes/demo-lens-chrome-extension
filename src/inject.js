@@ -6,8 +6,6 @@ import ControllerInterceptor from './models/controllerInterceptor';
 
   let state = stateScript ? JSON.parse(stateScript?.textContent) : {};
 
-  console.log('GET STATE FROM INJECT.JS', state);
-
   const { startAnalyzis, activeConfiguration = '', configurations = {}, dashboards = {}, templates = {} } = state;
 
   const url = window.location.href;

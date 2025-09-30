@@ -53,7 +53,7 @@ const TextEditable = ({ value = '', style = {}, onChange }: Props) => {
   return (
     <Container>
       <Input
-        isEditing={isEditing}
+        $isEditing={isEditing}
         ref={inputRef}
         style={style}
         defaultValue={value}
@@ -88,8 +88,8 @@ const Container = styled.div`
   align-items: center;
 `;
 
-const Input = styled.input<{ isEditing: boolean }>`
-  border: ${({ isEditing }) => (isEditing ? '1px solid #eee' : '1px solid transparent')};
+const Input = styled.input<{ $isEditing: boolean }>`
+  border: ${({ $isEditing }) => ($isEditing ? '1px solid #eee' : '1px solid transparent')};
   border-radius: 4px;
   width: 100%;
   overflow: hidden;

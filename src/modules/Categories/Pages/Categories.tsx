@@ -2,16 +2,17 @@ import { Tiles } from '@zendeskgarden/react-forms';
 import { Tag } from '@zendeskgarden/react-tags';
 import styled from 'styled-components';
 import { useMemo } from 'react';
-import useAppState from '@/storage';
 import { useToast, Notification } from '@zendeskgarden/react-notifications';
 import { useNavigate, useParams } from 'react-router';
 import { CATEGORIES, CATEGORY_STATUS } from '../Utils/constants';
+import { getCurrentTabDetails } from '@/lib/chromeExtension';
+import useAppState from '@/storage';
 
 const Categories = () => {
-  const dashboadDetails = useAppState((state: any) => state.dashboardDetails);
   const navigate = useNavigate();
   const params = useParams();
   const { addToast } = useToast();
+  const setDashboardDetails = useAppState((state: any) => state.setDashboardDetails);
 
   const categoryPath = params['*'];
   const buffer = categoryPath?.split('/').slice(1) ?? [];
@@ -35,11 +36,11 @@ const Categories = () => {
     const value = event.target.value;
     const currentBuffer = [...buffer, value];
     const subcategories = getCategories(currentBuffer);
+    const dashboadDetails = await getCurrentTabDetails();
 
     if (!subcategories) {
       const url = new URL(dashboadDetails.url);
       const host = url.host;
-      console.log('Subcategories', subcategories);
       if (!host.startsWith('z3n')) {
         addToast(
           ({ close }) => (
@@ -55,11 +56,11 @@ const Categories = () => {
         );
         return;
       }
-
+      setDashboardDetails(dashboadDetails);
       navigate(`/skeletons/new?categoryPath=${currentBuffer.join('.')}`);
       return;
     }
-
+    setDashboardDetails(dashboadDetails);
     navigate(`/skeletons/categories/${categoryPath}/${value}`);
   };
 

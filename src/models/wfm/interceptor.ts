@@ -633,21 +633,11 @@ class WFMInterceptor {
       this.#resetInstanceDataCollection();
     }
 
-    let template: any = null;
-
-    const dashboardType = WFMInterceptor.getDashboardType();
-
-    const userTemplates = Object.values(templates).filter((t: any) => t.type === dashboardType);
-    template = userTemplates.find((t: any) => t.id === templateId);
+    let template = templates[templateId];
 
     if (!template) {
       const predefinedTemplates = WFM_TEMPLATES;
       template = predefinedTemplates.find((t: any) => t.id === templateId);
-    }
-
-    if (!template) {
-      console.error(`Template with id ${templateId} not found`);
-      return;
     }
 
     const { configuration } = template;

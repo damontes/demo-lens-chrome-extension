@@ -1,8 +1,12 @@
 import { useState } from 'react';
 import styled from 'styled-components';
-import RecommendationItemPreview from './RecommendationItemPreview';
-import { Button } from '@zendeskgarden/react-buttons';
+import { IconButton } from '@zendeskgarden/react-buttons';
+import { SM } from '@zendeskgarden/react-typography';
+import PencilIcon from '@zendeskgarden/svg-icons/src/16/pencil-stroke.svg?react';
+import TrashIcon from '@zendeskgarden/svg-icons/src/16/trash-stroke.svg?react';
+import Collapsable from '@/components/ui/Collapsable';
 import EditRecommendation from './EditRecommendation';
+import { parseSuggestion } from '@/models/admin/inflatePayload';
 
 type Props = {
   recommendation: any;
@@ -12,6 +16,10 @@ type Props = {
 
 const RecommendationItem = ({ recommendation, onEdit, onRemove }: Props) => {
   const [isEditMode, setIsEditMode] = useState(false);
+
+  // Use parseSuggestion to generate the proper content
+  const suggestion = parseSuggestion(recommendation);
+  const { title, subtitle, body } = suggestion.content;
 
   if (isEditMode) {
     return (
@@ -27,35 +35,83 @@ const RecommendationItem = ({ recommendation, onEdit, onRemove }: Props) => {
   }
 
   return (
-    <Article>
-      <RecommendationItemPreview recommendation={recommendation} />
-      <Footer>
-        <Button type="button" size="medium" onClick={() => setIsEditMode(true)}>
-          Edit
-        </Button>
-        <Button type="button" isDanger size="medium" onClick={() => onRemove(recommendation.id)}>
-          Remove
-        </Button>
-      </Footer>
-    </Article>
+    <Collapsable
+      headerContent={
+        <HeaderContainer>
+          <ContentContainer>
+            <SM style={{ fontWeight: 'bold' }}>{title}</SM>
+            <Subtitle>{subtitle}</Subtitle>
+          </ContentContainer>
+          <ButtonContainer>
+            <IconButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsEditMode(true);
+              }}
+              aria-label="Edit recommendation"
+            >
+              <PencilIcon />
+            </IconButton>
+            <IconButton
+              size="small"
+              isDanger
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemove(recommendation.id);
+              }}
+              aria-label="Remove recommendation"
+            >
+              <TrashIcon />
+            </IconButton>
+          </ButtonContainer>
+        </HeaderContainer>
+      }
+    >
+      <Container dangerouslySetInnerHTML={{ __html: body }} />
+    </Collapsable>
   );
 };
 
-const Article = styled.article`
+const HeaderContainer = styled.div`
   display: flex;
-  flex-direction: column;
-  border: 1px solid ${({ theme }) => theme.palette.grey[200]};
-  border-radius: 8px;
-  padding: 16px;
-  gap: 16px;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+  gap: 12px;
+  margin-right: 12px;
 `;
 
-const Footer = styled.footer`
+const ContentContainer = styled.div`
+  flex: 1;
+  min-width: 0;
+`;
+
+const ButtonContainer = styled.div`
   display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  border-top: 1px solid ${({ theme }) => theme.palette.grey[200]};
-  padding-top: 16px;
+  gap: 4px;
+  flex-shrink: 0;
+`;
+
+const Subtitle = styled(SM)`
+  color: ${({ theme }) => theme.palette.grey[600]};
+`;
+
+const Container = styled.div`
+  padding: 0 16px;
+  font-size: 12px;
+  line-height: 1.4;
+
+  h6 {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 8px 0 4px 0;
+  }
+
+  em {
+    font-weight: bold;
+    font-style: normal;
+  }
 `;
 
 export default RecommendationItem;
