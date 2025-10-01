@@ -131,10 +131,10 @@ useAppState.subscribe((newState: any, previousState: any) => {
     const newValue = newState[property];
     const previousValue = previousState[property];
 
-    const isPreviousStateInitial = isInitialState(previousValue);
+    // const isPreviousStateInitial = isInitialState(previousValue);
     const hasChanged = JSON.stringify(newValue) !== JSON.stringify(previousValue);
 
-    if (hasChanged && !isPreviousStateInitial) {
+    if (hasChanged) {
       syncPayload[property] = newValue;
     }
   });
