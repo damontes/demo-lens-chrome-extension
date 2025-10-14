@@ -80,6 +80,13 @@ const AdminForm = ({ footer, onSubmit, initialValues = DEFAULT_INITIAL_VALUES }:
       setValue('industry', template.industry[0]);
     }
 
+    // Disable advanced mode if selecting a default template (no createdAt)
+    // Advanced mode should only be enabled for custom templates
+    const isDefaultTemplate = !template?.createdAt;
+    if (isDefaultTemplate && watchedValues.advancedMode) {
+      setValue('advancedMode', false);
+    }
+
     // Populate form with all template configuration properties
     if (template?.configuration) {
       Object.keys(template.configuration).forEach((configKey) => {
@@ -97,47 +104,72 @@ const AdminForm = ({ footer, onSubmit, initialValues = DEFAULT_INITIAL_VALUES }:
 
     let finalTemplateId = values.templateId;
 
-    // If in advanced mode and we have a default template, create a user copy
-    if (values.advancedMode && selectedTemplate && !(selectedTemplate as any).createdAt) {
-      // Extract configuration from form values (excluding form control fields)
-      const { industry, templateId, advancedMode, ...configuration } = values;
+    // Only create/update custom templates if in advanced mode
+    if (values.advancedMode && selectedTemplate) {
+      // Check if the selected template is a default template (no createdAt)
+      const isDefaultTemplate = !(selectedTemplate as any).createdAt;
 
-      // Check if user template already exists
-      const existingUserTemplate = templates[selectedTemplate.id];
+      // Check if the user switched templates during this session
+      const initialTemplateId = initialValues?.templateId;
+      const hasTemplateChanged = initialTemplateId && initialTemplateId !== values.templateId;
 
-      if (!existingUserTemplate) {
-        // Create a user copy of the default template
-        const userTemplate = {
-          id: `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          type: 'admin',
-          createdAt: Date.now(),
-          name: `${selectedTemplate.name} (Custom)`,
-          description: `Custom version of ${selectedTemplate.name}`,
-          industry: selectedTemplate.industry,
-          configuration,
-        };
+      if (isDefaultTemplate) {
+        // Extract configuration from form values (excluding form control fields)
+        const { industry, templateId, advancedMode, ...configuration } = values;
 
-        saveTemplate(userTemplate);
-        finalTemplateId = userTemplate.id;
+        // Check if we're editing an existing dashboard that was using a custom template
+        const initialTemplate = initialTemplateId ? templates[initialTemplateId] : null;
+        const wasUsingCustomTemplate = initialTemplate && (initialTemplate as any).createdAt;
+
+        // Only reuse/update an existing custom template if:
+        // 1. We were initially using that custom template AND
+        // 2. It's based on the same default template we currently have selected AND
+        // 3. The user did NOT switch templates (templateId hasn't changed)
+        if (
+          wasUsingCustomTemplate &&
+          initialTemplate &&
+          (initialTemplate as any).name.includes(`${selectedTemplate.name} (Custom)`) &&
+          !hasTemplateChanged
+        ) {
+          // Update the existing custom template that was initially selected
+          const updatedTemplate = {
+            ...initialTemplate,
+            configuration,
+          };
+          saveTemplate(updatedTemplate as any);
+          finalTemplateId = initialTemplate.id;
+        } else {
+          // Create a new user copy of the default template
+          const userTemplate = {
+            id: `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            type: 'admin',
+            createdAt: Date.now(),
+            name: `${selectedTemplate.name} (Custom)`,
+            description: `Custom version of ${selectedTemplate.name}`,
+            industry: selectedTemplate.industry,
+            configuration,
+          };
+
+          saveTemplate(userTemplate);
+          finalTemplateId = userTemplate.id;
+
+          // Update the form to use the new custom template
+          setValue('templateId', userTemplate.id);
+        }
       } else {
-        // Update existing user template
-        const updatedTemplate = {
-          ...existingUserTemplate,
-          configuration,
-        };
-        saveTemplate(updatedTemplate as any);
-        finalTemplateId = existingUserTemplate.id;
-      }
-    } else if (values.advancedMode && selectedTemplate && (selectedTemplate as any).createdAt) {
-      // Extract configuration from form values
-      const { industry, templateId, advancedMode, ...configuration } = values;
+        // We're updating an existing custom template
+        // Only update if we haven't switched to a different template
+        if (!hasTemplateChanged) {
+          const { industry, templateId, advancedMode, ...configuration } = values;
 
-      // Update existing user template
-      const updatedTemplate = {
-        ...selectedTemplate,
-        configuration,
-      };
-      saveTemplate(updatedTemplate as any);
+          const updatedTemplate = {
+            ...selectedTemplate,
+            configuration,
+          };
+          saveTemplate(updatedTemplate as any);
+        }
+        // If template changed and it's a custom template, just use the new template as-is
+      }
     }
 
     const cleanPayload = {

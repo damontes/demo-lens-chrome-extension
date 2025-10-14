@@ -57,6 +57,7 @@ const AdminTemplateSelector: React.FC<AdminTemplateSelectorProps> = ({
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
   const [templateToDelete, setTemplateToDelete] = useState<any | null>(null);
   const { getTemplatesByType, saveTemplate, removeTemplate } = useAppState();
+  const templates = useAppState((state: any) => state.templates); // Subscribe to templates
   const theme = useTheme();
 
   useEffect(() => {
@@ -74,7 +75,7 @@ const AdminTemplateSelector: React.FC<AdminTemplateSelectorProps> = ({
 
     // Load user-created templates
     loadUserTemplates();
-  }, [selectedIndustry, currentTemplate?.industry?.[0], currentTemplate?.isTemporary]);
+  }, [selectedIndustry, currentTemplate?.industry?.[0], currentTemplate?.isTemporary, templates]);
   const loadUserTemplates = async () => {
     try {
       const templates = getTemplatesByType('admin');
@@ -106,12 +107,14 @@ const AdminTemplateSelector: React.FC<AdminTemplateSelectorProps> = ({
 
   const handleDeleteTemplate = (template: any, event: React.MouseEvent) => {
     event.stopPropagation();
+    event.preventDefault();
     setTemplateToDelete(template);
     setDeleteConfirmationOpen(true);
   };
 
   const confirmDeleteTemplate = () => {
     if (templateToDelete) {
+      // Remove the template from storage
       removeTemplate(templateToDelete.id);
 
       // If the deleted template was selected, clear the selection
@@ -119,8 +122,8 @@ const AdminTemplateSelector: React.FC<AdminTemplateSelectorProps> = ({
         onTemplateSelect(null);
       }
 
-      // Reload user templates to update the UI
-      loadUserTemplates();
+      // Immediately update the local state to reflect the deletion
+      setUserTemplates((prevTemplates) => prevTemplates.filter((template) => template.id !== templateToDelete.id));
 
       // Close confirmation modal
       setDeleteConfirmationOpen(false);
@@ -217,10 +220,10 @@ const AdminTemplateSelector: React.FC<AdminTemplateSelectorProps> = ({
 
       {deleteConfirmationOpen && templateToDelete && (
         <ConfirmationModal
-          onClose={cancelDeleteTemplate}
+          onClose={() => cancelDeleteTemplate()}
           title="Delete Template"
           description={`Are you sure you want to delete the template "<strong>${templateToDelete.name}</strong>"? This action cannot be undone.`}
-          handleSubmit={confirmDeleteTemplate}
+          handleSubmit={() => confirmDeleteTemplate()}
         />
       )}
     </div>
