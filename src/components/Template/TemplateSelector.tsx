@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { ADMIN_TEMPLATES, AdminTemplate, getAdminTemplatesByIndustry } from '@/models/admin/templates';
 import useAppState from '../../storage';
 import styled, { useTheme } from 'styled-components';
 import { LG, MD, SM } from '@zendeskgarden/react-typography';
 import TrashIcon from '@zendeskgarden/svg-icons/src/16/trash-stroke.svg?react';
 import ConfirmationModal from '../ui/ConfirmationModal';
 import { Tag } from '@zendeskgarden/react-tags';
+import { TemplateType } from '@/constants';
 
-interface AdminTemplateSelectorProps {
+interface TemplateSelectorProps {
+  templateType: TemplateType;
   selectedTemplate: string | null;
-  onTemplateSelect: (template: AdminTemplate | any) => void;
+  onTemplateSelect: (template: any) => void;
   selectedIndustry: string;
-  currentTemplate?: AdminTemplate | any; // Add current template to determine its industry
+  currentTemplate?: any;
+  getTemplatesByIndustry: (industry: string) => any[];
 }
 
 const TemplateCard = styled.div<{ $isSelected: boolean }>`
@@ -46,13 +48,15 @@ const DeleteButton = styled.button`
   }
 `;
 
-const AdminTemplateSelector: React.FC<AdminTemplateSelectorProps> = ({
+const TemplateSelector: React.FC<TemplateSelectorProps> = ({
+  templateType,
   selectedTemplate,
   onTemplateSelect,
   selectedIndustry,
   currentTemplate,
+  getTemplatesByIndustry,
 }) => {
-  const [predefinedTemplates, setPredefinedTemplates] = useState<AdminTemplate[]>([]);
+  const [predefinedTemplates, setPredefinedTemplates] = useState<any[]>([]);
   const [userTemplates, setUserTemplates] = useState<any[]>([]);
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
   const [templateToDelete, setTemplateToDelete] = useState<any | null>(null);
@@ -70,15 +74,22 @@ const AdminTemplateSelector: React.FC<AdminTemplateSelectorProps> = ({
         : selectedIndustry;
 
     // Load predefined templates for the determined industry
-    const templates = getAdminTemplatesByIndustry(industryForTemplates);
+    const templates = getTemplatesByIndustry(industryForTemplates);
     setPredefinedTemplates(templates);
 
     // Load user-created templates
     loadUserTemplates();
-  }, [selectedIndustry, currentTemplate?.industry?.[0], currentTemplate?.isTemporary, templates]);
+  }, [
+    selectedIndustry,
+    currentTemplate?.industry?.[0],
+    currentTemplate?.isTemporary,
+    templates,
+    getTemplatesByIndustry,
+  ]);
+
   const loadUserTemplates = async () => {
     try {
-      const templates = getTemplatesByType('admin');
+      const templates = getTemplatesByType(templateType);
       // Determine the industry to use for filtering (same logic as predefined templates)
       // For temporary templates, use selected industry instead of template's industry
       const industryForTemplates =
@@ -101,7 +112,7 @@ const AdminTemplateSelector: React.FC<AdminTemplateSelectorProps> = ({
     }
   };
 
-  const handleTemplateSelect = (template: AdminTemplate | any) => {
+  const handleTemplateSelect = (template: any) => {
     onTemplateSelect(template);
   };
 
@@ -230,4 +241,4 @@ const AdminTemplateSelector: React.FC<AdminTemplateSelectorProps> = ({
   );
 };
 
-export default AdminTemplateSelector;
+export default TemplateSelector;

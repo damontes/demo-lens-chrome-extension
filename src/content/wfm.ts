@@ -1,11 +1,11 @@
-import { initilizeApp, setAppState } from './lib/chromeExtension';
-import { ACTIONS } from './actions/dictionary';
+import { ACTIONS } from '@/actions/dictionary';
+import { initilizeApp, setAppState } from '@/lib/chromeExtension';
 
 initilizeApp(document);
 cleanSessionStorages();
 
 window.addEventListener(ACTIONS.savedCurrentDashboard, async (event) => {
-  const currentDashboard = event.detail;
+  const currentDashboard = (event as CustomEvent).detail;
 
   setAppState({
     startAnalyzis: false,

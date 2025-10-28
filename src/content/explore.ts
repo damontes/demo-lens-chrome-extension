@@ -1,11 +1,11 @@
-import { initilizeApp, openChromeExtension, setAppState } from './lib/chromeExtension';
-import { showGlobalNotification } from './lib/notifications';
-import { ACTIONS } from './actions/dictionary';
+import { ACTIONS, NOTIFICATION_TYPES } from '@/actions/dictionary';
+import { initilizeApp, openChromeExtension, setAppState } from '@/lib/chromeExtension';
+import { showGlobalNotification } from '@/lib/notifications';
 
 initilizeApp(document);
 
 window.addEventListener(ACTIONS.savedCurrentDashboard, async (event) => {
-  const currentDashboard = event.detail;
+  const currentDashboard = (event as CustomEvent).detail;
 
   setAppState({
     startAnalyzis: false,
@@ -14,7 +14,7 @@ window.addEventListener(ACTIONS.savedCurrentDashboard, async (event) => {
 });
 
 window.addEventListener(ACTIONS.saveDrillInQuery, async (event) => {
-  const { newDashboards, initialRoute } = event.detail;
+  const { newDashboards, initialRoute } = (event as CustomEvent).detail;
   await setAppState({ initialRoute, dashboards: newDashboards });
 
   try {
@@ -29,6 +29,6 @@ window.addEventListener(ACTIONS.saveDrillInQuery, async (event) => {
 });
 
 window.addEventListener(ACTIONS.updateDrillInQuery, async (event) => {
-  const { newDashboards } = event.detail;
+  const { newDashboards } = (event as CustomEvent).detail;
   await setAppState({ dashboards: newDashboards });
 });

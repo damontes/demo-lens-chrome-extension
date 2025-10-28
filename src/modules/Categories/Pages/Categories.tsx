@@ -41,13 +41,13 @@ const Categories = () => {
     if (!subcategories) {
       const url = new URL(dashboadDetails.url);
       const host = url.host;
-      if (!host.startsWith('z3n')) {
+      if (!host.includes('ultimate.ai') && !host.startsWith('z3n')) {
         addToast(
           ({ close }) => (
             <Notification type="warning">
               <Notification.Title>Warning</Notification.Title>
               <p style={{ maxWidth: '320px', margin: 0 }}>
-                Make sure you are in a "z3n" Zendesk subdomain instance and you are already logged in.
+                Make sure you are in a "z3n" Zendesk subdomain instance or within Ultimate.ai dashboard
               </p>
               <Notification.Close aria-label="Close" onClick={close} />
             </Notification>

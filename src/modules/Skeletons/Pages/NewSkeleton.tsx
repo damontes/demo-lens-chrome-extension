@@ -3,6 +3,7 @@ import useAppState from '@/storage';
 import ExploreInterceptor from '@/models/explore/interceptor';
 import AdminInterceptor from '@/models/admin/interceptor';
 import WFMInterceptor from '@/models/wfm/interceptor';
+import AIAgentsInterceptor from '@/models/aiagents/interceptor';
 import { MD } from '@zendeskgarden/react-typography';
 import { Button } from '@zendeskgarden/react-buttons';
 import ReloadIcon from '@zendeskgarden/svg-icons/src/16/reload-stroke.svg?react';
@@ -14,6 +15,7 @@ import StepWizard from '@/components/ui/StepWizard';
 import AddExploreSkeleton from '@/components/Explore/AddSkeleton';
 import AddAdminSkeleton from '@/components/Admin/AddSkeleton';
 import AddWFMSkeleton from '@/components/WFM/AddSkeleton';
+import AddAIAgentsSkeleton from '@/components/AIAgents/AddSkeleton';
 import CreateView from '../Components/CreateView';
 
 const parseDashboardDetails = (rawDashboardDetails: any, pathSliceEnd: number = 2) => {
@@ -69,21 +71,36 @@ const ALL_STEPS = {
     },
     {
       id: 'step-1',
-      title: 'Details',
+      title: 'Create',
       content: (props: any) => <AddWFMSkeleton {...props} />,
+    },
+  ],
+  [AIAgentsInterceptor.getDashboardType()]: [
+    {
+      id: 'step-0',
+      title: 'Analyze',
+      content: (props: any) => (
+        <CreateView
+          {...props}
+          parseDashboardDetails={(rawDashboardDetails: any) => parseDashboardDetails(rawDashboardDetails, 2)}
+        />
+      ),
+    },
+    {
+      id: 'step-1',
+      title: 'Create',
+      content: (props: any) => <AddAIAgentsSkeleton {...props} />,
     },
   ],
 };
 
 const NewSkeleton = () => {
-  // const dashboadDetails = useAppState((state) => state.dashboardDetails);
   const saveDashboard = useAppState((state: any) => state.saveDashboard);
   const [seachParams] = useSearchParams();
   const navigate = useNavigate();
 
   const category = getCategory(seachParams.get('categoryPath')?.split('.') ?? []);
-
-  const type = category.type; // ControllerInterpceptor.getInterceptorType(dashboadDetails.url);
+  const type = category.type;
 
   const goBack = () => {
     navigate(-1);

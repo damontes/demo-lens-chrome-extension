@@ -1,3 +1,5 @@
+import { getCurrentTabDetails } from '@/lib/chromeExtension';
+
 export const ACTIONS = {
   startAnalyzis: 'START_ANALYZIS',
   savedCurrentDashboard: 'SAVED_CURRENT_DASHBOARD',
@@ -6,6 +8,7 @@ export const ACTIONS = {
   openChromeExtension: 'OPEN_CHROME_EXTENSION',
   saveDrillInQuery: 'SAVE_DRILL_IN_QUERY',
   updateDrillInQuery: 'UPDATE_DRILL_IN_QUERY',
+  getCurrentTabDetails: 'GET_CURRENT_TAB_URL',
 };
 
 export const DEFAULT_CONFIG = {

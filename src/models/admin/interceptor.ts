@@ -60,7 +60,13 @@ class AdminInterceptor {
       }
 
       if (type === TYPE_QUERY.IntentSuggestionQuery) {
-        const template = this.#getActiveTemplate(configurationDashboards, dashboards, templates);
+        const template = ControllerInterceptor.getActiveTemplate(
+          configurationDashboards,
+          dashboards,
+          templates,
+          ADMIN_TEMPLATES,
+          AdminInterceptor.getDashboardType(),
+        );
 
         if (!template?.configuration?.intentSuggestions) {
           return response;
@@ -74,7 +80,13 @@ class AdminInterceptor {
       }
 
       if (type === TYPE_QUERY.AiAgentsInsights) {
-        const template = this.#getActiveTemplate(configurationDashboards, dashboards, templates);
+        const template = ControllerInterceptor.getActiveTemplate(
+          configurationDashboards,
+          dashboards,
+          templates,
+          ADMIN_TEMPLATES,
+          AdminInterceptor.getDashboardType(),
+        );
 
         if (!template?.configuration?.automationPotential) {
           return response;
@@ -83,7 +95,10 @@ class AdminInterceptor {
         const automationPotentialData = inflateAutomationPotentialPayload(template.configuration.automationPotential);
 
         return this.#createGraphQLResponse(response, json, {
-          aiAgentsInsights: automationPotentialData,
+          aiAgentsInsights: {
+            ...json.data.aiAgentsInsights,
+            ...automationPotentialData,
+          },
         });
       }
 
@@ -92,7 +107,13 @@ class AdminInterceptor {
         type === TYPE_QUERY.AdminAiCenterSuggestions ||
         type === TYPE_QUERY.AdminAiCenterSetupTasks
       ) {
-        const template = this.#getActiveTemplate(configurationDashboards, dashboards, templates);
+        const template = ControllerInterceptor.getActiveTemplate(
+          configurationDashboards,
+          dashboards,
+          templates,
+          ADMIN_TEMPLATES,
+          AdminInterceptor.getDashboardType(),
+        );
 
         if (!template) {
           return response;
@@ -132,31 +153,6 @@ class AdminInterceptor {
 
       return response;
     });
-  }
-
-  #getActiveTemplate(configurationDashboards?: any[], dashboards?: any, templates?: any): any | null {
-    if (!configurationDashboards || !dashboards || !templates) {
-      return null;
-    }
-
-    const activeDashboard = ControllerInterceptor.findActiveDashboard(
-      configurationDashboards,
-      dashboards,
-      ({ type }) => type === AdminInterceptor.getDashboardType(),
-    );
-
-    if (!activeDashboard) {
-      return null;
-    }
-
-    let template = templates[activeDashboard.templateId];
-
-    if (!template) {
-      const predefinedTemplates = ADMIN_TEMPLATES;
-      template = predefinedTemplates.find((t: any) => t.id === activeDashboard.templateId);
-    }
-
-    return template;
   }
 
   #createGraphQLResponse(originalResponse: Response, originalJson: any, data: any): Response {

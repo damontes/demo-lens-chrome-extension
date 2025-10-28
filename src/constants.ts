@@ -29,6 +29,14 @@ export const VERTICALS = {
   },
 };
 
+export const TEMPLATE_TYPES = {
+  ADMIN: 'admin',
+  WFM: 'wfm',
+  AI_AGENTS: 'aiagents',
+} as const;
+
+export type TemplateType = (typeof TEMPLATE_TYPES)[keyof typeof TEMPLATE_TYPES];
+
 export const INTENT_SUGGESTIONS_CATEGORIES = [
   {
     tag: 'account',

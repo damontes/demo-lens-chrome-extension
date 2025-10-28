@@ -115,99 +115,124 @@ const EditExploreSkeleton = ({ dashboardId, handleSubmit }: Props) => {
     }
   }, [selectedQuery, drillInIndex]);
 
+  if (dashboard.isLooker) {
+    return (
+      <Alert type="info" style={{ marginBottom: '16px' }}>
+        <Alert.Title>Enhanced Looker Experience</Alert.Title>
+        We are working to give you a better experience with Looker dashboards. Let us know if you have any feedback or
+        any suggestions!
+        <br />
+        <a
+          href="https://zendesk.enterprise.slack.com/archives/C08MRL1A0QY"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            color: '#1f73b7',
+            textDecoration: 'underline',
+            fontWeight: 'bold',
+          }}
+        >
+          Join us in #de_dev-demo-lens-browser-plugin
+        </a>
+      </Alert>
+    );
+  }
+
   return (
-    <Tabs selectedItem={selectedTabId} onChange={setSelectedTab}>
-      <TabList>
-        {dashboard.tabs.map((tab: any) => (
-          <Tabs.Tab key={tab.id} item={tab.id}>
-            {tab.name}
-          </Tabs.Tab>
-        ))}
-      </TabList>
-      {dashboard.tabs.map((tab: any) => {
-        return (
-          <TabPanel key={tab.id} item={tab.id}>
-            {Object.entries(tab.queries).map(([queryId, query]: any) => (
-              <ListItem key={queryId} onClick={() => setSelectedQueryId(queryId)}>
-                <MD style={{ fontWeight: 'bold', textAlign: 'center', flex: 1 }}>{query.title}</MD>
-              </ListItem>
-            ))}
-          </TabPanel>
-        );
-      })}
-      <Drawer style={{ minWidth: '60%' }} isOpen={Boolean(selectedQuery)} onClose={handleClose}>
-        <Drawer.Header tag="h2">{selectedQuery?.title}</Drawer.Header>
-        <DrawerBody>
-          {selectedInteractionListIndex !== null ? (
-            <SectionTitle>Drill in query {selectedInteractionListIndex + 1}</SectionTitle>
-          ) : null}
-          <SkeletonForm
-            key={selectedInteractionListIndex !== null ? 'dirll-in-query-form' : 'query-form'}
-            initialValues={selectedQuery}
-            onSubmit={onSubmit}
-          />
-          {selectedInteractionListIndex === null && (
-            <Section id="section-drill-in">
-              <SectionHeader>
-                <SectionTitle>Drill in queries</SectionTitle>
-                <Description>Configure drill in queries</Description>
-              </SectionHeader>
-              {selectedQuery?.interactionList?.length ? (
-                <ul
-                  style={{
-                    padding: '0 12px',
-                    listStyle: 'none',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '16px',
-                    position: 'relative',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <ConnectorLine />
-                  {selectedQuery.interactionList.map((_: any, index: number) => {
-                    return (
-                      <ListItem
-                        added={Number(drillInIndex) === index}
-                        key={index}
-                        onClick={() => setInteractionListIndex(index)}
-                      >
-                        <AdjustIcon style={{ transform: 'rotate(90deg)', color: theme.palette.blue[500] }} />
-                        <MD>Drill in query #{index + 1}</MD>
-                      </ListItem>
-                    );
-                  })}
-                </ul>
-              ) : (
-                <Alert type="info">
-                  <Alert.Title style={{ padding: '0px 20px' }}>Adding drill-in data</Alert.Title>
-                  Drill-in data will be added automatically after you:
-                  <ul>
-                    <li>Activate a scenario</li>
-                    <li>Add this skeleton to it</li>
+    <>
+      <Tabs selectedItem={selectedTabId} onChange={setSelectedTab}>
+        <TabList>
+          {dashboard.tabs.map((tab: any) => (
+            <Tabs.Tab key={tab.id} item={tab.id}>
+              {tab.name}
+            </Tabs.Tab>
+          ))}
+        </TabList>
+        {dashboard.tabs.map((tab: any) => {
+          return (
+            <TabPanel key={tab.id} item={tab.id}>
+              {Object.entries(tab.queries).map(([queryId, query]: any) => (
+                <ListItem key={queryId} onClick={() => setSelectedQueryId(queryId)}>
+                  <MD style={{ fontWeight: 'bold', textAlign: 'center', flex: 1 }}>{query.title}</MD>
+                </ListItem>
+              ))}
+            </TabPanel>
+          );
+        })}
+        <Drawer style={{ minWidth: '60%' }} isOpen={Boolean(selectedQuery)} onClose={handleClose}>
+          <Drawer.Header tag="h2">{selectedQuery?.title}</Drawer.Header>
+          <DrawerBody>
+            {selectedInteractionListIndex !== null ? (
+              <SectionTitle>Drill in query {selectedInteractionListIndex + 1}</SectionTitle>
+            ) : null}
+            <SkeletonForm
+              key={selectedInteractionListIndex !== null ? 'dirll-in-query-form' : 'query-form'}
+              initialValues={selectedQuery}
+              onSubmit={onSubmit}
+            />
+            {selectedInteractionListIndex === null && (
+              <Section id="section-drill-in">
+                <SectionHeader>
+                  <SectionTitle>Drill in queries</SectionTitle>
+                  <Description>Configure drill in queries</Description>
+                </SectionHeader>
+                {selectedQuery?.interactionList?.length ? (
+                  <ul
+                    style={{
+                      padding: '0 12px',
+                      listStyle: 'none',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '16px',
+                      position: 'relative',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <ConnectorLine />
+                    {selectedQuery.interactionList.map((_: any, index: number) => {
+                      return (
+                        <ListItem
+                          added={Number(drillInIndex) === index}
+                          key={index}
+                          onClick={() => setInteractionListIndex(index)}
+                        >
+                          <AdjustIcon style={{ transform: 'rotate(90deg)', color: theme.palette.blue[500] }} />
+                          <MD>Drill in query #{index + 1}</MD>
+                        </ListItem>
+                      );
+                    })}
                   </ul>
-                  Then just click the current drill-in to insert the query.
-                </Alert>
-              )}
-            </Section>
-          )}
-        </DrawerBody>
-        <Drawer.Footer>
-          <Drawer.FooterItem>
-            <Button size="medium" style={{ width: '100%' }} onClick={handleClose}>
-              Close
-            </Button>
-          </Drawer.FooterItem>
-          <Drawer.FooterItem>
-            <Button type="submit" form="edit-explore-skeleton-form" isPrimary size="medium" style={{ width: '100%' }}>
-              Save
-            </Button>
-          </Drawer.FooterItem>
-        </Drawer.Footer>
-        <Drawer.Close />
-      </Drawer>
-    </Tabs>
+                ) : (
+                  <Alert type="info">
+                    <Alert.Title style={{ padding: '0px 20px' }}>Adding drill-in data</Alert.Title>
+                    Drill-in data will be added automatically after you:
+                    <ul>
+                      <li>Activate a scenario</li>
+                      <li>Add this skeleton to it</li>
+                    </ul>
+                    Then just click the current drill-in to insert the query.
+                  </Alert>
+                )}
+              </Section>
+            )}
+          </DrawerBody>
+          <Drawer.Footer>
+            <Drawer.FooterItem>
+              <Button size="medium" style={{ width: '100%' }} onClick={handleClose}>
+                Close
+              </Button>
+            </Drawer.FooterItem>
+            <Drawer.FooterItem>
+              <Button type="submit" form="edit-explore-skeleton-form" isPrimary size="medium" style={{ width: '100%' }}>
+                Save
+              </Button>
+            </Drawer.FooterItem>
+          </Drawer.Footer>
+          <Drawer.Close />
+        </Drawer>
+      </Tabs>
+    </>
   );
 };
 

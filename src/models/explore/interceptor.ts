@@ -3,6 +3,7 @@ import {
   inflateAgentPayload,
   inflateAgentsPayload,
   inflatePayload,
+  inflateLookerExplorePayload,
   lighInflatePayload,
   parseRowMember,
 } from './inflatePayload';
@@ -275,10 +276,13 @@ class ExploreInterceptor {
     this.#lastWidgetId = null;
   }
 
-  intercept(configurationDashboards?: any[], dashboards?: any) {
+  intercept(configurationDashboards: any[], dashboards: any) {
     this.#xhrInterceptor = new XHRInterceptor();
     this.#fetchInterceptor = new FetchInterceptor();
     this.#temporalDashboards = dashboards;
+
+    // Set up frame communication based on current URL
+    this.#setupFrameCommunication();
 
     const handleDashboard = (response: any) => {
       this.#currentDashboard = this.#parseDashboard(response);
@@ -294,15 +298,18 @@ class ExploreInterceptor {
     });
 
     this.#fetchInterceptor.startIntercept(async (url, response, requestBody) => {
-      const clone = response.clone();
-      const json = await clone.json();
-
       if (ExploreInterceptor.isDashboardFromZendesk(url)) {
+        const clone = response.clone();
+        const json = await clone.json();
+
         const dashboard = json.data.user.dashboards.edges[0].node.publishedVersionFrontJson;
         handleDashboard(dashboard);
       }
 
       if (ExploreInterceptor.isExploreQuery(url)) {
+        const clone = response.clone();
+        const json = await clone.json();
+
         const queryId = json.content.queryId || json.queryId;
         const tabId = requestBody?.content?.tabId;
 
@@ -332,6 +339,9 @@ class ExploreInterceptor {
       }
 
       if (ExploreInterceptor.isExploreAgentQuery(url) && this.#lastWidgetId) {
+        const clone = response.clone();
+        const json = await clone.json();
+
         const activeDashboard = ControllerInterpceptor.findActiveDashboard(
           configurationDashboards,
           this.#temporalDashboards,
@@ -341,7 +351,6 @@ class ExploreInterceptor {
         try {
           if (!activeDashboard) return response;
 
-          // const queries = this.#getQueriesFromWidgetId(this.#lastWidgetId, activeDashboard);
           const { operationName, variables } = requestBody;
           let payload = json;
 
@@ -384,6 +393,79 @@ class ExploreInterceptor {
         }
       }
 
+      if (ExploreInterceptor.isLookerMain(url, window.location.href)) {
+        const settingsDashboard = {
+          mainTag: {
+            guid: 'LOOKER_REALTIME_MONITORING_DASHBOARD',
+            name: 'looker_realtime_monitoring_dashboard',
+          },
+          tabs: [
+            {
+              id: 46455431,
+              name: 'Main realtime monitoring dashboard',
+              name_translation_key: 'looker_realtime_monitoring_dashboard_tab',
+              configuration: '',
+              tag_id: 66828781,
+              widgets: [],
+            },
+          ],
+          queries: [],
+        };
+        handleDashboard(settingsDashboard);
+      }
+
+      if (ExploreInterceptor.isLookerQueryData(url)) {
+        try {
+          const clone = response.clone();
+          let text = await clone.text();
+
+          const activeDashboard = ControllerInterpceptor.findActiveDashboard(
+            configurationDashboards,
+            this.#temporalDashboards,
+            ({ dashboardId }) => dashboardId === this.#currentDashboard.id,
+          );
+
+          if (!activeDashboard) return response;
+
+          const formattedText = '[' + text.trim().replace(/\n(?=\S)/g, ',') + ']';
+          const extractedJson = JSON.parse(formattedText);
+
+          const completedQueries = extractedJson.filter((item: any) => item.status === 'complete');
+          if (completedQueries.length > 0) {
+            const inflatedQueries = completedQueries.map((query: any) => {
+              return inflateLookerExplorePayload(query);
+            });
+
+            const inflatedResponseText = inflatedQueries.map(JSON.stringify).join('\n') + '\n';
+
+            return new Response(inflatedResponseText, {
+              status: response.status,
+              statusText: response.statusText,
+              headers: {
+                ...Object.fromEntries(response.headers.entries()),
+              },
+            });
+          }
+        } catch (error) {
+          console.log('⚠️ Error processing Looker query data response:', error);
+        }
+
+        return response;
+      }
+
+      if (ExploreInterceptor.isDrillLookerQueryData(url)) {
+        try {
+          const clone = response.clone();
+          const data = await clone.json();
+
+          const { data: inflatedQuery } = inflateLookerExplorePayload({ data });
+          return ExploreInterceptor.handleResponse(response, inflatedQuery);
+        } catch (error) {
+          console.log('⚠️ Error processing Drill Looker query data response:', error);
+        }
+        return response;
+      }
+
       return response;
     });
 
@@ -393,6 +475,11 @@ class ExploreInterceptor {
   getCurrentDashboard() {
     return new Promise((resolve) => {
       const intervalId = setInterval(() => {
+        if (this.#currentDashboard?.isLooker) {
+          clearInterval(intervalId);
+          resolve(this.#currentDashboard);
+        }
+
         const tabs = this.#currentDashboard?.tabs ?? [];
         const totalQueries = tabs.flatMap((tab: any) => Object.values(tab.queries));
         const isComplete = totalQueries.length ? totalQueries.every((query: any) => query?.completed) : false;
@@ -404,6 +491,77 @@ class ExploreInterceptor {
       }, 200);
     });
   }
+
+  #setupFrameCommunication() {
+    const url = window.location.href;
+    if (ControllerInterpceptor.isExploreDashboard(url)) {
+      window.addEventListener('message', async (event) => {
+        if (event.data && event.data.type === 'REQUEST_DASHBOARD_DATA') {
+          if (this.#currentDashboard) {
+            const dashboard = await this.#parseLookerDashbaord(this.#currentDashboard);
+
+            event.source?.postMessage(
+              {
+                type: 'DASHBOARD_DATA',
+                dashboard,
+              },
+              '*' as any,
+            );
+          }
+        }
+      });
+    }
+
+    if (ControllerInterpceptor.isLookerExploreDashboard(url)) {
+      window.addEventListener('message', (event) => {
+        if (event.data && event.data.type === 'DASHBOARD_DATA') {
+          this.#currentDashboard = event.data.dashboard;
+        }
+      });
+
+      if (window.parent !== window) {
+        window.parent.postMessage({ type: 'REQUEST_DASHBOARD_DATA' }, '*');
+      }
+    }
+  }
+
+  async #parseLookerDashbaord(dashboard: any) {
+    // await this.#waitForSlidingPanel();
+
+    return {
+      ...dashboard,
+      isLooker: true,
+    };
+  }
+
+  // #waitForSlidingPanel(): Promise<boolean> {
+  //   return new Promise((resolve) => {
+  //     const pollForPanel = (attempt = 1) => {
+  //       try {
+  //         const slidingPanel = document.querySelector('[data-test-id="sliding-tab-panel"]');
+
+  //         if (slidingPanel) {
+  //           resolve(true);
+  //           return;
+  //         }
+
+  //         if (attempt < 20) {
+  //           setTimeout(() => pollForPanel(attempt + 1), 200);
+  //         } else {
+  //           resolve(false);
+  //         }
+  //       } catch (error) {
+  //         if (attempt < 20) {
+  //           setTimeout(() => pollForPanel(attempt + 1), 200);
+  //         } else {
+  //           resolve(false);
+  //         }
+  //       }
+  //     };
+
+  //     pollForPanel();
+  //   });
+  // }
 
   #parseDashboard(dashboard: any) {
     const { mainTag, queries: rawQueries, tabs } = dashboard;
@@ -549,26 +707,6 @@ class ExploreInterceptor {
     return { query, activeQuery };
   }
 
-  // #getQueriesFromWidgetId(widgetId: number, activeDashboard: any) {
-  //   const tab = this.#currentDashboard.tabs.find((tab: any) => {
-  //     const queryIndex = Object.values(tab.queries).findIndex((query: any) => query.widgetId === widgetId);
-  //     return queryIndex > -1;
-  //   });
-
-  //   const [queryId, query] =
-  //     Object.entries(this.#currentDashboard.tabs.find((currentTab: any) => tab.id === currentTab.id).queries).find(
-  //       ([_, query]: any) => query.widgetId === widgetId,
-  //     ) ?? [];
-
-  //   if (!queryId) {
-  //     return { query: null, activeQuery: null };
-  //   }
-
-  //   const activeQuery = activeDashboard?.tabs.find((currentTab: any) => tab.id === currentTab.id).queries[queryId];
-
-  //   return { query, activeQuery };
-  // }
-
   #listenLastDrillWidget() {
     let lastWidget: any = null;
     document.addEventListener(
@@ -654,6 +792,21 @@ class ExploreInterceptor {
 
   static isDashboardFromZendesk(url: string) {
     return /^https:\/\/([a-zA-Z0-9-]+\.)?zendesk\.com\/explore\/graphql\?PublishedDashboardQuery/.test(url);
+  }
+
+  static isLookerMain(url: string, originUrl: string) {
+    return (
+      /^https:\/\/([a-zA-Z0-9-]+\.)?zendesk\.com\/zra\/acquire_session$/.test(url) &&
+      /^https:\/\/([a-zA-Z0-9-]+\.)?zendesk\.com\/explore\/studio#\/realtime-monitoring$/.test(originUrl)
+    );
+  }
+
+  static isLookerQueryData(url: string) {
+    return /^https:\/\/.*\.cloud\.looker\.com\/api\/internal\/querymanager\/queries\?/.test(url);
+  }
+
+  static isDrillLookerQueryData(url: string) {
+    return /^https:\/\/.*\.cloud\.looker\.com\/api\/internal\/models\/.*/.test(url);
   }
 
   static handleResponse(response: Response, payload: any) {

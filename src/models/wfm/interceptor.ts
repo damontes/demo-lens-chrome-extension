@@ -218,12 +218,11 @@ class WFMInterceptor {
           await this.#waitForInstanceData('workstreams');
         }
 
-        const { date, type } = searchParams;
-
+        const { date, startDate: rawStartDate, type } = searchParams;
         const forecastConfig = this.#currentDashboard.configuration.forecast;
 
         // Convert date string to start of day timestamp (matching shiftsTotals approach)
-        const dateMs = startOfDay(getDateFromString(date)).getTime();
+        const dateMs = startOfDay(getDateFromString(date || rawStartDate)).getTime();
         const { startDate, endDate } = this.#calculateDateRange(dateMs, type);
 
         const temporalResponse = this.#currentDashboard.configuration.schedule.workstreams.map((workstream: any) => {
@@ -234,7 +233,6 @@ class WFMInterceptor {
             count: randInt(5, 20), // Use same range as shiftsTotals workstreams
             type: 'forecasted' as const,
           }));
-
           return {
             status: 'done',
             workstreamId: workstream.id,
@@ -256,7 +254,6 @@ class WFMInterceptor {
         const staffingParams = forecastConfig.staffingParameters;
 
         const temporalResponse = generateFteStaffingFromForecast(this.#volumeForecastCache, staffingParams);
-
         return this.#handleResponse(temporalResponse);
       }
 
@@ -728,9 +725,9 @@ class WFMInterceptor {
       workstreams: /^https:\/\/([a-zA-Z0-9-]+\.)?zendesk\.com\/wfm\/l5\/api\/workstreams(\?|$)/,
       shifts: /^https:\/\/([a-zA-Z0-9-]+\.)?zendesk\.com\/wfm\/l5\/api\/shifts\/fetch\/visible$/,
       agents: /^https:\/\/([a-zA-Z0-9-]+\.)?zendesk\.com\/wfm\/l5\/api\/v2\/agents/,
-      forecast: /^https:\/\/([a-zA-Z0-9-]+\.)?zendesk\.com\/wfm\/l5\/api\/forecasts(\?|$)/,
       fte: /^https:\/\/([a-zA-Z0-9-]+\.)?zendesk\.com\/wfm\/l5\/api\/forecasts\/fte(\?|$)/,
-      fteStaffing: /^https:\/\/([a-zA-Z0-9-]+\.)?zendesk\.com\/wfm\/l5\/api\/fte(\?|$)/,
+      forecast: /^https:\/\/([a-zA-Z0-9-]+\.)?zendesk\.com\/wfm\/l5\/api\/(v2\/)*forecasts(\?|$)/,
+      fteStaffing: /^https:\/\/([a-zA-Z0-9-]+\.)?zendesk\.com\/wfm\/l5\/api\/v2\/fte(\?|$)/,
       shiftsTotals: /^https:\/\/([a-zA-Z0-9-]+\.)?zendesk\.com\/wfm\/l5\/api\/shifts\/totals/,
       activities: /^https:\/\/([a-zA-Z0-9-]+\.)?zendesk\.com\/wfm\/l5\/api\/activities/,
       forecastActual: /^https:\/\/([a-zA-Z0-9-]+\.)?zendesk\.com\/wfm\/l5\/api\/reports-forecast-actual/,

@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useState } from 'react';
 import { Button, IconButton } from '@zendeskgarden/react-buttons';
 import { useToast, Notification } from '@zendeskgarden/react-notifications';
+import { Tag } from '@zendeskgarden/react-tags';
 import useAppState from '@/storage';
 import { Accordion } from '@zendeskgarden/react-accordions';
 import ExploreInterceptor from '@/models/explore/interceptor';
@@ -12,6 +13,8 @@ import TextEditable from '@/components/ui/TextEditable';
 import TrashIcon from '@zendeskgarden/svg-icons/src/16/trash-stroke.svg?react';
 import PlusIcon from '@zendeskgarden/svg-icons/src/16/plus-stroke.svg?react';
 import PencilIcon from '@zendeskgarden/svg-icons/src/16/pencil-stroke.svg?react';
+import AIAgentsInterceptor from '@/models/aiagents/interceptor';
+import WFMInterceptor from '@/models/wfm/interceptor';
 
 const Skeletons = () => {
   const dashboards = useAppState((state: any) => state.dashboards);
@@ -25,6 +28,18 @@ const Skeletons = () => {
   const navigate = useNavigate();
 
   const { addToast } = useToast();
+
+  // Function to parse dashboard type to user-friendly label
+  const parseDashboardTypeLabel = (type: string): string => {
+    switch (type) {
+      case AIAgentsInterceptor.getDashboardType():
+        return 'AI Agents';
+      case WFMInterceptor.getDashboardType():
+        return 'WFM';
+      default:
+        return type;
+    }
+  };
 
   const dashboardEntries = Object.entries(dashboards);
   const dashbordsByType = Object.groupBy(
@@ -100,7 +115,7 @@ const Skeletons = () => {
               return (
                 <Accordion.Section key={type}>
                   <ItemHeader>
-                    <Accordion.Label>{type}</Accordion.Label>
+                    <Accordion.Label>{parseDashboardTypeLabel(type)}</Accordion.Label>
                   </ItemHeader>
                   <Accordion.Panel>
                     <List>
@@ -120,11 +135,11 @@ const Skeletons = () => {
                               >
                                 {id}
                               </SM>
-                              {/* {type === AdminInterceptor.getDashboardType() ? (
+                              {item.isLooker && (
                                 <Tag hue="yellow" isPill size="small">
-                                  Instance: {item.dashboardId.split(':').at(0)}
+                                  Real-time monitoring
                                 </Tag>
-                              ) : null} */}
+                              )}
                             </footer>
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '2px', marginLeft: 'auto' }}>

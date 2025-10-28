@@ -32,7 +32,10 @@ const Popup = () => {
     setLoading(true);
     const state = await getAppState();
     const version = await getCurrentVersion();
-    const intents = [...defaultIntents, ...(state.intents ?? [])];
+    const initialIntents = (state.intents ?? []).filter(
+      (item: any) => defaultIntents.findIndex((defaultItem) => defaultItem.value === item.value) === -1,
+    );
+    const intents = [...defaultIntents, ...initialIntents];
     setInitalState({ ...state, intents, version });
     setAppState({
       currentDashboard: null,

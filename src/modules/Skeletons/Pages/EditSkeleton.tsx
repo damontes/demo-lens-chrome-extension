@@ -1,18 +1,21 @@
 import ExploreInterceptor from '@/models/explore/interceptor';
 import AdminInterceptor from '@/models/admin/interceptor';
 import WFMInterceptor from '@/models/wfm/interceptor';
+import AIAgentsInterceptor from '@/models/aiagents/interceptor';
 import useAppState from '@/storage';
 import { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import EditExploreSkeleton from '@/components/Explore/EditSkeleton';
 import EditAdminSkeleton from '@/components/Admin/EditSkeleton';
 import EditWFMSkeleton from '@/components/WFM/EditSkeleton';
+import EditAIAgentsSkeleton from '@/components/AIAgents/EditSkeleton';
 import { reloadDashboard } from '@/actions';
 
 const EDIT_FORM = {
   [ExploreInterceptor.getDashboardType()]: EditExploreSkeleton,
   [AdminInterceptor.getDashboardType()]: EditAdminSkeleton,
   [WFMInterceptor.getDashboardType()]: EditWFMSkeleton,
+  [AIAgentsInterceptor.getDashboardType()]: EditAIAgentsSkeleton,
 };
 
 const EditSkeleton = () => {

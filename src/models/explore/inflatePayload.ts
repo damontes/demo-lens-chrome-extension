@@ -585,3 +585,312 @@ function getMeasureMetadata(measure: any, configJson: any) {
 
   return { isPercentage, limit };
 }
+
+export const inflateLookerExplorePayload = (originalData: any) => {
+  // Generate inflated data based on the fields structure
+  const inflatedData = [];
+
+  // Get the fields from the original response
+  const fields = originalData?.data?.fields;
+  const drillMetadata = originalData?.data?.drill_metadata;
+  if (!fields) {
+    return originalData;
+  }
+
+  // Process measures (these typically have links for drill-down)
+  const measures = fields.measures || [];
+  const dimensions = fields.dimensions || [];
+
+  // Detect if this is a KPI widget based on field structure:
+  // KPI = 0 dimensions (measures can be 1 or more, each representing a separate KPI)
+  // Table/List = has dimensions (shows tabular data)
+  const isKpiWidget = dimensions.length === 0;
+  const numRows = isKpiWidget ? 1 : randInt(5, 20); // KPI = 1 row, Table = 5-20 rows
+
+  for (let i = 0; i < numRows; i++) {
+    const rowData: any = {};
+
+    // Generate measure data (with links for drill-down)
+    measures.forEach((measure: any) => {
+      const fieldName = measure.name;
+      const label = measure.label_short || measure.label || fieldName;
+      const isCount = measure.type === 'count' || measure.type === 'count_distinct';
+
+      // Generate realistic values based on measure type
+      let value;
+      if (isCount || fieldName.includes('_kpi') || fieldName.includes('count')) {
+        // Count measures and explicit KPIs should always be numeric
+        value = randInt(0, 500);
+      } else if (
+        measure.measure === true &&
+        measure.type === 'string' &&
+        (fieldName.includes('online_agents') || fieldName.includes('_home'))
+      ) {
+        // Agent availability count measures (they return counts, not names, despite being string type)
+        value = randInt(0, 10);
+      } else if (measure.measure === true && measure.type === 'string' && fieldName.includes('agents')) {
+        // Other string-type measures for agents (like agent lists)
+        // Generate agent names as comma-separated list
+        const numAgents = randInt(1, 5);
+        const agentNames = Array.from({ length: numAgents }, () => faker.person.firstName()).join(', ');
+        value = agentNames;
+      } else if (fieldName.includes('tickets') && measure.is_numeric !== false) {
+        // Ticket-related numeric measures
+        value = randInt(0, 500);
+      } else if (measure.is_numeric) {
+        value = faker.number.float({ min: 0, max: 10000, fractionDigits: 2 });
+      } else {
+        value = faker.lorem.words(2);
+      }
+
+      // Check if this field should have drill-down links
+      // KPIs, count measures, and numeric aggregations typically have drill links
+      // BUT agent availability counts (online_agents, _home) are display-only without drill-down
+      const shouldHaveDrillLinks =
+        isCount ||
+        fieldName.includes('_kpi') ||
+        fieldName.includes('tickets') ||
+        fieldName.includes('count') ||
+        (measure.is_numeric && ['sum', 'avg', 'count', 'count_distinct'].includes(measure.type?.toLowerCase())) ||
+        (measure.measure === true && !fieldName.includes('online_agents') && !fieldName.includes('_home')); // Exclude agent availability measures
+
+      const dataObj: any = {
+        value: value,
+        html: shouldHaveDrillLinks
+          ? `<a href="#drillmenu" style="color:#1f73b7;cursor:pointer" target="_self">${value}</a>`
+          : `<span style="color:#1f73b7;display:inline-block" tabindex="0">\n        ${value}\n      </span>\n    `,
+      };
+
+      // Only add links if this field should have drill-down capability
+      if (shouldHaveDrillLinks && drillMetadata?.template) {
+        // Extract the base field context from the template to determine appropriate drill fields
+        const getDrillFields = (template: string): string => {
+          // Extract existing fields from template to understand the context
+          const fieldsMatch = template.match(/fields=([^&]+)/);
+          const existingFields = fieldsMatch ? fieldsMatch[1].split(',').map((f) => f.trim()) : [];
+
+          // Remove <DRILL_BY> from existing fields to see what's already there
+          const templateFields = existingFields.filter((f) => f !== '<DRILL_BY>');
+
+          // Determine drill context based on existing fields in template
+          const hasAgentFields = templateFields.some((f) => f.startsWith('agents.') || f.includes('agent_'));
+          const hasTicketQueueFields = templateFields.some((f) => f.startsWith('tickets_in_queue.'));
+          const hasTicketFields = templateFields.some((f) => f.startsWith('tickets.'));
+
+          // For agent dashboards drilling into tickets, we replace with ticket-focused fields
+          if (hasAgentFields && !hasTicketFields) {
+            // Agent context -> complete replacement with ticket details + some agent context
+            return [
+              'tickets.ticket_id',
+              'agents.assignee_name',
+              'agents.agent_brands',
+              'agents.agent_groups',
+              'tickets.ticket_skills',
+              'tickets.ticket_channel_localized',
+              'tickets.ticket_social_channel_localized',
+              'tickets.ticket_tags',
+              'tickets.ticket_priority',
+              'tickets.ticket_status_localized',
+              'tickets.ticket_creation_date',
+              'ticket_metrics.first_ticket_assigned_at',
+            ].join(',');
+          } else if (hasTicketQueueFields && !hasTicketFields) {
+            // Queue KPI context -> complete replacement with ticket details
+            return [
+              'tickets.ticket_id',
+              'tickets.ticket_group',
+              'tickets.ticket_brand',
+              'tickets.ticket_skills',
+              'tickets.ticket_channel_localized',
+              'tickets.ticket_social_channel_localized',
+              'tickets.ticket_tags',
+              'tickets.ticket_priority',
+              'tickets.ticket_status_localized',
+              'tickets.ticket_creation_date',
+              'tickets_in_queue.formatted_wait_time',
+            ].join(',');
+          } else {
+            // Default or mixed context - use basic ticket fields
+            return [
+              'tickets.ticket_id',
+              'tickets.ticket_group',
+              'tickets.ticket_brand',
+              'tickets.ticket_status_localized',
+              'tickets.ticket_creation_date',
+            ].join(',');
+          }
+        };
+
+        const drillFields = getDrillFields(drillMetadata.template);
+
+        // Process the template URL by completely replacing the fields parameter
+        let drillUrl = drillMetadata.template;
+
+        // Extract the current fields parameter and replace it entirely
+        const fieldsMatch = drillUrl.match(/fields=([^&]+)/);
+        if (fieldsMatch) {
+          const currentFields = fieldsMatch[1];
+          // Replace the entire fields parameter with drill-appropriate fields
+          drillUrl = drillUrl.replace(`fields=${currentFields}`, `fields=${drillFields}`);
+        }
+
+        // Replace other placeholders
+        drillUrl = drillUrl
+          .replace('<DRILL_INTO>', fieldName) // Field being drilled into (for the filter)
+          .replace('<DRILL_VALUE>', value.toString()); // Filter value
+
+        // Add missing filters that appear in real drill-down URLs for queue templates
+        if (
+          drillUrl.includes('tickets_in_queue') &&
+          drillUrl.includes('filter_channel_raw]=MESSAGING') &&
+          !drillUrl.includes('f[tickets_in_queue.channel]=')
+        ) {
+          drillUrl = drillUrl.replace(
+            '&limit=500',
+            '&f[tickets_in_queue.channel]=MESSAGING&f[tickets_in_queue.has_queue]=no&f[tickets.valid_ticket_status]=yes&limit=500',
+          );
+        } else if (
+          drillUrl.includes('tickets_in_queue') &&
+          drillUrl.includes('filter_channel_raw]=EMAIL') &&
+          !drillUrl.includes('f[tickets_in_queue.channel]=')
+        ) {
+          drillUrl = drillUrl.replace(
+            '&limit=500',
+            '&f[tickets_in_queue.channel]=EMAIL&f[tickets_in_queue.has_queue]=no&f[tickets.valid_ticket_status]=yes&limit=500',
+          );
+        } else if (
+          drillUrl.includes('tickets_in_queue') &&
+          drillUrl.includes('filter_channel_raw]=VOICE') &&
+          !drillUrl.includes('f[tickets_in_queue.channel]=')
+        ) {
+          drillUrl = drillUrl.replace(
+            '&limit=500',
+            '&f[tickets_in_queue.channel]=VOICE&f[tickets_in_queue.has_queue]=no&f[tickets.valid_ticket_status]=yes&limit=500',
+          );
+        }
+
+        dataObj.links = [
+          {
+            label: `Show All ${value}`,
+            label_prefix: 'Show All',
+            label_value: value.toString(),
+            url: drillUrl,
+            type: 'measure_default',
+          },
+        ];
+      }
+
+      rowData[fieldName] = dataObj;
+    });
+
+    // Generate dimension data (without links)
+    dimensions.forEach((dimension: any) => {
+      const fieldName = dimension.name;
+      let value;
+
+      // Generate realistic values based on dimension type and field name
+      if (fieldName.includes('agent_name') || fieldName.includes('name')) {
+        value = faker.person.firstName();
+      } else if (fieldName.includes('group')) {
+        value = faker.helpers.arrayElement([
+          'Customer Support',
+          'Technical Support',
+          'Sales',
+          'Tier 1',
+          'Tier 2',
+          'Escalation Team',
+        ]);
+      } else if (fieldName.includes('brand')) {
+        value = faker.helpers.arrayElement(['ZenCX (General CX)', '8Bar Coffee', 'ZenHome', 'ZenCX (messaging)']);
+      } else if (fieldName.includes('channel')) {
+        value = faker.helpers.arrayElement(['Email', 'Chat', 'Voice', 'Messaging']);
+      } else if (fieldName.includes('status')) {
+        value = faker.helpers.arrayElement(['New', 'Open', 'Pending', 'Solved', 'Online', 'Offline', 'Away']);
+      } else if (fieldName.includes('priority')) {
+        value = faker.helpers.arrayElement(['Low', 'Normal', 'High', 'Urgent']);
+      } else if (fieldName.includes('time')) {
+        value = faker.number.int({ min: 100, max: 10000 }).toString();
+      } else if (dimension.type === 'number' || fieldName.includes('id')) {
+        value = faker.number.int({ min: 10000, max: 99999 });
+      } else if (dimension.type === 'date') {
+        value = faker.date.recent().toISOString().slice(0, 19).replace('T', ' ');
+      } else {
+        // Default string value
+        value = faker.lorem.words(2);
+      }
+
+      // Build the data object for dimension
+      const dataObj: any = { value };
+
+      // Add special formatting for specific field types
+      if (fieldName.includes('id')) {
+        dataObj.html = `<a style="cursor:pointer;color:#1f73b7" href="#" target="_blank">#${value}</a>`;
+      } else if (fieldName.includes('groups') || fieldName.includes('brands')) {
+        // Handle array values for groups/brands
+        const arrayValues = faker.helpers.arrayElements(['Group 1', 'Group 2', 'Group 3'], randInt(1, 3));
+        dataObj.value = JSON.stringify(arrayValues);
+        dataObj.filterable_value = `"${JSON.stringify(arrayValues).replace(/"/g, '\\"')}"`;
+        dataObj.html = `${arrayValues.slice(0, 2).join(', ')}${
+          arrayValues.length > 2
+            ? ` <span style="cursor:pointer;color:#1f73b7" title="${arrayValues.join('\\n')}"> &#43; ${
+                arrayValues.length - 2
+              } more</span>`
+            : ''
+        } `;
+      } else if (fieldName.includes('tags')) {
+        const tags = faker.helpers.arrayElements(
+          ['urgent', 'escalated', 'vip', 'follow_up', 'auto_routing'],
+          randInt(1, 4),
+        );
+        dataObj.value = JSON.stringify(tags);
+        dataObj.filterable_value = `"${JSON.stringify(tags).replace(/"/g, '\\"')}"`;
+        dataObj.html = `${tags.slice(0, 2).join(', ')}${
+          tags.length > 2
+            ? ` <span style="cursor:pointer;color:#1f73b7" title="${tags.join('\\n')}"> &#43; ${
+                tags.length - 2
+              } more</span>`
+            : ''
+        } `;
+      } else if (fieldName.includes('time') && dimension.type === 'string') {
+        dataObj.sort_value = parseInt(value.toString());
+        dataObj.html = `<span>${faker.helpers.arrayElement(['00:15:30', '01:23:45', '02:45:12'])}</span>`;
+      } else if (fieldName.includes('status')) {
+        dataObj.html = `<span>${value}</span>`;
+        if (fieldName.includes('localized')) {
+          dataObj.sort_value = faker.helpers.arrayElement([1, 2, 3, 4]);
+        }
+      } else if (fieldName.includes('date')) {
+        dataObj.filterable_value = `${value} for 1 second`;
+        dataObj.html = faker.date.recent().toLocaleDateString('en-US', {
+          month: '2-digit',
+          day: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        });
+      }
+
+      rowData[fieldName] = dataObj;
+    });
+
+    inflatedData.push(rowData);
+  }
+
+  // Create the inflated response maintaining the original structure
+  const inflatedResponse = JSON.parse(JSON.stringify(originalData));
+
+  // Update data array with inflated data
+  if (inflatedResponse.data) {
+    inflatedResponse.data.data = inflatedData;
+
+    // Ensure drill metadata template has proper placeholders
+    if (inflatedResponse.data.drill_metadata?.template) {
+      const template = inflatedResponse.data.drill_metadata.template;
+      // Keep the original template - it should already have the proper placeholders
+      // The URL construction happens above when creating individual measure links
+    }
+  }
+
+  return inflatedResponse;
+};

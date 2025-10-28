@@ -5,12 +5,12 @@ import { useForm, FormProvider } from 'react-hook-form';
 import BuildingIcon from '@zendeskgarden/svg-icons/src/16/building-stroke.svg?react';
 import GearIcon from '@zendeskgarden/svg-icons/src/16/gear-stroke.svg?react';
 import { VERTICALS, TEMPLATE_TYPES } from '@/constants';
-import { getAdminTemplatesByIndustry } from '@/models/admin/templates';
+import { getAIAgentsTemplatesByIndustry } from '@/models/aiagents/templates';
 import { useTemplateForm } from '@/hooks/useTemplate';
 import TemplateSelector from '../Template/TemplateSelector';
-import OverviewCopilotForm from './OverviewCopilot/OverviewCopilotForm';
-import IntentSuggestionsForm from './IntentSuggestions/IntentSuggestionsForm';
-import AutomationPotentialForm from './AutomationPotential/AutomationPotentialForm';
+import KPIsForm from './KPIs/KPIsForm';
+import ContactReasonsForm from './ContactReasons/ContactReasonsForm';
+import SuggestionsForm from './Suggestions/SuggestionsForm';
 import Collapsable from '../ui/Collapsable';
 
 type Props = {
@@ -25,7 +25,7 @@ const DEFAULT_INITIAL_VALUES = {
   advancedMode: false, // Toggle for advanced configuration editing
 };
 
-const AdminForm = ({ footer, onSubmit, initialValues = DEFAULT_INITIAL_VALUES }: Props) => {
+const AIAgentsForm = ({ footer, onSubmit, initialValues = DEFAULT_INITIAL_VALUES }: Props) => {
   const methods = useForm({
     defaultValues: initialValues,
   });
@@ -34,7 +34,7 @@ const AdminForm = ({ footer, onSubmit, initialValues = DEFAULT_INITIAL_VALUES }:
 
   const watchedValues = watch();
   const { selectedTemplate, currentIndustry, handleIndustryChange, handleTemplateSelect, validateAndProcessTemplate } =
-    useTemplateForm(TEMPLATE_TYPES.ADMIN, watchedValues, setValue, initialValues);
+    useTemplateForm(TEMPLATE_TYPES.AI_AGENTS, watchedValues, setValue, initialValues);
 
   const onSubmitWithValidation = (values: any) => {
     const result = validateAndProcessTemplate(values);
@@ -71,19 +71,19 @@ const AdminForm = ({ footer, onSubmit, initialValues = DEFAULT_INITIAL_VALUES }:
                   ))}
                 </Select>
                 <Field.Hint>
-                  Select the industry that best matches your organization for optimized AI copilot recommendations.
+                  Select the industry that best matches your organization for optimized AI agents analytics.
                 </Field.Hint>
               </Field>
             </Section>
 
             <Section>
               <TemplateSelector
-                templateType={TEMPLATE_TYPES.ADMIN}
+                templateType={TEMPLATE_TYPES.AI_AGENTS}
                 selectedIndustry={currentIndustry}
                 selectedTemplate={watchedValues.templateId}
                 onTemplateSelect={handleTemplateSelect}
                 currentTemplate={selectedTemplate}
-                getTemplatesByIndustry={getAdminTemplatesByIndustry}
+                getTemplatesByIndustry={getAIAgentsTemplatesByIndustry}
               />
             </Section>
 
@@ -106,18 +106,32 @@ const AdminForm = ({ footer, onSubmit, initialValues = DEFAULT_INITIAL_VALUES }:
                 </Field>
               </ToggleContainer>
             </Section>
+
             {watchedValues.advancedMode && selectedTemplate && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <Collapsable
                   headerContent={
                     <div>
-                      <SectionTitle>Overview copilot</SectionTitle>
-                      <SectionDescription>Metrics, Recommendations, and Setup tasks</SectionDescription>
+                      <SectionTitle>KPIs Configuration</SectionTitle>
+                      <SectionDescription>Performance metrics and analytics configuration</SectionDescription>
                     </div>
                   }
                 >
                   <div style={{ padding: '12px 16px' }}>
-                    <OverviewCopilotForm key={`overview-copilot-${selectedTemplate.id}`} />
+                    <KPIsForm key={`kpis-${selectedTemplate.id}`} />
+                  </div>
+                </Collapsable>
+
+                <Collapsable
+                  headerContent={
+                    <div>
+                      <SectionTitle>Contact Reasons</SectionTitle>
+                      <SectionDescription>Use cases and knowledge sources configuration</SectionDescription>
+                    </div>
+                  }
+                >
+                  <div style={{ padding: '12px 16px' }}>
+                    <ContactReasonsForm key={`contact-reasons-${selectedTemplate.id}`} />
                   </div>
                 </Collapsable>
 
@@ -125,25 +139,12 @@ const AdminForm = ({ footer, onSubmit, initialValues = DEFAULT_INITIAL_VALUES }:
                   headerContent={
                     <div>
                       <SectionTitle>Intent Suggestions</SectionTitle>
-                      <SectionDescription>AI-powered intent suggestions and configuration</SectionDescription>
+                      <SectionDescription>AI-generated intent suggestions and recommendations</SectionDescription>
                     </div>
                   }
                 >
                   <div style={{ padding: '12px 16px' }}>
-                    <IntentSuggestionsForm key={`intent-suggestions-${selectedTemplate.id}`} />
-                  </div>
-                </Collapsable>
-
-                <Collapsable
-                  headerContent={
-                    <div>
-                      <SectionTitle>Automation Potential</SectionTitle>
-                      <SectionDescription>AI agent automation insights and topic configuration</SectionDescription>
-                    </div>
-                  }
-                >
-                  <div style={{ padding: '12px 16px' }}>
-                    <AutomationPotentialForm key={`automation-potential-${selectedTemplate.id}`} />
+                    <SuggestionsForm key={`suggestions-${selectedTemplate.id}`} />
                   </div>
                 </Collapsable>
               </div>
@@ -227,4 +228,4 @@ const ToggleContent = styled.div`
   }
 `;
 
-export default AdminForm;
+export default AIAgentsForm;

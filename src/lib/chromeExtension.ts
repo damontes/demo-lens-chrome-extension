@@ -24,7 +24,9 @@ export const openChromeExtension = () => {
   });
 };
 
-export const initilizeApp = async (document: Document) => {
+export const initilizeApp = async (document?: Document) => {
+  if (!document) return;
+
   const savedState = await getAppState();
 
   const isActive = savedState?.activeConfiguration ?? false;
@@ -32,17 +34,27 @@ export const initilizeApp = async (document: Document) => {
 
   await changeTabIcon(pathIcon);
 
-  const stateTag = document.createElement('script');
-  stateTag.id = '__EXTENSION_STATE__';
-  stateTag.type = 'application/json';
-  stateTag.textContent = JSON.stringify({ ...(savedState ?? {}) });
-  document.head.appendChild(stateTag);
+  // Check if state tag already exists
+  const existingStateTag = document.getElementById('__EXTENSION_STATE__');
+  if (!existingStateTag) {
+    const stateTag = document.createElement('script');
+    stateTag.id = '__EXTENSION_STATE__';
+    stateTag.type = 'application/json';
+    stateTag.textContent = JSON.stringify({ ...(savedState ?? {}) });
+    document.head.appendChild(stateTag);
+  } else {
+    // Update existing state tag with current state
+    existingStateTag.textContent = JSON.stringify({ ...(savedState ?? {}) });
+  }
 
-  // Inject script
-  const script = document.createElement('script');
-  script.id = '__MY_INJECTED_SCRIPT__';
-  script.src = chrome.runtime.getURL('src/inject.js');
-  document.head.appendChild(script);
+  // Check if inject script already exists
+  const existingScript = document.getElementById('__MY_INJECTED_SCRIPT__');
+  if (!existingScript) {
+    const script = document.createElement('script');
+    script.id = '__MY_INJECTED_SCRIPT__';
+    script.src = chrome.runtime.getURL('src/inject.js');
+    document.head.appendChild(script);
+  }
 };
 
 export const getCurrentTabDetails = async () => {

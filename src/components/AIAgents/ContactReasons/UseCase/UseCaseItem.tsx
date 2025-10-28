@@ -1,0 +1,136 @@
+import { useState } from 'react';
+import styled from 'styled-components';
+import { IconButton } from '@zendeskgarden/react-buttons';
+import { SM } from '@zendeskgarden/react-typography';
+import PencilIcon from '@zendeskgarden/svg-icons/src/16/pencil-stroke.svg?react';
+import TrashIcon from '@zendeskgarden/svg-icons/src/16/trash-stroke.svg?react';
+import EditUseCase from './EditUseCase';
+
+type Props = {
+  useCase: any;
+  index: number;
+  onRemove: (index: number) => void;
+  onEdit: (index: number, values: any) => void;
+  showDelete?: boolean;
+};
+
+const UseCaseItem = ({ useCase, index, onEdit, onRemove, showDelete = true }: Props) => {
+  const [isEditMode, setIsEditMode] = useState(false);
+
+  const getUseCaseTitle = () => {
+    const intentName = useCase?.intent_name;
+    const botName = useCase?.bot_name;
+
+    if (intentName) {
+      return intentName;
+    }
+    return `Use Case ${index + 1}`;
+  };
+
+  const getUseCaseDescription = () => {
+    const botName = useCase?.bot_name;
+    const channel = useCase?.channel;
+    const replyMethod = useCase?.reply_method;
+
+    const parts = [];
+    if (botName) parts.push(`Bot: ${botName}`);
+    if (channel) {
+      const channelLabel = channel === 'ticket' ? 'Email' : channel === 'chat' ? 'Chat' : channel;
+      parts.push(`Channel: ${channelLabel}`);
+    }
+    if (replyMethod) parts.push(`Method: ${replyMethod}`);
+
+    return parts.join(' • ');
+  };
+
+  const getMetrics = () => {
+    const conversations = useCase?.conversations_count || 0;
+    const automation = useCase?.automated_resolutions_rate
+      ? (useCase.automated_resolutions_rate * 100).toFixed(1)
+      : '0';
+    const escalation = useCase?.escalated_conversations_rate
+      ? (useCase.escalated_conversations_rate * 100).toFixed(1)
+      : '0';
+
+    return `${conversations} conversations • ${automation}% automated • ${escalation}% escalated`;
+  };
+
+  if (isEditMode) {
+    return (
+      <EditUseCase
+        useCase={useCase}
+        onCancel={() => setIsEditMode(false)}
+        onSubmit={(values: any) => {
+          onEdit(index, values);
+          setIsEditMode(false);
+        }}
+      />
+    );
+  }
+
+  return (
+    <Container>
+      <Header>
+        <TitleSection>
+          <Title>{getUseCaseTitle()}</Title>
+          <Description>{getUseCaseDescription()}</Description>
+          <Metrics>{getMetrics()}</Metrics>
+        </TitleSection>
+        <Actions>
+          <IconButton size="small" onClick={() => setIsEditMode(true)} aria-label="Edit use case">
+            <PencilIcon />
+          </IconButton>
+          {showDelete && (
+            <IconButton size="small" isDanger onClick={() => onRemove(index)} aria-label="Remove use case">
+              <TrashIcon />
+            </IconButton>
+          )}
+        </Actions>
+      </Header>
+    </Container>
+  );
+};
+
+const Container = styled.div`
+  padding: 16px;
+  border: 1px solid ${({ theme }) => theme.palette.grey[300]};
+  border-radius: 6px;
+  background: ${({ theme }) => theme.palette.white};
+  margin-bottom: 8px;
+`;
+
+const Header = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const TitleSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+`;
+
+const Title = styled(SM)`
+  font-weight: ${(props) => props.theme.fontWeights.semibold};
+`;
+
+const Description = styled(SM)`
+  color: ${({ theme }) => theme.palette.grey[600]};
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+`;
+
+const Metrics = styled(SM)`
+  color: ${({ theme }) => theme.palette.grey[500]};
+  font-size: ${({ theme }) => theme.fontSizes.xs};
+  font-weight: ${(props) => props.theme.fontWeights.medium};
+`;
+
+const Actions = styled.div`
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+`;
+
+export default UseCaseItem;

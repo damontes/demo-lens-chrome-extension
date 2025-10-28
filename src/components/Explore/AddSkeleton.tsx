@@ -14,13 +14,14 @@ const AddExploreSkeleton = ({ handleSubmit }: Props) => {
 
   const onSubmit = async (e: any) => {
     e.preventDefault();
-    const { id: dashboardId, name, sourceName, tabs, type } = currentDashboard;
+    const { id: dashboardId, name, sourceName, tabs, type, isLooker = false } = currentDashboard;
     const id = getRandomId();
     const payload = {
       dashboardId,
       name,
       sourceName,
       type,
+      isLooker,
       tabs: tabs.map((tab: any) => ({
         id: tab.id,
         name: tab.name,

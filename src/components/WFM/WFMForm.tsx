@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { useForm, FormProvider } from 'react-hook-form';
 import { useState, useEffect } from 'react';
 import BuildingIcon from '@zendeskgarden/svg-icons/src/16/building-stroke.svg?react';
-import { VERTICALS } from '@/constants';
+import { VERTICALS, TEMPLATE_TYPES } from '@/constants';
 import useAppState from '@/storage';
 import WFMTemplateSelector from './WFMTemplateSelector';
 import { WFMTemplate } from '@/models/wfm/templates';
@@ -31,7 +31,7 @@ const WFMForm = ({ footer, onSubmit, initialValues = DEFAULT_INITIAL_VALUES }: P
   const { getTemplatesByType } = useAppState();
 
   const watchedValues = watch();
-  const selectedTemplate = useTemplate('wfm', watchedValues.templateId);
+  const selectedTemplate = useTemplate(TEMPLATE_TYPES.WFM, watchedValues.templateId);
 
   // Derive industry from selected template, but use form industry for AI-generated templates
   // AI-generated templates (with createdAt) should respect the form's industry selection

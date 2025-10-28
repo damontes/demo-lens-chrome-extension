@@ -1,6 +1,6 @@
 {
   "name": "Zendesk DemoLens (z3n demo accounts only)",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "manifest_version": 3,
   "icons": {
     "16": "icon/16.png",
@@ -20,19 +20,30 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://*.zendesk.com/explore/dashboard/*", "https://*.zendesk.com/explore/studio"],
-      "js": ["src/content_explore.js"],
-      "run_at": "document_start"
+      "matches": [
+        "https://*.zendesk.com/explore/dashboard/*",
+        "https://*.zendesk.com/explore/studio",
+        "https://*.cloud.looker.com/*"
+      ],
+      "js": ["src/content/explore.ts"],
+      "run_at": "document_start",
+      "all_frames": true
     },
     {
       "matches": ["https://*.zendesk.com/admin/*"],
-      "js": ["src/content_admin.js"],
+      "js": ["src/content/admin.ts"],
       "run_at": "document_start"
     },
     {
       "matches": ["https://*.zendesk.com/wfm/v2/*"],
-      "js": ["src/content_wfm.js"],
+      "js": ["src/content/wfm.ts"],
       "run_at": "document_start"
+    },
+    {
+      "matches": ["https://*.ultimate.ai/*", "https://*.cloud.looker.com/*"],
+      "js": ["src/content/ai_agents.ts"],
+      "run_at": "document_start",
+      "all_frames": true
     }
   ],
   "web_accessible_resources": [
